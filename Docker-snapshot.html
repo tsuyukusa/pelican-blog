@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+        <link rel="canonical" href="http://blog.calcurio.com/Docker-snapshot.html" />
+        <meta charset="utf-8" />
+        <title>CRIUを使ってDockerのsnapshotを取る | 電脳手帳</title>
+        <link rel="apple-touch-icon" sizes="57x57" href="theme/favicon/apple-touch-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="theme/favicon/apple-touch-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="theme/favicon/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="theme/favicon/apple-touch-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="theme/favicon/apple-touch-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="theme/favicon/apple-touch-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="theme/favicon/apple-touch-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="theme/favicon/apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="theme/favicon/apple-touch-icon-180x180.png">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="theme/favicon/android-chrome-192x192.png" sizes="192x192">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-96x96.png" sizes="96x96">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="theme/favicon/manifest.json">
+        <meta name="msapplication-TileColor" content="#000000">
+        <meta name="msapplication-TileImage" content="theme/favicon/mstile-144x144.png">
+        <meta name="theme-color" content="#ffffff">        <link rel="stylesheet" href="./theme/css/main.css" />
+        <link href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="電脳手帳 Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+        <h1><a href="./">電脳手帳 </a></h1> <div id="subtitle">計算機環境やコーディング，機械学習まわりの話題を書き留めます</div>        </header><!-- /#banner -->
+        <div id="basecontent">
+    <nav id="nav-above">
+    <div class="top-prev"><a href="tmux-compile.html" >&larr; 最新版tmuxをコンパイルしてpaneごとににpaneタイトルを表示する</a></div>
+    <div class="top-next"><a href="install-hubot.html" >HubotをインストールしてRocketChatで動作させる &rarr;</a></div>
+    </nav>
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="./Docker-snapshot.html" rel="bookmark"
+           title="Permalink to CRIUを使ってDockerのsnapshotを取る">CRIUを使ってDockerのsnapshotを取る</a></h1>
+    </header>
+    <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/08/05 20:18</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/08/12 22:02</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/software.html">Software</a>
+<span>| tags: <a href="./tag/docker.html" class="tag">Docker</a><a href="./tag/ubuntu.html" class="tag">Ubuntu</a><a href="./tag/linux.html" class="tag">Linux</a><a href="./tag/cui.html" class="tag">CUI</a><a href="./tag/aws.html" class="tag">AWS</a></span>
+
+</footer><!-- /.post-info --><div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>      <p><tt class="docutils literal">CRIU</tt> はプロセスのスナップショットを取れるツールであり，
+これを使えばDockerのコンテナのスナップショットも取れるという。</p>
+<p>スナップショット機能を使えば起動後のコンテナの状態をイメージ化して保存できるため，
+コンテナの起動時間短縮や，ライブマイグレーションに役立つ。</p>
+<p>この記事では <tt class="docutils literal">CRIU</tt> を統合した開発版Dockerをコンパイルして
+<tt class="docutils literal">docker snapshot</tt> サブコマンドを使えるようにすることを目指す。
+現時点では成功していないが，近いところまでは来ている。</p>
+
+<div class="section" id="id1">
+<h2>環境</h2>
+<p>Amazon EC2
+Ubuntu Server 14.04 LTS
+Kernel 3.11</p>
+</div>
+<div class="section" id="criu">
+<h2>CRIUのインストール</h2>
+<p>Ubuntu 14.04(trusty)ではapt-getでcriuをインストールできない。
+そこでソースからコンパイルする。
+ちなみに，Ubuntu 16.04(xenial)ならapt-getでcriuをインストールでるので，xenialを使うほうが楽。</p>
+<p>まずはCRIUが必要とする機能を有効にして，カーネルを再コンパイルする。
+詳細は下記サイトを参照すること。
+<a class="reference external" href="http://kimh.github.io/blog/jp/criu/experiment-to-suspend-and-resume-docker-container-with-criu-jp/">CRIUを使ってDockerコンテナの停止/再開に挑戦 | kim hirokuni</a></p>
+<div class="highlight"><pre><span></span>sudo -s
+apt-get -y install libncurses-dev build-essential libncurses-dev build-essential fakeroot kernel-package linux-source bc libssl-dev
+<span class="nb">cd</span> /usr/src/linux-source-&lt;kernel version&gt;
+tar xvjf linux-source-&lt;kernel version&gt;.tar.bz2
+<span class="nb">cd</span> ./linux-source-&lt;kernel version&gt;
+curl https://gist.githubusercontent.com/kimh/c93f42981d14a33c63c0/raw/a73af0f7f745c2538253ef153a62a8ba1a2d97be/.config -o .config
+<span class="nb">export</span> <span class="nv">LC_CTYPE</span><span class="o">=</span>C
+make-kpkg clean
+<span class="nv">CONCURRENCY_LEVEL</span><span class="o">=</span><span class="m">4</span> make-kpkg --rootcmd fakeroot --initrd --revision<span class="o">=</span><span class="sb">`</span>date +%Y%m%d<span class="sb">`</span> kernel_image kernel_headers
+<span class="nb">cd</span> ../
+dpkg -i linux-headers-&lt;kernel version&gt;_amd64.deb
+dpkg -i linux-image-&lt;kernel version&gt;_amd64.deb
+reboot
+</pre></div>
+<p>CRIUをコンパイルしてインストールする。</p>
+<div class="highlight"><pre><span></span>curl http://download.openvz.org/criu/criu-2.4.tar.bz2 <span class="p">|</span> tar -jxf-
+<span class="nb">cd</span> criu
+sudo apt-get install -y bsdmainutils build-essential linux-headers-generic libprotobuf-dev libprotobuf-c0-dev protobuf-c-compiler protobuf-compiler python-protobuf libnl-3-dev libcap-dev asciidoc
+make
+sudo make install
+</pre></div>
+</div>
+<div class="section" id="id2">
+<h2>CRIUの動作確認</h2>
+<p>criuには動作確認用にcheckサブコマンドがある。</p>
+<div class="highlight"><pre><span></span>sudo criu check --all
+</pre></div>
+<p>checkすると以下のように細かいエラーは出るが，Looks good と表示されれば動作には十分である。</p>
+<div class="highlight"><pre><span></span>Info  prctl: PR_SET_MM_MAP_SIZE is not supported
+Warn  <span class="o">(</span>cr-check.c:227<span class="o">)</span>: prctl: PR_SET_MM_MAP_SIZE is not supported
+Error <span class="o">(</span>cr-check.c:640<span class="o">)</span>: Kernel doesn<span class="s1">&#39;t support PTRACE_O_SUSPEND_SECCOMP</span>
+<span class="s1">Error (cr-check.c:684): Dumping seccomp filters not supported: Input/output error</span>
+<span class="s1">Error (timerfd.c:52): timerfd: No timerfd support for c/r: Inappropriate ioctl for device</span>
+<span class="s1">Error (cr-check.c:318): fdinfo doesn&#39;</span>t contain the mnt_id field
+Error <span class="o">(</span>cr-check.c:782<span class="o">)</span>: AIO remap doesn<span class="s1">&#39;t work properly: Invalid argument</span>
+<span class="s1">Error (cr-check.c:795): fdinfo doesn&#39;</span>t contain the lock field
+Error <span class="o">(</span>cr-check.c:913<span class="o">)</span>: cgroupns not supported. This is not fatal.
+Error <span class="o">(</span>cr-check.c:846<span class="o">)</span>: autofs not supported.
+Looks good but some kernel features are missing
+which, depending on your process tree, may cause
+dump or restore failure.
+</pre></div>
+<p>試しに適当なプロセスのsnapshot作成とrestoreを行ってみる。
+まずは適当にカウントアップするシェルスクリプトを作成する。</p>
+<div class="highlight"><pre><span></span>mkdir -p ~/tmp/test
+<span class="nb">cd</span> ~/tmp/test
+<span class="nb">echo</span> <span class="s1">&#39;for i in `seq 1 1000` ; do echo $i ; sleep 1s ; done &#39;</span> &gt; test.sh
+bash test.sh
+</pre></div>
+<p>snapshotを作成する。lsしてみるといろいろなファイルが作成されていることがわかる。</p>
+<div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PID</span><span class="o">=</span><span class="sb">`</span>pgrep -f <span class="k">for</span><span class="sb">`</span>
+sudo criu dump -t <span class="nv">$PID</span> --images-dir ~/tmp/test --shell-job
+ls
+</pre></div>
+<p>作成したsnapshotから再開してみる。
+先ほど中断した値からカウントアップが始まれば成功だ。</p>
+<div class="highlight"><pre><span></span>sudo criu restore -t <span class="nv">$PID</span> --images-dir ~/tmp/test  --shell-job
+</pre></div>
+</div>
+<div class="section" id="docker">
+<h2>dockerのインストール</h2>
+<p>開発版Dockerはコンテナ内でコンパイルするようになっている。
+まずはコンパイル用にDockerをインストールする。</p>
+<div class="highlight"><pre><span></span>sudo wget -qO- https://get.docker.com/ <span class="p">|</span> sh
+sudo usermod -aG docker ubuntu
+</pre></div>
+</div>
+<div class="section" id="id3">
+<h2>開発版Dockerのコンパイル</h2>
+<p>開発版Dockerをgithubからダウンロードしてコンパイルする。
+<tt class="docutils literal"><span class="pre">docker-checkpoint-restore</span></tt> ブランチがCRIUの統合されたコードである。</p>
+<div class="highlight"><pre><span></span>sudo apt-get install git make golang lvm2 -y
+git clone https://github.com/boucher/docker.git
+<span class="nb">cd</span> docker
+git checkout docker-checkpoint-restore
+sed -i <span class="s1">&#39;s/DOCKER_EXPERIMENTAL/DOCKER_EXPERIMENTAL=1/&#39;</span> Makefile
+make all
+sudo make install
+</pre></div>
+</div>
+<div class="section" id="id4">
+<h2>開発版Dockerのインストール</h2>
+<div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">AUTO_GOPATH</span><span class="o">=</span><span class="m">1</span>
+sudo -E make install
+</pre></div>
+<!-- sudo apt-get purge docker.io -->
+</div>
+<div class="section" id="docker-snapshot">
+<h2>Docker snapshotの動作確認</h2>
+<p>dockerのdaemonを起動する。
+devicemapperが動作しない場合は，aufsを使う。</p>
+<div class="highlight"><pre><span></span>sudo service docker stop
+sudo /usr/local/bin/dockerd -s aufs
+</pre></div>
+<p>違うシェルでコンテナを実行する。</p>
+<div class="highlight"><pre><span></span>docker run --security-opt seccomp:unconfined --name counter ubuntu:14.04 /bin/bash -c <span class="s1">&#39;for i in `seq 0 10000`; do echo $i ; sleep 1 ; done&#39;</span>
+</pre></div>
+<p>違うシェルでスナップショットの作成と起動を試す。
+私の環境では <tt class="docutils literal">criu</tt> のエラーでcheckpointの作成がうまくいかない。
+解決できたら追記する。</p>
+<div class="highlight"><pre><span></span>docker checkpoint create counter counter_checkpoint
+docker start --checkpoint counter_checkpoint counter2
+docker attach counter2
+</pre></div>
+</div>
+<div class="section" id="id5">
+<h2>参考サイト</h2>
+<ul class="simple">
+<li><a class="reference external" href="http://qiita.com/kimh/items/7d95db0c53f4efdf1945">CRIUを使ってDockerコンテナのCR (一時停止/再開)をしてみる (コンテナのマイグレーションもあり) - Qiita</a></li>
+<li><a class="reference external" href="http://kimh.github.io/blog/jp/criu/experiment-to-suspend-and-resume-docker-container-with-criu-jp/">CRIUを使ってDockerコンテナの停止/再開に挑戦 | kim hirokuni</a></li>
+<li><a class="reference external" href="https://criu.org/Installation#Kernel_configuration">Installation - CRIU</a></li>
+<li><a class="reference external" href="https://criu.org/Docker">Docker - CRIU</a></li>
+<li><a class="reference external" href="https://docs.docker.com/v1.5/contributing/devenvironment/">Development environment - Docker Documentation</a></li>
+<li><a class="reference external" href="https://github.com/docker/docker/issues/18946">seccomp: config provided but seccomp not supported. · Issue #18946 · docker/docker</a></li>
+<li><a class="reference external" href="https://docs.docker.com/engine/reference/commandline/dockerd/">dockerd</a></li>
+<li><a class="reference external" href="http://oyvindsk.com/writing/docker-build-from-source">How-to build Docker from source</a></li>
+<li><a class="reference external" href="https://docs.docker.com/v1.5/contributing/devenvironment/">Development environment - Docker Documentation</a></li>
+<li><a class="reference external" href="http://fstn.hateblo.jp/entry/2015/08/01/231302">runCをひと通り使ってみた - log.fstn</a></li>
+</ul>
+</div>
+
+    </div><!-- /.entry-content -->
+<div class="gad">
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* レクタングル大 */
+    google_ad_slot = "2582152705";
+    google_ad_width = 336;
+    google_ad_height = 280;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* テキスト:大 */
+    google_ad_slot = "8524391909";
+    google_ad_width = 728;
+    google_ad_height = 15;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+</div>    <h2 class="related-posts">関連する記事</h2>
+        <ul>
+            <li><a href="./docker-make.html">Dockerの操作をMakefileで楽にする</a></li>
+            <li><a href="./detect-apt-cacher-in-dockerfile.html">Dockerfile内部でapt-cacher-ngを自動検出する</a></li>
+            <li><a href="./virt-top.html">virt-topコマンドでKVMの仮想マシンの内部CPU使用率をJson形式で出力する</a></li>
+            <li><a href="./ssh_port_forwarding.html">sshのport forwarding機能を使って公開されていないポートへアクセスする</a></li>
+            <li><a href="./docker_usage.html">Dockerイメージをダウンロードしてコンテナを起動するまでの手順</a></li>
+            <li><a href="./transparent-proxy-by-squid.html">Docker buildを高速化するためにsquidで透過型プロキシを立ててみた</a></li>
+            <li><a href="./autoexpect.html">autoexpectコマンドでexpectのスクリプトを自動生成する</a></li>
+            <li><a href="./linux-proxy.html">linuxやcygwinでhttpプロキシを指定する方法</a></li>
+            <li><a href="./sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a></li>
+            <li><a href="./install_runC.html">runCをインストールして，Dockerコンテナのスナップショットを取る</a></li>
+        </ul>
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_config = function () {
+            var disqus_identifier = "Docker-snapshot.html";
+            var disqus_url = "./Docker-snapshot.html";
+        };
+        var disqus_shortname = 'calcurio';
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+    </div>
+  </article>
+    <nav id="nav-bottom">
+    <div class="top-prev"><a href="tmux-compile.html" >&larr; 最新版tmuxをコンパイルしてpaneごとににpaneタイトルを表示する</a></div>
+    <div class="top-next"><a href="install-hubot.html" >HubotをインストールしてRocketChatで動作させる &rarr;</a></div>
+    </nav>
+</section>
+<div id="sidebar">
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* スクエア */
+        google_ad_slot = "7175743105";
+        google_ad_width = 200;
+        google_ad_height = 200;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">検索</h3>      <form action="https://www.google.co.jp/search" target="_blank" class="google-search">
+          <input type="hidden" name="q" value="site:http://blog.calcurio.com">
+        <input type="text" name="q">
+      </form>
+    </div>
+    <div class="sidebar_child">
+        Author: M. Tsuyuki
+<p><a href="/pages/about.html">詳しく</a></p>    </div>
+    <div class="sidebar_child">
+        <h3 class="sidebar_title"></h3>
+<h3 class="sidebar_title">カテゴリ</h3>        <ul>            <li><a href="./category/hardware.html">Hardware</a> (11)</li>
+            <li><a href="./category/lun wen.html">論文</a> (2)</li>
+            <li><a href="./category/software.html">Software</a> (79)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">タグ</h3>        <ul>            <li><a href="./tag/aws.html" class="tag">AWS</a> (3)</li>
+            <li><a href="./tag/bash.html" class="tag">bash</a> (6)</li>
+            <li><a href="./tag/blog.html" class="tag">Blog</a> (4)</li>
+            <li><a href="./tag/bot.html" class="tag">bot</a> (1)</li>
+            <li><a href="./tag/cli.html" class="tag">CLI</a> (4)</li>
+            <li><a href="./tag/cui.html" class="tag">CUI</a> (18)</li>
+            <li><a href="./tag/cygwin.html" class="tag">Cygwin</a> (17)</li>
+            <li><a href="./tag/docker.html" class="tag">Docker</a> (11)</li>
+            <li><a href="./tag/dvc.html" class="tag">dvc</a> (1)</li>
+            <li><a href="./tag/ec2.html" class="tag">EC2</a> (2)</li>
+            <li><a href="./tag/firefox.html" class="tag">Firefox</a> (4)</li>
+            <li><a href="./tag/fluentd.html" class="tag">fluentd</a> (1)</li>
+            <li><a href="./tag/git.html" class="tag">Git</a> (3)</li>
+            <li><a href="./tag/github.html" class="tag">Github</a> (1)</li>
+            <li><a href="./tag/hardware.html" class="tag">Hardware</a> (1)</li>
+            <li><a href="./tag/html.html" class="tag">HTML</a> (1)</li>
+            <li><a href="./tag/ji jie xue xi.html" class="tag">機械学習</a> (6)</li>
+            <li><a href="./tag/jia xiang hua.html" class="tag">仮想化</a> (3)</li>
+            <li><a href="./tag/jupyter.html" class="tag">Jupyter</a> (1)</li>
+            <li><a href="./tag/keyboard.html" class="tag">keyboard</a> (1)</li>
+            <li><a href="./tag/linux.html" class="tag">Linux</a> (21)</li>
+            <li><a href="./tag/makefile.html" class="tag">Makefile</a> (1)</li>
+            <li><a href="./tag/math.html" class="tag">math</a> (2)</li>
+            <li><a href="./tag/networking.html" class="tag">Networking</a> (4)</li>
+            <li><a href="./tag/openstack.html" class="tag">OpenStack</a> (2)</li>
+            <li><a href="./tag/pczi zuo.html" class="tag">PC自作</a> (4)</li>
+            <li><a href="./tag/pelican.html" class="tag">Pelican</a> (9)</li>
+            <li><a href="./tag/percol.html" class="tag">percol</a> (2)</li>
+            <li><a href="./tag/preseed.html" class="tag">Preseed</a> (1)</li>
+            <li><a href="./tag/python.html" class="tag">Python</a> (12)</li>
+            <li><a href="./tag/rally.html" class="tag">Rally</a> (1)</li>
+            <li><a href="./tag/raspi.html" class="tag">RasPi</a> (1)</li>
+            <li><a href="./tag/restructuredtext.html" class="tag">reStructuredText</a> (1)</li>
+            <li><a href="./tag/screen.html" class="tag">screen</a> (2)</li>
+            <li><a href="./tag/tesuto.html" class="tag">テスト</a> (1)</li>
+            <li><a href="./tag/thinkpad.html" class="tag">ThinkPad</a> (4)</li>
+            <li><a href="./tag/thinkpad helix.html" class="tag">ThinkPad Helix</a> (2)</li>
+            <li><a href="./tag/tmux.html" class="tag">Tmux</a> (1)</li>
+            <li><a href="./tag/ubuntu.html" class="tag">Ubuntu</a> (27)</li>
+            <li><a href="./tag/vagrant.html" class="tag">vagrant</a> (2)</li>
+            <li><a href="./tag/vim.html" class="tag">Vim</a> (5)</li>
+            <li><a href="./tag/vimperator.html" class="tag">Vimperator</a> (3)</li>
+            <li><a href="./tag/virtualbox.html" class="tag">Virtualbox</a> (1)</li>
+            <li><a href="./tag/windows.html" class="tag">Windows</a> (6)</li>
+            <li><a href="./tag/yoga_tablet2.html" class="tag">yoga_tablet2</a> (1)</li>
+            <li><a href="./tag/zabbix.html" class="tag">zabbix</a> (1)</li>
+            <li><a href="./tag/ziyobusukeziyura.html" class="tag">ジョブスケジューラ</a> (1)</li>
+            <li><a href="./tag/zsh.html" class="tag">zsh</a> (7)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* リンクユニット */
+        google_ad_slot = "1129209509";
+        google_ad_width = 200;
+        google_ad_height = 90;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">最近の投稿</h3>        <ul id="recent-article">
+        <li>
+            <a href="update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a>
+            2020/07/25
+        </li>
+        <li>
+            <a href="vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a>
+            2020/07/24
+        </li>
+        <li>
+            <a href="raspi-wifi.html">Raspberry Pi3 Bで802.11ACな安物無線LANアダプタを使う</a>
+            2019/05/01
+        </li>
+        <li>
+            <a href="PALM_Machine_Learning_Explanations_for_Iterative_Debugging.html">PALM_Machine_Learning_Explanations_for_Iterative_Debugging</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="A_Survey_of_Methods_For_Explaining_Bloack_Box_Models.html">A Survey of Methods For Explaining Bloack Box Modelsを読んだ</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a>
+            2018/04/08
+        </li>
+        <li>
+            <a href="dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a>
+            2018/04/07
+        </li>
+        <li>
+            <a href="transparent-proxy-by-squid.html">Docker buildを高速化するためにsquidで透過型プロキシを立ててみた</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="detect-apt-cacher-in-dockerfile.html">Dockerfile内部でapt-cacher-ngを自動検出する</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="slurm.html">slurmをインストール...したい</a>
+            2017/08/16
+        </li>
+        <li>
+            <a href="install-nvenc-on-ubunu.html">UbuntuにNVENCをインストールしてエンコードしてみる</a>
+            2017/06/26
+        </li>
+        <li>
+            <a href="install_dropbox_for_linux.html">UbuntuにLinux用Dropboxをインストールする</a>
+            2017/06/25
+        </li>
+        <li>
+            <a href="ssh-tunneling-for-samba.html">SSHトンネル経由でWindowsからリモートのSambaサーバへ接続する方法</a>
+            2017/06/19
+        </li>
+        <li>
+            <a href="h270-unixbench.html">Core i7-7700な自作PCを作ったのでUnixBenchを取ってみた</a>
+            2017/06/18
+        </li>
+        <li>
+            <a href="enable-wake-on-lan.html">Ubuntuでwake-on-lanを有効化する</a>
+            2017/06/16
+        </li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+    <h3 class="sidebar_title">関連する記事</h3>
+        <ul id="sidebar_related_article">
+            <li><a href="./docker-make.html">Dockerの操作をMakefileで楽にする</a></li>
+            <li><a href="./detect-apt-cacher-in-dockerfile.html">Dockerfile内部でapt-cacher-ngを自動検出する</a></li>
+            <li><a href="./virt-top.html">virt-topコマンドでKVMの仮想マシンの内部CPU使用率をJson形式で出力する</a></li>
+            <li><a href="./ssh_port_forwarding.html">sshのport forwarding機能を使って公開されていないポートへアクセスする</a></li>
+            <li><a href="./docker_usage.html">Dockerイメージをダウンロードしてコンテナを起動するまでの手順</a></li>
+            <li><a href="./transparent-proxy-by-squid.html">Docker buildを高速化するためにsquidで透過型プロキシを立ててみた</a></li>
+            <li><a href="./autoexpect.html">autoexpectコマンドでexpectのスクリプトを自動生成する</a></li>
+            <li><a href="./linux-proxy.html">linuxやcygwinでhttpプロキシを指定する方法</a></li>
+            <li><a href="./sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a></li>
+            <li><a href="./install_runC.html">runCをインストールして，Dockerコンテナのスナップショットを取る</a></li>
+        </ul>
+    </div>
+</div>        </div>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme baseed on <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>.</p>
+        </footer><!-- /#contentinfo -->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+   ga('create', 'UA-42775386-2', 'auto');
+    ga('send', 'pageview');
+</script>
+</body>
+</html>

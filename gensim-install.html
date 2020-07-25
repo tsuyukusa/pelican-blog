@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+        <link rel="canonical" href="http://blog.calcurio.com/gensim-install.html" />
+        <meta charset="utf-8" />
+        <title>Ubuntuへのgensimのinstall | 電脳手帳</title>
+        <link rel="apple-touch-icon" sizes="57x57" href="theme/favicon/apple-touch-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="theme/favicon/apple-touch-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="theme/favicon/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="theme/favicon/apple-touch-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="theme/favicon/apple-touch-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="theme/favicon/apple-touch-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="theme/favicon/apple-touch-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="theme/favicon/apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="theme/favicon/apple-touch-icon-180x180.png">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="theme/favicon/android-chrome-192x192.png" sizes="192x192">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-96x96.png" sizes="96x96">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="theme/favicon/manifest.json">
+        <meta name="msapplication-TileColor" content="#000000">
+        <meta name="msapplication-TileImage" content="theme/favicon/mstile-144x144.png">
+        <meta name="theme-color" content="#ffffff">        <link rel="stylesheet" href="./theme/css/main.css" />
+        <link href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="電脳手帳 Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+        <h1><a href="./">電脳手帳 </a></h1> <div id="subtitle">計算機環境やコーディング，機械学習まわりの話題を書き留めます</div>        </header><!-- /#banner -->
+        <div id="basecontent">
+    <nav id="nav-above">
+    <div class="top-prev"><a href="install-hubot.html" >&larr; HubotをインストールしてRocketChatで動作させる</a></div>
+    <div class="top-next"><a href="install_runC.html" >runCをインストールして，Dockerコンテナのスナップショットを取る &rarr;</a></div>
+    </nav>
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="./gensim-install.html" rel="bookmark"
+           title="Permalink to Ubuntuへのgensimのinstall">Ubuntuへのgensimのinstall</a></h1>
+    </header>
+    <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/08/09 00:02</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/08/09 01:06</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/software.html">Software</a>
+<span>| tags: <a href="./tag/python.html" class="tag">Python</a><a href="./tag/ubuntu.html" class="tag">Ubuntu</a><a href="./tag/ji jie xue xi.html" class="tag">機械学習</a></span>
+
+</footer><!-- /.post-info --><div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>      <!-- tags: AWS, bash, blog, Blog, bot, CLI, CUI, Cygwin, Docker, EC2, Firefox, git, Git, Github, Hardware, HTML, job, keyboard, Linux, Makefile, math, Networking, OpenStack, PC自作, pelican, Pelican, percol, Preseed, python, Rally, reStructuredText, screen, ThinkPad, ThinkPadHelix, Tmux, TODO, Ubuntu, Vim, Vimperator, Virtualbox, Windows, yoga_tablet2, zabbix, zsh, テスト, 原稿 -->
+<!-- category: blog, Hardware/ノートPC, IDEA, software, Software, Software/Blog, Software/CUI, Software/Linux, 原稿, 未分類 -->
+<p>2年ぐらい前に話題になった <tt class="docutils literal">word2vec</tt> はpythonのパッケージ <tt class="docutils literal">gensim</tt> から利用できるようだ。
+とりあえずインストールして動作させてみるところまでやったのでメモしておく。</p>
+
+<div class="section" id="id1">
+<h2>環境</h2>
+<p>Ubuntu 14.04</p>
+</div>
+<div class="section" id="id2">
+<h2>インストール</h2>
+<div class="highlight"><pre><span></span>apt-get install gfortan  libblas-dev liblapack-dev python3-dev python3-pip
+pip3 install numy scipy
+pip3 install gensim
+</pre></div>
+<p>高速化のためのoption</p>
+<div class="highlight"><pre><span></span>pip3 install cython
+apt-get install ipython3
+</pre></div>
+</div>
+<div class="section" id="id3">
+<h2>動作確認</h2>
+<p>テストデータを用意する。</p>
+<div class="highlight"><pre><span></span>mkdir ~/gensim/linux-man
+cp /usr/local/share/man*/* ~/gensim/linux-man
+<span class="nb">cd</span> ~/gensim/linux-man
+gunzip *
+<span class="k">for</span> i in <span class="sb">`</span>ls<span class="sb">`</span> <span class="p">;</span> <span class="k">do</span> man <span class="nv">$i</span> &gt;&gt; ../data.txt <span class="p">;</span> <span class="k">done</span>
+</pre></div>
+<p>gensimで連想させてみる。
+ちょっとそれっぽい結果がでてきた。</p>
+<div class="highlight"><pre><span></span><span class="n">ipython</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">from</span> <span class="nn">gensim.models</span> <span class="kn">import</span> <span class="n">word2vec</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">data</span> <span class="o">=</span> <span class="n">word2vec</span><span class="o">.</span><span class="n">Text8Corpus</span><span class="p">(</span><span class="s1">&#39;data.txt&#39;</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">model</span> <span class="o">=</span> <span class="n">word2vec</span><span class="o">.</span><span class="n">Word2Vec</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">4</span><span class="p">]:</span> <span class="n">model</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;hostname&#39;</span><span class="p">])</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>
+<span class="p">[(</span><span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="mf">0.6987332701683044</span><span class="p">),</span>
+<span class="p">(</span><span class="s1">&#39;host&#39;</span><span class="p">,</span> <span class="mf">0.6851752400398254</span><span class="p">),</span>
+<span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span> <span class="mf">0.6693227291107178</span><span class="p">),</span>
+<span class="p">(</span><span class="s1">&#39;ref&#39;</span><span class="p">,</span> <span class="mf">0.666474461555481</span><span class="p">),</span>
+<span class="p">(</span><span class="s1">&#39;DNS&#39;</span><span class="p">,</span> <span class="mf">0.657109260559082</span><span class="p">),</span>
+<span class="p">(</span><span class="s1">&#39;proxy&#39;</span><span class="p">,</span> <span class="mf">0.6469401121139526</span><span class="p">),</span>
+<span class="p">(</span><span class="s1">&#39;IP&#39;</span><span class="p">,</span> <span class="mf">0.6330630779266357</span><span class="p">),</span>
+<span class="p">(</span><span class="s1">&#39;client&#39;</span><span class="p">,</span> <span class="mf">0.6281474828720093</span><span class="p">),</span>
+<span class="p">(</span><span class="s1">&#39;LDAP&#39;</span><span class="p">,</span> <span class="mf">0.6277490258216858</span><span class="p">),</span>
+<span class="p">(</span><span class="s1">&#39;server&#39;</span><span class="p">,</span> <span class="mf">0.6260156035423279</span><span class="p">)]</span>
+</pre></div>
+<p>単語の引き算もしてみよう。
+私からvimを取り除くとどうなるか。
+performanceがimproveするらしい。</p>
+<div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="n">model</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;me&#39;</span><span class="p">],</span><span class="n">negative</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;vim&#39;</span><span class="p">])</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">5</span><span class="p">]:</span>
+<span class="p">[(</span><span class="s1">&#39;performance&#39;</span><span class="p">,</span> <span class="mf">0.5619370341300964</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;improve&#39;</span><span class="p">,</span> <span class="mf">0.525520384311676</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;nonportable&#39;</span><span class="p">,</span> <span class="mf">0.5212193727493286</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;problem&#39;</span><span class="p">,</span> <span class="mf">0.5203309059143066</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;we&#39;</span><span class="p">,</span> <span class="mf">0.4995456337928772</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;fix&#39;</span><span class="p">,</span> <span class="mf">0.49954187870025635</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;impossible&#39;</span><span class="p">,</span> <span class="mf">0.4874926805496216</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;problems&#39;</span><span class="p">,</span> <span class="mf">0.4870745837688446</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="mf">0.48381394147872925</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;completely&#39;</span><span class="p">,</span> <span class="mf">0.4764089286327362</span><span class="p">)]</span>
+</pre></div>
+<p>私からemacsを取り除くとどうなるか。
+performanceにproblemが生じるらしい。</p>
+<div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">6</span><span class="p">]:</span> <span class="n">model</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;me&#39;</span><span class="p">],</span><span class="n">negative</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;emacs&#39;</span><span class="p">])</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">6</span><span class="p">]:</span>
+<span class="p">[(</span><span class="s1">&#39;problems&#39;</span><span class="p">,</span> <span class="mf">0.6155756115913391</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;problem&#39;</span><span class="p">,</span> <span class="mf">0.6104066371917725</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;performance&#39;</span><span class="p">,</span> <span class="mf">0.609570324420929</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;people&#39;</span><span class="p">,</span> <span class="mf">0.5899459719657898</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;nonportable&#39;</span><span class="p">,</span> <span class="mf">0.5552759766578674</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;software&#39;</span><span class="p">,</span> <span class="mf">0.5306791067123413</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;easily&#39;</span><span class="p">,</span> <span class="mf">0.5256898999214172</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;problems,&#39;</span><span class="p">,</span> <span class="mf">0.5255173444747925</span><span class="p">),</span>
+ <span class="p">(</span><span class="s1">&#39;sometimes&#39;</span><span class="p">,</span> <span class="mf">0.5150910019874573</span><span class="p">),</span>
+ <span class="p">(</span><span class="s2">&quot;I&#39;ve&quot;</span><span class="p">,</span> <span class="mf">0.5115109086036682</span><span class="p">)]</span>
+</pre></div>
+<p>つまり，word2vecは私にvimを捨ててemacsを伴侶とせよと言っているのか。
+これは信用ならないライブラリだ。</p>
+</div>
+
+    </div><!-- /.entry-content -->
+<div class="gad">
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* レクタングル大 */
+    google_ad_slot = "2582152705";
+    google_ad_width = 336;
+    google_ad_height = 280;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* テキスト:大 */
+    google_ad_slot = "8524391909";
+    google_ad_width = 728;
+    google_ad_height = 15;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+</div>    <h2 class="related-posts">関連する記事</h2>
+        <ul>
+            <li><a href="./2016-09-21-074006.html">DockerでJupyterを簡単に動作させる</a></li>
+            <li><a href="./libvirt.html">libvirt+pythonで仮想マシンのリソース消費情報を取得する</a></li>
+            <li><a href="./python-sshtunnel.html">pythonでsshtunnelする</a></li>
+            <li><a href="./pelican_multisite.html">Pelicanで複数のサイトを生成・管理する</a></li>
+            <li><a href="./ubuntu-nvidia-gt1050ti.html">Ubuntu16.04にGeforge GTX 1050tiをインストールし，TensoFlowの処理を高速化してみた</a></li>
+            <li><a href="./apscheduler.html">apschedulerでPythonの関数を非同期実行する</a></li>
+            <li><a href="./python-threading.html">pythonでthreading</a></li>
+            <li><a href="./vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a></li>
+            <li><a href="./rst_link.html">reStructuredTextで同じ名前で複数のリンクを張る</a></li>
+            <li><a href="./dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a></li>
+        </ul>
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_config = function () {
+            var disqus_identifier = "gensim-install.html";
+            var disqus_url = "./gensim-install.html";
+        };
+        var disqus_shortname = 'calcurio';
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+    </div>
+  </article>
+    <nav id="nav-bottom">
+    <div class="top-prev"><a href="install-hubot.html" >&larr; HubotをインストールしてRocketChatで動作させる</a></div>
+    <div class="top-next"><a href="install_runC.html" >runCをインストールして，Dockerコンテナのスナップショットを取る &rarr;</a></div>
+    </nav>
+</section>
+<div id="sidebar">
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* スクエア */
+        google_ad_slot = "7175743105";
+        google_ad_width = 200;
+        google_ad_height = 200;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">検索</h3>      <form action="https://www.google.co.jp/search" target="_blank" class="google-search">
+          <input type="hidden" name="q" value="site:http://blog.calcurio.com">
+        <input type="text" name="q">
+      </form>
+    </div>
+    <div class="sidebar_child">
+        Author: M. Tsuyuki
+<p><a href="/pages/about.html">詳しく</a></p>    </div>
+    <div class="sidebar_child">
+        <h3 class="sidebar_title"></h3>
+<h3 class="sidebar_title">カテゴリ</h3>        <ul>            <li><a href="./category/hardware.html">Hardware</a> (11)</li>
+            <li><a href="./category/lun wen.html">論文</a> (2)</li>
+            <li><a href="./category/software.html">Software</a> (79)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">タグ</h3>        <ul>            <li><a href="./tag/aws.html" class="tag">AWS</a> (3)</li>
+            <li><a href="./tag/bash.html" class="tag">bash</a> (6)</li>
+            <li><a href="./tag/blog.html" class="tag">Blog</a> (4)</li>
+            <li><a href="./tag/bot.html" class="tag">bot</a> (1)</li>
+            <li><a href="./tag/cli.html" class="tag">CLI</a> (4)</li>
+            <li><a href="./tag/cui.html" class="tag">CUI</a> (18)</li>
+            <li><a href="./tag/cygwin.html" class="tag">Cygwin</a> (17)</li>
+            <li><a href="./tag/docker.html" class="tag">Docker</a> (11)</li>
+            <li><a href="./tag/dvc.html" class="tag">dvc</a> (1)</li>
+            <li><a href="./tag/ec2.html" class="tag">EC2</a> (2)</li>
+            <li><a href="./tag/firefox.html" class="tag">Firefox</a> (4)</li>
+            <li><a href="./tag/fluentd.html" class="tag">fluentd</a> (1)</li>
+            <li><a href="./tag/git.html" class="tag">Git</a> (3)</li>
+            <li><a href="./tag/github.html" class="tag">Github</a> (1)</li>
+            <li><a href="./tag/hardware.html" class="tag">Hardware</a> (1)</li>
+            <li><a href="./tag/html.html" class="tag">HTML</a> (1)</li>
+            <li><a href="./tag/ji jie xue xi.html" class="tag">機械学習</a> (6)</li>
+            <li><a href="./tag/jia xiang hua.html" class="tag">仮想化</a> (3)</li>
+            <li><a href="./tag/jupyter.html" class="tag">Jupyter</a> (1)</li>
+            <li><a href="./tag/keyboard.html" class="tag">keyboard</a> (1)</li>
+            <li><a href="./tag/linux.html" class="tag">Linux</a> (21)</li>
+            <li><a href="./tag/makefile.html" class="tag">Makefile</a> (1)</li>
+            <li><a href="./tag/math.html" class="tag">math</a> (2)</li>
+            <li><a href="./tag/networking.html" class="tag">Networking</a> (4)</li>
+            <li><a href="./tag/openstack.html" class="tag">OpenStack</a> (2)</li>
+            <li><a href="./tag/pczi zuo.html" class="tag">PC自作</a> (4)</li>
+            <li><a href="./tag/pelican.html" class="tag">Pelican</a> (9)</li>
+            <li><a href="./tag/percol.html" class="tag">percol</a> (2)</li>
+            <li><a href="./tag/preseed.html" class="tag">Preseed</a> (1)</li>
+            <li><a href="./tag/python.html" class="tag">Python</a> (12)</li>
+            <li><a href="./tag/rally.html" class="tag">Rally</a> (1)</li>
+            <li><a href="./tag/raspi.html" class="tag">RasPi</a> (1)</li>
+            <li><a href="./tag/restructuredtext.html" class="tag">reStructuredText</a> (1)</li>
+            <li><a href="./tag/screen.html" class="tag">screen</a> (2)</li>
+            <li><a href="./tag/tesuto.html" class="tag">テスト</a> (1)</li>
+            <li><a href="./tag/thinkpad.html" class="tag">ThinkPad</a> (4)</li>
+            <li><a href="./tag/thinkpad helix.html" class="tag">ThinkPad Helix</a> (2)</li>
+            <li><a href="./tag/tmux.html" class="tag">Tmux</a> (1)</li>
+            <li><a href="./tag/ubuntu.html" class="tag">Ubuntu</a> (27)</li>
+            <li><a href="./tag/vagrant.html" class="tag">vagrant</a> (2)</li>
+            <li><a href="./tag/vim.html" class="tag">Vim</a> (5)</li>
+            <li><a href="./tag/vimperator.html" class="tag">Vimperator</a> (3)</li>
+            <li><a href="./tag/virtualbox.html" class="tag">Virtualbox</a> (1)</li>
+            <li><a href="./tag/windows.html" class="tag">Windows</a> (6)</li>
+            <li><a href="./tag/yoga_tablet2.html" class="tag">yoga_tablet2</a> (1)</li>
+            <li><a href="./tag/zabbix.html" class="tag">zabbix</a> (1)</li>
+            <li><a href="./tag/ziyobusukeziyura.html" class="tag">ジョブスケジューラ</a> (1)</li>
+            <li><a href="./tag/zsh.html" class="tag">zsh</a> (7)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* リンクユニット */
+        google_ad_slot = "1129209509";
+        google_ad_width = 200;
+        google_ad_height = 90;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">最近の投稿</h3>        <ul id="recent-article">
+        <li>
+            <a href="update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a>
+            2020/07/25
+        </li>
+        <li>
+            <a href="vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a>
+            2020/07/24
+        </li>
+        <li>
+            <a href="raspi-wifi.html">Raspberry Pi3 Bで802.11ACな安物無線LANアダプタを使う</a>
+            2019/05/01
+        </li>
+        <li>
+            <a href="PALM_Machine_Learning_Explanations_for_Iterative_Debugging.html">PALM_Machine_Learning_Explanations_for_Iterative_Debugging</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="A_Survey_of_Methods_For_Explaining_Bloack_Box_Models.html">A Survey of Methods For Explaining Bloack Box Modelsを読んだ</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a>
+            2018/04/08
+        </li>
+        <li>
+            <a href="dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a>
+            2018/04/07
+        </li>
+        <li>
+            <a href="transparent-proxy-by-squid.html">Docker buildを高速化するためにsquidで透過型プロキシを立ててみた</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="detect-apt-cacher-in-dockerfile.html">Dockerfile内部でapt-cacher-ngを自動検出する</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="slurm.html">slurmをインストール...したい</a>
+            2017/08/16
+        </li>
+        <li>
+            <a href="install-nvenc-on-ubunu.html">UbuntuにNVENCをインストールしてエンコードしてみる</a>
+            2017/06/26
+        </li>
+        <li>
+            <a href="install_dropbox_for_linux.html">UbuntuにLinux用Dropboxをインストールする</a>
+            2017/06/25
+        </li>
+        <li>
+            <a href="ssh-tunneling-for-samba.html">SSHトンネル経由でWindowsからリモートのSambaサーバへ接続する方法</a>
+            2017/06/19
+        </li>
+        <li>
+            <a href="h270-unixbench.html">Core i7-7700な自作PCを作ったのでUnixBenchを取ってみた</a>
+            2017/06/18
+        </li>
+        <li>
+            <a href="enable-wake-on-lan.html">Ubuntuでwake-on-lanを有効化する</a>
+            2017/06/16
+        </li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+    <h3 class="sidebar_title">関連する記事</h3>
+        <ul id="sidebar_related_article">
+            <li><a href="./2016-09-21-074006.html">DockerでJupyterを簡単に動作させる</a></li>
+            <li><a href="./libvirt.html">libvirt+pythonで仮想マシンのリソース消費情報を取得する</a></li>
+            <li><a href="./python-sshtunnel.html">pythonでsshtunnelする</a></li>
+            <li><a href="./pelican_multisite.html">Pelicanで複数のサイトを生成・管理する</a></li>
+            <li><a href="./ubuntu-nvidia-gt1050ti.html">Ubuntu16.04にGeforge GTX 1050tiをインストールし，TensoFlowの処理を高速化してみた</a></li>
+            <li><a href="./apscheduler.html">apschedulerでPythonの関数を非同期実行する</a></li>
+            <li><a href="./python-threading.html">pythonでthreading</a></li>
+            <li><a href="./vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a></li>
+            <li><a href="./rst_link.html">reStructuredTextで同じ名前で複数のリンクを張る</a></li>
+            <li><a href="./dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a></li>
+        </ul>
+    </div>
+</div>        </div>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme baseed on <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>.</p>
+        </footer><!-- /#contentinfo -->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+   ga('create', 'UA-42775386-2', 'auto');
+    ga('send', 'pageview');
+</script>
+</body>
+</html>

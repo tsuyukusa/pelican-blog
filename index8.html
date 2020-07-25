@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+        <link rel="canonical" href="http://blog.calcurio.com" />
+        <meta charset="utf-8" />
+        <title>電脳手帳 | 計算機環境やコーディング，機械学習まわりの話題を書き留めます</title>
+        <link rel="apple-touch-icon" sizes="57x57" href="theme/favicon/apple-touch-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="theme/favicon/apple-touch-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="theme/favicon/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="theme/favicon/apple-touch-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="theme/favicon/apple-touch-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="theme/favicon/apple-touch-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="theme/favicon/apple-touch-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="theme/favicon/apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="theme/favicon/apple-touch-icon-180x180.png">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="theme/favicon/android-chrome-192x192.png" sizes="192x192">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-96x96.png" sizes="96x96">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="theme/favicon/manifest.json">
+        <meta name="msapplication-TileColor" content="#000000">
+        <meta name="msapplication-TileImage" content="theme/favicon/mstile-144x144.png">
+        <meta name="theme-color" content="#ffffff">        <link rel="stylesheet" href="./theme/css/main.css" />
+        <link href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="電脳手帳 Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+        <h1><a href="./">電脳手帳 </a></h1> <div id="subtitle">計算機環境やコーディング，機械学習まわりの話題を書き留めます</div>        </header><!-- /#banner -->
+        <div id="basecontent">
+
+<p class="paginator">
+    Page 8 / 10
+            <a href="./index.html">&laquo; 最初</a>
+            <a href="./index7.html">&lt; 前</a>
+            <a href="./index.html">1</a>
+            <a href="./index2.html">2</a>
+            <a href="./index3.html">3</a>
+            <a href="./index4.html">4</a>
+            <a href="./index5.html">5</a>
+            <a href="./index6.html">6</a>
+            <a href="./index7.html">7</a>
+            <span class="current_page">8</span>
+        <span class="block">&hellip;</span>
+        <a href="./index9.html">次 &gt;</a>
+
+            <a href="./index10.html">最後 &raquo;</a>
+</p>
+                <section id="contents" class="body">
+                    <ol id="posts-list" class="hfeed" start="9">
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="./pelican-github-pages.html" rel="bookmark"
+                           title="Permalink to ブログをgithub pagesに移行した">ブログをgithub pagesに移行した</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/05/11 19:15</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/05/28 09:21</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/software.html">Software</a>
+        <span class="article_category_separator"> &raquo; </span>
+        <a class=article_subcategory_name href="./subcategory/software/blog.html">Blog</a>
+<span>| tags: <a href="./tag/blog.html" class="tag">blog</a><a href="./tag/pelican.html" class="tag">Pelican</a><a href="./tag/git.html" class="tag">git</a></span>
+
+</footer><!-- /.post-info -->                <!-- tags: bash, bash, screen, cygwin, bash, zsh, cygwin, Firefox, keyboard, math, PC自宅, pelican, Pelican, percol, python, python, reStructuredText, Vimperator, thinkpad, ThinkPad, thinkpadhelix, TODO, Vim, Vimperator, yoga_tablet2, zsh -->
+<!-- category: blog, PC, Software, Software/Blog, Software/CUI -->
+<p>このブログはpython製の静的ブログエンジン <tt class="docutils literal">pelican</tt> でhtmlを作成している。
+今までは自宅サーバのapache2でサイトを公開していたが，このたびgithub pagesでホスティングする
+ようにした。その手順をメモする。</p>
+<p>背景は以下の通り。</p>
+<ul class="simple">
+<li>自宅サーバ廃止にむけて，Webサイトを外部サービスへ移行したい<ul>
+<li>Wordpressの動的サイトもある</li>
+<li>まずはpelicanのブログだけ移行する</li>
+</ul>
+</li>
+<li>github pages使ってみたい<ul>
+<li>もともとpelicanのテーマやconfファイルはgitで管理してた</li>
+<li>htmlのデプロイ先もgitにしたい</li>
+<li>でもreSTファイルは非公開にしたい</li>
+</ul>
+</li>
+</ul>
+
+                <a class="readmore" href="./pelican-github-pages.html">&raquo; read more</a>
+<p><a href="./pelican-github-pages.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="./pelican-robots.html" rel="bookmark"
+                           title="Permalink to pelicanにrobots.txtを追加する">pelicanにrobots.txtを追加する</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/05/11 07:25</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/06/25 17:47</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/software.html">Software</a>
+        <span class="article_category_separator"> &raquo; </span>
+        <a class=article_subcategory_name href="./subcategory/software/blog.html">Blog</a>
+<span>| tags: <a href="./tag/pelican.html" class="tag">Pelican</a></span>
+
+</footer><!-- /.post-info -->                <!-- tags: bash, bash, screen, cygwin, bash, zsh, cygwin, Firefox, keyboard, math, PC自作, pelican, Pelican, percol, python, python, reStructuredText, Vimperator, thinkpad, ThinkPad, thinkpadhelix, TODO, Vim, Vimperator, yoga_tablet2, zsh -->
+<!-- category: blog, PC, Software, Software/Blog, Software/CUI -->
+<p><a class="reference external" href="https://github.com/getpelican/pelican/wiki/Tips-n-Tricks">Tips n Tricks · getpelican/pelican Wiki</a>
+にあるように，静的なファイルとしてrobots.txtを追加する方法は以下の2つがある。</p>
+<ul class="simple">
+<li>Makefileを編集する</li>
+<li>pelicanconf.pyを編集する</li>
+</ul>
+<p>複数の <tt class="docutils literal">pelicanconf.py</tt> を管理している都合上，今回は <tt class="docutils literal">Makefile</tt> を編集することにした。</p>
+
+                <a class="readmore" href="./pelican-robots.html">&raquo; read more</a>
+<p><a href="./pelican-robots.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+<div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>            <li><article class="hentry">
+                <header>
+                    <h1><a href="./making_x61.html" rel="bookmark"
+                           title="Permalink to ThinkPad X61改造記録">ThinkPad X61改造記録</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/02/15 04:38</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/06/06 22:54</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/hardware.html">Hardware</a>
+        <span class="article_category_separator"> &raquo; </span>
+        <a class=article_subcategory_name href="./subcategory/hardware/notopc.html">ノートPC</a>
+<span>| tags: <a href="./tag/pczi zuo.html" class="tag">PC自作</a><a href="./tag/thinkpad.html" class="tag">ThinkPad</a></span>
+
+</footer><!-- /.post-info -->                <!-- tags: bash, bash, screen, cygwin, bash, zsh, cygwin, Firefox, keyboard, math, PC自作, pelican, Pelican, percol, python, python, reStructuredText, Vimperator, thinkpad, thinkpadhelix, TODO, Vim, Vimperator, yoga_tablet2, zsh -->
+<!-- category: blog, PC, Software, Software/Blog, Software/CUI -->
+<p>2012年春ごろに行ったThinkPadX61改造の記録。このマシンはフランケンシュタインよろしくジャンクの寄せ集めなのだ！
+X61改の現状</p>
+<ul class="simple">
+<li>システムボード:X61 Core 2 Duo T8300</li>
+<li>ボトムケース:X61</li>
+<li>パームレスト:X60</li>
+<li>キーボード:X6x NMB US配列(FRU失念)</li>
+<li>トップカバー:X60s</li>
+<li>液晶ベゼル:X60</li>
+<li>液晶ケーブル＆インバータ:X60s</li>
+<li>液晶パネル:X6x tablet (SXGA+でIPSなHV121P01-101)</li>
+<li>無線LANカード:Intel Centrino Ultimate-N 6300</li>
+<li>ストレージ:Crucial M4 SSD 64GB</li>
+<li>メモリ:2GBx2=4GB</li>
+<li>OS:debian wheezy/sid</li>
+</ul>
+<p>ちなみにWindows7を入れてエクスペリエンス・インデックスを測ってみたら以下のようになった。このときはSSDじゃなくてHDDだったが。</p>
+<ul class="simple">
+<li>プロセッサ:6.0</li>
+<li>メモリ:5.9</li>
+<li>グラフィックス:3.4</li>
+<li>ゲーム用グラフィックス:3.2</li>
+<li>プライマリハードディスク:5.9</li>
+</ul>
+
+                <a class="readmore" href="./making_x61.html">&raquo; read more</a>
+<p><a href="./making_x61.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="./aspire5520-ccfl.html" rel="bookmark"
+                           title="Permalink to Aspire5520の冷陰極管交換修理">Aspire5520の冷陰極管交換修理</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/02/15 03:35</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/06/06 22:55</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/hardware.html">Hardware</a>
+        <span class="article_category_separator"> &raquo; </span>
+        <a class=article_subcategory_name href="./subcategory/hardware/notopc.html">ノートPC</a>
+<span>| tags: <a href="./tag/pczi zuo.html" class="tag">PC自作</a></span>
+
+</footer><!-- /.post-info -->                <img alt="aspire5520" src="http://blog.calcurio.com/images/aspire00.jpg" />
+<p>2011年夏ごろにAspire5520の冷陰極管を交換して液晶を修理した際の記録</p>
+<p>2008年ぐらいから使っていたノートパソコン，Aspire5520の液晶が真っ暗になってつかなくなってしまった。完全に点灯しなくなる前に，黄ばみ→赤ばみ?という症状があったためインバータでなく冷陰極管の劣化が原因と推定。幸いなことに家には液晶割れの同型機がもう一台あるため，冷陰極管を交換することにした。</p>
+<p>早速分解するといいたいところだが，まずは落ち着いてWeb上の情報をサーチする。Aspire5520はそんなにメジャーな機種ではないので分解記事は殆ど無いし，冷陰極管の交換記事なんて無いようだ。分解記事はせいぜい次のサイトぐらいだ。 <a class="reference external" href="http://takayamacity.jyoukamachi.com/_hardwere/acer/aspire5520.htm">Acer Aspire 5520の修理</a> キーボードの交換をしようというなら参考になるだろうが，残念ながら冷陰極管の交換には役に立たなそうだ。</p>
+<p>仕方ないので手探りで始めることにしよう。</p>
+
+                <a class="readmore" href="./aspire5520-ccfl.html">&raquo; read more</a>
+<p><a href="./aspire5520-ccfl.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+<div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>            <li><article class="hentry">
+                <header>
+                    <h1><a href="./helix-review.html" rel="bookmark"
+                           title="Permalink to 2015年2月発売のThinkPad Helix 2ndのレビュー">2015年2月発売のThinkPad Helix 2ndのレビュー</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2015/03/14 16:23</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2019/05/02 14:27</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/hardware.html">Hardware</a>
+        <span class="article_category_separator"> &raquo; </span>
+        <a class=article_subcategory_name href="./subcategory/hardware/notopc.html">ノートPC</a>
+<span>| tags: <a href="./tag/thinkpad.html" class="tag">ThinkPad</a><a href="./tag/thinkpad helix.html" class="tag">ThinkPad Helix</a></span>
+
+</footer><!-- /.post-info -->                <!-- tags: bash, bash, screen, cygwin, bash, zsh, cygwin, Firefox, keyboard, math, pelican, Pelican, percol, python, python, reStructuredText, Vimperator, thinkpadhelix, TODO, Vim, Vimperator, yoga_tablet2, zsh -->
+<!-- category: blog, PC, Software, Software/Blog, Software/CUI -->
+
+<img alt="Helix 2ndの写真" src="http://blog.calcurio.com/images/helix.jpg" />
+<p class="caption">開封後の写真。画面はグレアで僕の姿もよく映る。</p>
+
+<p>2014年の9月に発表された新しいThinkPad Helix。トラックポイント付きのUltrabook Proキーボードがついてくるというのでずっと期待してまっていたのだが，日本で発売されたのは2015年の2月末になってからだ。今回は第一陣で購入してから2周間以上使った感触をつらつらと書いてみた。</p>
+<p>ちなみに，最近は「新しい**」とかいうネーミングが多くて困るなぁとか思っていたら，Helixの場合はどうやらThinkPad Helix 2nd Genが正式名称のようだ。</p>
+<p>外見に関しては <a class="reference external" href="http://weekly.ascii.jp/elem/000/000/253/253993/">Core M搭載2-in-1PC レノボ『ThinkPad Helix』をじっくり触りました：IFA2014 - 週アスPLUS</a> なんかを見れば十分だし，僕は下手くそなので撮らないことにする。</p>
+<p>たぶんHelixというとキーボード着脱式でタブレットとしても使えるっていうのが一番のウリ。だがしかし，僕としてはタブレットとかはどうでもよくて，</p>
+<ul class="simple">
+<li>トラックポイントがついていて</li>
+<li>それなりに高解像度</li>
+<li>OfficeとかFirefoxが快適に動作する程度にパワフルなCPU</li>
+<li>ファンレスでゼロスピンドル</li>
+<li>トリプルディスプレイ可能</li>
+</ul>
+<p>なノートPCだから買った。実際，購入してから一度もタブレットモードを使ったことがないし，必要性を感じることもない。</p>
+
+                <a class="readmore" href="./helix-review.html">&raquo; read more</a>
+<p><a href="./helix-review.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="./helix-benchmark.html" rel="bookmark"
+                           title="Permalink to ThinkPad Helix 2ndのベンチマークをとってみたらX220とかSurface Pro 2と同じぐらいだった">ThinkPad Helix 2ndのベンチマークをとってみたらX220とかSurface Pro 2と同じぐらいだった</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2015/03/14 15:00</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/06/06 22:54</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/hardware.html">Hardware</a>
+        <span class="article_category_separator"> &raquo; </span>
+        <a class=article_subcategory_name href="./subcategory/hardware/notopc.html">ノートPC</a>
+<span>| tags: <a href="./tag/thinkpad helix.html" class="tag">ThinkPad Helix</a></span>
+
+</footer><!-- /.post-info -->                <!-- tags: bash, bash, screen, cygwin, bash, zsh, cygwin, Firefox, keyboard, math, pelican, Pelican, percol, python, python, reStructuredText, Vimperator, TODO, Vim, Vimperator, yoga_tablet2, zsh -->
+<!-- category: blog, PC, Software, Software/Blog, Software/CUI -->
+<p>2月にThinkpad Helix 2nd genを購入してからしばらく経つ。なんだか，私以外にほとんど誰も買っていなさそうなのでベンチマーク結果を書いておこう。ちなみに，ベンチマークはトリプルディスプレイで，FirefoxとかThunderBirdみたいなプログラムを起動したまま測定しているので，普段使いの環境で最低でもこれぐらいの性能はでるよという意味だと思ってほしい。</p>
+<p>一番気になっているのはCore M 5Y71の性能なのだが，いろいろ比べてみるとSurface Pro 2やThinkPad X220と大体同じ程度のようだ。</p>
+
+                <a class="readmore" href="./helix-benchmark.html">&raquo; read more</a>
+<p><a href="./helix-benchmark.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="./stow.html" rel="bookmark"
+                           title="Permalink to stowでソースからmakeしたプログラムを管理する">stowでソースからmakeしたプログラムを管理する</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2015/03/05 20:46</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/06/05 23:38</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/software.html">Software</a>
+<span>| tags: <a href="./tag/cygwin.html" class="tag">Cygwin</a><a href="./tag/bash.html" class="tag">bash</a><a href="./tag/zsh.html" class="tag">zsh</a></span>
+
+</footer><!-- /.post-info -->                <!-- tags: bash, bash, screen, cygwin, cygwin, Firefox, keyboard, math, pelican, Pelican, percol, python, python, reStructuredText, Vimperator, TODO, Vim, Vimperator, yoga_tablet2, zsh -->
+<!-- category: blog, PC, Software, Software/Blog, Software/CUI -->
+<p>aptやyumと違って，makeしたプログラムはアンインストールなど管理が面倒。そこで，ちょっと前に <tt class="docutils literal">paco</tt> でソースからコンパイルしたプログラムを管理するのが流行っていたように思う。しかし， <tt class="docutils literal">paco</tt> は開発終了しているので今から使うには難があるし，なによりもcygwinに対応していない。</p>
+<p>参考: <a class="reference external" href="http://rcmdnk.github.io/blog/2013/08/04/computer-linux-mac/">pacoでmake installしたパッケージを管理</a></p>
+<p>そこで，今回は <tt class="docutils literal">stow</tt> を使ってみることにした。stowはperlで動くかなーりシンプルなプログラムなので管理も楽だ。</p>
+
+                <a class="readmore" href="./stow.html">&raquo; read more</a>
+<p><a href="./stow.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="./cygwin-wol.html" rel="bookmark"
+                           title="Permalink to 64bit版CygwinでwolをコンパイルしてWake on Lanする">64bit版CygwinでwolをコンパイルしてWake on Lanする</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2015/03/05 18:55</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/06/05 23:37</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/software.html">Software</a>
+<span>| tags: <a href="./tag/cygwin.html" class="tag">Cygwin</a></span>
+
+</footer><!-- /.post-info -->                <!-- tags: bash, bash, screen, cygwin, Firefox, keyboard, math, pelican, Pelican, percol, python, python, reStructuredText, Vimperator, TODO, Vim, Vimperator, yoga_tablet2, zsh -->
+<!-- category: blog, PC, Software, Software/Blog, Software/CUI -->
+<p>cygwinにはどうやらWakeOnLanのためのクライアントが無いようだ。そこで， <a class="reference external" href="http://sourceforge.net/projects/wake-on-lan/?source=typ_redirect">wol</a> コマンドをコンパイルして使えるようにする。なお，環境は以下のとおり。</p>
+$ uname -a
+CYGWIN_NT-6.3 User-PC <span class="m">1</span>.7.34<span class="o">(</span><span class="m">0</span>.285/5/3<span class="o">)</span> <span class="m">2015</span>-02-04 <span class="m">12</span>:14 x86_64 Cygwin
+</pre>
+
+                <a class="readmore" href="./cygwin-wol.html">&raquo; read more</a>
+<p><a href="./cygwin-wol.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="./copy_paste_pwd.html" rel="bookmark"
+                           title="Permalink to 楽にカレントディレクトリをコピペするコマンドを作る">楽にカレントディレクトリをコピペするコマンドを作る</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2015/02/21 16:02</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/06/05 23:37</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/software.html">Software</a>
+<span>| tags: <a href="./tag/zsh.html" class="tag">zsh</a><a href="./tag/bash.html" class="tag">bash</a><a href="./tag/screen.html" class="tag">screen</a><a href="./tag/cygwin.html" class="tag">Cygwin</a></span>
+
+</footer><!-- /.post-info -->                <!-- tags: bash, Firefox, keyboard, math, pelican, Pelican, percol, python, python, reStructuredText, Vimperator, TODO, Vim, Vimperator, yoga_tablet2, zsh -->
+<!-- category: blog, PC, Software, Software/Blog, Software/CUI -->
+<p>GNU Screenなんかで作業していると，このウィンドウと同じパスへ移動したいとか思うことがある。ScreenやTmuxの機能をつかえばショートカットキー一発でかっちょいいかんじにできるだろうけど，今回はシェルのエイリアスで泥臭く，でもシンプルで柔軟な対応をすることにした。</p>
+
+                <a class="readmore" href="./copy_paste_pwd.html">&raquo; read more</a>
+<p><a href="./copy_paste_pwd.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="./move_updir.html" rel="bookmark"
+                           title="Permalink to シェルでディレクトリの上下移動を楽する">シェルでディレクトリの上下移動を楽する</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2015/02/18 11:52</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2015/02/18 12:21</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/software.html">Software</a>
+        <span class="article_category_separator"> &raquo; </span>
+        <a class=article_subcategory_name href="./subcategory/software/cui.html">CUI</a>
+<span>| tags: <a href="./tag/bash.html" class="tag">bash</a><a href="./tag/zsh.html" class="tag">zsh</a></span>
+
+</footer><!-- /.post-info -->                <!-- tags: Firefox, Pelican, TODO, Vim, keyboard, math, pelican, percol, python, python, reStructuredText, yoga_tablet2, zsh -->
+<!-- category: PC, Software, blog, Software/Blog -->
+<p>シェルで1つ上のディレクトリに移動しようと思ったら，普通は <tt class="docutils literal">cd ..</tt> する。さて，深いディレクトリから脱出したいときは，いくつ上のディレクトリまでなら許容できるだろうか。</p>
+
+$ <span class="nb">cd</span> ../..  <span class="c1"># 2個上</span>
+$ <span class="nb">cd</span> ../../..  <span class="c1"># 3個上</span>
+$ <span class="nb">cd</span> ../../../..  <span class="c1"># 4個上</span>
+$ <span class="nb">cd</span> ../../../../..  <span class="c1"># 5個上</span>
+$ <span class="nb">cd</span> ../../../../../..  <span class="c1"># 6個上</span>
+$ <span class="nb">cd</span> ../../../../../../..  <span class="c1"># 7個上</span>
+$ <span class="nb">cd</span> ../../../../../../../..  <span class="c1"># 8個上</span>
+$ <span class="nb">cd</span> ../../../../../../../../..  <span class="c1"># 9個上</span>
+</pre>
+<p>僕は4個上が限界です。それ以上だと間違いが激増する。</p>
+
+                <a class="readmore" href="./move_updir.html">&raquo; read more</a>
+<p><a href="./move_updir.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+            </ol><!-- /#posts-list -->
+            </section><!-- /#content -->
+<div id="sidebar">
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* スクエア */
+        google_ad_slot = "7175743105";
+        google_ad_width = 200;
+        google_ad_height = 200;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">検索</h3>
+      <form action="https://www.google.co.jp/search" target="_blank" class="google-search">
+          <input type="hidden" name="q" value="site:http://blog.calcurio.com">
+        <input type="text" name="q">
+      </form>
+    </div>
+    <div class="sidebar_child">
+        Author: M. Tsuyuki
+<p><a href="/pages/about.html">詳しく</a></p>    </div>
+    <div class="sidebar_child">
+        <h3 class="sidebar_title"></h3>
+<h3 class="sidebar_title">カテゴリ</h3>        <ul>            <li><a href="./category/hardware.html">Hardware</a> (11)</li>
+            <li><a href="./category/lun wen.html">論文</a> (2)</li>
+            <li><a href="./category/software.html">Software</a> (79)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">タグ</h3>        <ul>            <li><a href="./tag/aws.html" class="tag">AWS</a> (3)</li>
+            <li><a href="./tag/bash.html" class="tag">bash</a> (6)</li>
+            <li><a href="./tag/blog.html" class="tag">Blog</a> (4)</li>
+            <li><a href="./tag/bot.html" class="tag">bot</a> (1)</li>
+            <li><a href="./tag/cli.html" class="tag">CLI</a> (4)</li>
+            <li><a href="./tag/cui.html" class="tag">CUI</a> (18)</li>
+            <li><a href="./tag/cygwin.html" class="tag">Cygwin</a> (17)</li>
+            <li><a href="./tag/docker.html" class="tag">Docker</a> (11)</li>
+            <li><a href="./tag/dvc.html" class="tag">dvc</a> (1)</li>
+            <li><a href="./tag/ec2.html" class="tag">EC2</a> (2)</li>
+            <li><a href="./tag/firefox.html" class="tag">Firefox</a> (4)</li>
+            <li><a href="./tag/fluentd.html" class="tag">fluentd</a> (1)</li>
+            <li><a href="./tag/git.html" class="tag">Git</a> (3)</li>
+            <li><a href="./tag/github.html" class="tag">Github</a> (1)</li>
+            <li><a href="./tag/hardware.html" class="tag">Hardware</a> (1)</li>
+            <li><a href="./tag/html.html" class="tag">HTML</a> (1)</li>
+            <li><a href="./tag/ji jie xue xi.html" class="tag">機械学習</a> (6)</li>
+            <li><a href="./tag/jia xiang hua.html" class="tag">仮想化</a> (3)</li>
+            <li><a href="./tag/jupyter.html" class="tag">Jupyter</a> (1)</li>
+            <li><a href="./tag/keyboard.html" class="tag">keyboard</a> (1)</li>
+            <li><a href="./tag/linux.html" class="tag">Linux</a> (21)</li>
+            <li><a href="./tag/makefile.html" class="tag">Makefile</a> (1)</li>
+            <li><a href="./tag/math.html" class="tag">math</a> (2)</li>
+            <li><a href="./tag/networking.html" class="tag">Networking</a> (4)</li>
+            <li><a href="./tag/openstack.html" class="tag">OpenStack</a> (2)</li>
+            <li><a href="./tag/pczi zuo.html" class="tag">PC自作</a> (4)</li>
+            <li><a href="./tag/pelican.html" class="tag">Pelican</a> (9)</li>
+            <li><a href="./tag/percol.html" class="tag">percol</a> (2)</li>
+            <li><a href="./tag/preseed.html" class="tag">Preseed</a> (1)</li>
+            <li><a href="./tag/python.html" class="tag">Python</a> (12)</li>
+            <li><a href="./tag/rally.html" class="tag">Rally</a> (1)</li>
+            <li><a href="./tag/raspi.html" class="tag">RasPi</a> (1)</li>
+            <li><a href="./tag/restructuredtext.html" class="tag">reStructuredText</a> (1)</li>
+            <li><a href="./tag/screen.html" class="tag">screen</a> (2)</li>
+            <li><a href="./tag/tesuto.html" class="tag">テスト</a> (1)</li>
+            <li><a href="./tag/thinkpad.html" class="tag">ThinkPad</a> (4)</li>
+            <li><a href="./tag/thinkpad helix.html" class="tag">ThinkPad Helix</a> (2)</li>
+            <li><a href="./tag/tmux.html" class="tag">Tmux</a> (1)</li>
+            <li><a href="./tag/ubuntu.html" class="tag">Ubuntu</a> (27)</li>
+            <li><a href="./tag/vagrant.html" class="tag">vagrant</a> (2)</li>
+            <li><a href="./tag/vim.html" class="tag">Vim</a> (5)</li>
+            <li><a href="./tag/vimperator.html" class="tag">Vimperator</a> (3)</li>
+            <li><a href="./tag/virtualbox.html" class="tag">Virtualbox</a> (1)</li>
+            <li><a href="./tag/windows.html" class="tag">Windows</a> (6)</li>
+            <li><a href="./tag/yoga_tablet2.html" class="tag">yoga_tablet2</a> (1)</li>
+            <li><a href="./tag/zabbix.html" class="tag">zabbix</a> (1)</li>
+            <li><a href="./tag/ziyobusukeziyura.html" class="tag">ジョブスケジューラ</a> (1)</li>
+            <li><a href="./tag/zsh.html" class="tag">zsh</a> (7)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* リンクユニット */
+        google_ad_slot = "1129209509";
+        google_ad_width = 200;
+        google_ad_height = 90;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">最近の投稿</h3>        <ul id="recent-article">
+        <li>
+            <a href="update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a>
+            2020/07/25
+        </li>
+        <li>
+            <a href="vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a>
+            2020/07/24
+        </li>
+        <li>
+            <a href="raspi-wifi.html">Raspberry Pi3 Bで802.11ACな安物無線LANアダプタを使う</a>
+            2019/05/01
+        </li>
+        <li>
+            <a href="PALM_Machine_Learning_Explanations_for_Iterative_Debugging.html">PALM_Machine_Learning_Explanations_for_Iterative_Debugging</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="A_Survey_of_Methods_For_Explaining_Bloack_Box_Models.html">A Survey of Methods For Explaining Bloack Box Modelsを読んだ</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a>
+            2018/04/08
+        </li>
+        <li>
+            <a href="dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a>
+            2018/04/07
+        </li>
+        <li>
+            <a href="transparent-proxy-by-squid.html">Docker buildを高速化するためにsquidで透過型プロキシを立ててみた</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="detect-apt-cacher-in-dockerfile.html">Dockerfile内部でapt-cacher-ngを自動検出する</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="slurm.html">slurmをインストール...したい</a>
+            2017/08/16
+        </li>
+        <li>
+            <a href="install-nvenc-on-ubunu.html">UbuntuにNVENCをインストールしてエンコードしてみる</a>
+            2017/06/26
+        </li>
+        <li>
+            <a href="install_dropbox_for_linux.html">UbuntuにLinux用Dropboxをインストールする</a>
+            2017/06/25
+        </li>
+        <li>
+            <a href="ssh-tunneling-for-samba.html">SSHトンネル経由でWindowsからリモートのSambaサーバへ接続する方法</a>
+            2017/06/19
+        </li>
+        <li>
+            <a href="h270-unixbench.html">Core i7-7700な自作PCを作ったのでUnixBenchを取ってみた</a>
+            2017/06/18
+        </li>
+        <li>
+            <a href="enable-wake-on-lan.html">Ubuntuでwake-on-lanを有効化する</a>
+            2017/06/16
+        </li>
+        </ul>
+    </div>
+</div><p class="paginator">
+    Page 8 / 10
+            <a href="./index.html">&laquo; 最初</a>
+            <a href="./index7.html">&lt; 前</a>
+            <a href="./index.html">1</a>
+            <a href="./index2.html">2</a>
+            <a href="./index3.html">3</a>
+            <a href="./index4.html">4</a>
+            <a href="./index5.html">5</a>
+            <a href="./index6.html">6</a>
+            <a href="./index7.html">7</a>
+            <span class="current_page">8</span>
+        <span class="block">&hellip;</span>
+        <a href="./index9.html">次 &gt;</a>
+
+            <a href="./index10.html">最後 &raquo;</a>
+</p>
+        </div>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme baseed on <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>.</p>
+        </footer><!-- /#contentinfo -->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+   ga('create', 'UA-42775386-2', 'auto');
+    ga('send', 'pageview');
+</script>
+</body>
+</html>

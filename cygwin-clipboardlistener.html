@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+        <link rel="canonical" href="http://blog.calcurio.com/cygwin-clipboardlistener.html" />
+        <meta charset="utf-8" />
+        <title>cygwinでclipboardlistenerを動作させる | 電脳手帳</title>
+        <link rel="apple-touch-icon" sizes="57x57" href="theme/favicon/apple-touch-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="theme/favicon/apple-touch-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="theme/favicon/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="theme/favicon/apple-touch-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="theme/favicon/apple-touch-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="theme/favicon/apple-touch-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="theme/favicon/apple-touch-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="theme/favicon/apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="theme/favicon/apple-touch-icon-180x180.png">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="theme/favicon/android-chrome-192x192.png" sizes="192x192">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-96x96.png" sizes="96x96">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="theme/favicon/manifest.json">
+        <meta name="msapplication-TileColor" content="#000000">
+        <meta name="msapplication-TileImage" content="theme/favicon/mstile-144x144.png">
+        <meta name="theme-color" content="#ffffff">        <link rel="stylesheet" href="./theme/css/main.css" />
+        <link href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="電脳手帳 Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+        <h1><a href="./">電脳手帳 </a></h1> <div id="subtitle">計算機環境やコーディング，機械学習まわりの話題を書き留めます</div>        </header><!-- /#banner -->
+        <div id="basecontent">
+    <nav id="nav-above">
+    <div class="top-prev"><a href="autoexpect.html" >&larr; autoexpectコマンドでexpectのスクリプトを自動生成する</a></div>
+    <div class="top-next"><a href="preseed-partitioning.html" >UbuntuのPreseed.cfgのexpert_recipeにおけるパーティションのサイズ指定方法 &rarr;</a></div>
+    </nav>
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="./cygwin-clipboardlistener.html" rel="bookmark"
+           title="Permalink to cygwinでclipboardlistenerを動作させる">cygwinでclipboardlistenerを動作させる</a></h1>
+    </header>
+    <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/06/10 01:00</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/06/12 23:49</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/software.html">Software</a>
+        <span class="article_category_separator"> &raquo; </span>
+        <a class=article_subcategory_name href="./subcategory/software/cui.html">CUI</a>
+<span>| tags: <a href="./tag/cygwin.html" class="tag">Cygwin</a><a href="./tag/linux.html" class="tag">Linux</a></span>
+
+</footer><!-- /.post-info --><div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>      <!-- tags: bash, blog, CUI, Cygwin, Firefox, git, Hardware, keyboard, Linux, math, PC自作, pelican, Pelican, percol, python, reStructuredText, screen, ThinkPad, ThinkPadHelix, TODO, Ubuntu, Vim, Vimperator, Virtualbox, Windows, yoga_tablet2, zsh -->
+<!-- category: blog, Hardware/ノートPC, software, Software, Software/Blog, Software/CUI, Software/Linux, Software/Linux -->
+<p>SSH先のVimのyankやScreenのpaste bufferを，ローカルマシンのクリップボードへ書き込む方法には，</p>
+<ol class="arabic simple">
+<li>ncで適当なポートへ送信し，ホスト側で待ち受ける(clipboard_text_listener.pl)</li>
+<li>端末のクリップボード制御コード(OSC52)を使う</li>
+<li>ファイルへ保存し，sshコマンドでとってくる</li>
+</ol>
+<p>方法があるようだ。一番楽なのは， <tt class="docutils literal">clipboard_text_listener.pl</tt> を使わせていただく方法。
+Cygwinで動作させる方法をメモしておく。</p>
+
+<div class="section" id="id1">
+<h2>インストール</h2>
+<p>まず作者サイトを見て <tt class="docutils literal">clipboard_text_listener.pl</tt> を保存。リモート先の設定をしておく。</p>
+<blockquote>
+<a class="reference external" href="http://yskwkzhr.blogspot.jp/2011/04/copying-remote-screen-paste-buffer.html">ssh先screenのペーストバッファをクリップボードに貼り付ける - Keep It Simple, Stupid</a></blockquote>
+<p>最近のCygiwnでは <tt class="docutils literal">putclip</tt> コマンドが使えない。
+(2016-06-12追記： <tt class="docutils literal"><span class="pre">apt-cyg</span> install <span class="pre">cygutils-extra</span></tt> で putclipやgetclipが使えるようになる)
+以下のシェルスクリプトを <tt class="docutils literal">putclip</tt> という名前でpathの通ったディレクトリにおいておく。</p>
+<div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+cat - &gt; /dev/clipboard
+</pre></div>
+<p>あとは実行するだけ。ちゃんと動作するか確かめる。</p>
+<div class="highlight"><pre><span></span><span class="n">perl</span> <span class="sr">/path/</span><span class="n">to</span><span class="o">/</span><span class="n">clipboard_text_listener</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">encoding</span> <span class="n">utf8</span>
+</pre></div>
+</div>
+<div class="section" id="windows">
+<h2>Windows起動時自動実行</h2>
+<p>なお，Windowsのスタートアップに登録しておくなら，まずclipboardlistener.batを以下の内容で作成して，</p>
+<div class="highlight"><pre><span></span>C<span class="p">:</span>
+<span class="k">CD</span> C:\cygwin64\bin
+bash  --login -i -c <span class="s2">&quot;perl /path/to/clipboard_text_listener.pl -encoding utf8&quot;</span>%
+</pre></div>
+<p>同じディレクトリに <tt class="docutils literal">clipboardlistener.vbs</tt> を以下の内容で作成する。
+スタートアップフォルダには， <tt class="docutils literal">clipboardlistener.vbs</tt> へのショートカットを作成する。</p>
+<div class="highlight"><pre><span></span>Set ws = CreateObject(&quot;Wscript.Shell&quot;)
+ws.run &quot;cmd /c clipboardlistener.bat&quot;, vbhide
+</pre></div>
+</div>
+
+    </div><!-- /.entry-content -->
+<div class="gad">
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* レクタングル大 */
+    google_ad_slot = "2582152705";
+    google_ad_width = 336;
+    google_ad_height = 280;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* テキスト:大 */
+    google_ad_slot = "8524391909";
+    google_ad_width = 728;
+    google_ad_height = 15;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+</div>    <h2 class="related-posts">関連する記事</h2>
+        <ul>
+            <li><a href="./tmux-compile.html">最新版tmuxをコンパイルしてpaneごとににpaneタイトルを表示する</a></li>
+            <li><a href="./mintty-ime-color.html">CygwinのターミナルminttyでIMEの状態に応じてカーソル色を変える</a></li>
+            <li><a href="./ssh-tunneling-for-samba.html">SSHトンネル経由でWindowsからリモートのSambaサーバへ接続する方法</a></li>
+            <li><a href="./cygwin-procps.html">cygwinでwatchコマンドはprocpsパッケージでインストールする</a></li>
+            <li><a href="./cygiwn-rsync-network.html">cygiwnでrsyncの差分バックアップ</a></li>
+            <li><a href="./sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a></li>
+            <li><a href="./linux-proxy.html">linuxやcygwinでhttpプロキシを指定する方法</a></li>
+            <li><a href="./awscli-makefile.html">awscliを使って楽にEC2へSSHできるMakefileを書いてみた</a></li>
+            <li><a href="./autoexpect.html">autoexpectコマンドでexpectのスクリプトを自動生成する</a></li>
+            <li><a href="./cygwin-sshd.html">cygwinでsshdを起動する</a></li>
+        </ul>
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_config = function () {
+            var disqus_identifier = "cygwin-clipboardlistener.html";
+            var disqus_url = "./cygwin-clipboardlistener.html";
+        };
+        var disqus_shortname = 'calcurio';
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+    </div>
+  </article>
+    <nav id="nav-bottom">
+    <div class="top-prev"><a href="autoexpect.html" >&larr; autoexpectコマンドでexpectのスクリプトを自動生成する</a></div>
+    <div class="top-next"><a href="preseed-partitioning.html" >UbuntuのPreseed.cfgのexpert_recipeにおけるパーティションのサイズ指定方法 &rarr;</a></div>
+    </nav>
+</section>
+<div id="sidebar">
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* スクエア */
+        google_ad_slot = "7175743105";
+        google_ad_width = 200;
+        google_ad_height = 200;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">検索</h3>      <form action="https://www.google.co.jp/search" target="_blank" class="google-search">
+          <input type="hidden" name="q" value="site:http://blog.calcurio.com">
+        <input type="text" name="q">
+      </form>
+    </div>
+    <div class="sidebar_child">
+        Author: M. Tsuyuki
+<p><a href="/pages/about.html">詳しく</a></p>    </div>
+    <div class="sidebar_child">
+        <h3 class="sidebar_title"></h3>
+<h3 class="sidebar_title">カテゴリ</h3>        <ul>            <li><a href="./category/hardware.html">Hardware</a> (11)</li>
+            <li><a href="./category/lun wen.html">論文</a> (2)</li>
+            <li><a href="./category/software.html">Software</a> (79)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">タグ</h3>        <ul>            <li><a href="./tag/aws.html" class="tag">AWS</a> (3)</li>
+            <li><a href="./tag/bash.html" class="tag">bash</a> (6)</li>
+            <li><a href="./tag/blog.html" class="tag">Blog</a> (4)</li>
+            <li><a href="./tag/bot.html" class="tag">bot</a> (1)</li>
+            <li><a href="./tag/cli.html" class="tag">CLI</a> (4)</li>
+            <li><a href="./tag/cui.html" class="tag">CUI</a> (18)</li>
+            <li><a href="./tag/cygwin.html" class="tag">Cygwin</a> (17)</li>
+            <li><a href="./tag/docker.html" class="tag">Docker</a> (11)</li>
+            <li><a href="./tag/dvc.html" class="tag">dvc</a> (1)</li>
+            <li><a href="./tag/ec2.html" class="tag">EC2</a> (2)</li>
+            <li><a href="./tag/firefox.html" class="tag">Firefox</a> (4)</li>
+            <li><a href="./tag/fluentd.html" class="tag">fluentd</a> (1)</li>
+            <li><a href="./tag/git.html" class="tag">Git</a> (3)</li>
+            <li><a href="./tag/github.html" class="tag">Github</a> (1)</li>
+            <li><a href="./tag/hardware.html" class="tag">Hardware</a> (1)</li>
+            <li><a href="./tag/html.html" class="tag">HTML</a> (1)</li>
+            <li><a href="./tag/ji jie xue xi.html" class="tag">機械学習</a> (6)</li>
+            <li><a href="./tag/jia xiang hua.html" class="tag">仮想化</a> (3)</li>
+            <li><a href="./tag/jupyter.html" class="tag">Jupyter</a> (1)</li>
+            <li><a href="./tag/keyboard.html" class="tag">keyboard</a> (1)</li>
+            <li><a href="./tag/linux.html" class="tag">Linux</a> (21)</li>
+            <li><a href="./tag/makefile.html" class="tag">Makefile</a> (1)</li>
+            <li><a href="./tag/math.html" class="tag">math</a> (2)</li>
+            <li><a href="./tag/networking.html" class="tag">Networking</a> (4)</li>
+            <li><a href="./tag/openstack.html" class="tag">OpenStack</a> (2)</li>
+            <li><a href="./tag/pczi zuo.html" class="tag">PC自作</a> (4)</li>
+            <li><a href="./tag/pelican.html" class="tag">Pelican</a> (9)</li>
+            <li><a href="./tag/percol.html" class="tag">percol</a> (2)</li>
+            <li><a href="./tag/preseed.html" class="tag">Preseed</a> (1)</li>
+            <li><a href="./tag/python.html" class="tag">Python</a> (12)</li>
+            <li><a href="./tag/rally.html" class="tag">Rally</a> (1)</li>
+            <li><a href="./tag/raspi.html" class="tag">RasPi</a> (1)</li>
+            <li><a href="./tag/restructuredtext.html" class="tag">reStructuredText</a> (1)</li>
+            <li><a href="./tag/screen.html" class="tag">screen</a> (2)</li>
+            <li><a href="./tag/tesuto.html" class="tag">テスト</a> (1)</li>
+            <li><a href="./tag/thinkpad.html" class="tag">ThinkPad</a> (4)</li>
+            <li><a href="./tag/thinkpad helix.html" class="tag">ThinkPad Helix</a> (2)</li>
+            <li><a href="./tag/tmux.html" class="tag">Tmux</a> (1)</li>
+            <li><a href="./tag/ubuntu.html" class="tag">Ubuntu</a> (27)</li>
+            <li><a href="./tag/vagrant.html" class="tag">vagrant</a> (2)</li>
+            <li><a href="./tag/vim.html" class="tag">Vim</a> (5)</li>
+            <li><a href="./tag/vimperator.html" class="tag">Vimperator</a> (3)</li>
+            <li><a href="./tag/virtualbox.html" class="tag">Virtualbox</a> (1)</li>
+            <li><a href="./tag/windows.html" class="tag">Windows</a> (6)</li>
+            <li><a href="./tag/yoga_tablet2.html" class="tag">yoga_tablet2</a> (1)</li>
+            <li><a href="./tag/zabbix.html" class="tag">zabbix</a> (1)</li>
+            <li><a href="./tag/ziyobusukeziyura.html" class="tag">ジョブスケジューラ</a> (1)</li>
+            <li><a href="./tag/zsh.html" class="tag">zsh</a> (7)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* リンクユニット */
+        google_ad_slot = "1129209509";
+        google_ad_width = 200;
+        google_ad_height = 90;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">最近の投稿</h3>        <ul id="recent-article">
+        <li>
+            <a href="update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a>
+            2020/07/25
+        </li>
+        <li>
+            <a href="vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a>
+            2020/07/24
+        </li>
+        <li>
+            <a href="raspi-wifi.html">Raspberry Pi3 Bで802.11ACな安物無線LANアダプタを使う</a>
+            2019/05/01
+        </li>
+        <li>
+            <a href="PALM_Machine_Learning_Explanations_for_Iterative_Debugging.html">PALM_Machine_Learning_Explanations_for_Iterative_Debugging</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="A_Survey_of_Methods_For_Explaining_Bloack_Box_Models.html">A Survey of Methods For Explaining Bloack Box Modelsを読んだ</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a>
+            2018/04/08
+        </li>
+        <li>
+            <a href="dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a>
+            2018/04/07
+        </li>
+        <li>
+            <a href="transparent-proxy-by-squid.html">Docker buildを高速化するためにsquidで透過型プロキシを立ててみた</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="detect-apt-cacher-in-dockerfile.html">Dockerfile内部でapt-cacher-ngを自動検出する</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="slurm.html">slurmをインストール...したい</a>
+            2017/08/16
+        </li>
+        <li>
+            <a href="install-nvenc-on-ubunu.html">UbuntuにNVENCをインストールしてエンコードしてみる</a>
+            2017/06/26
+        </li>
+        <li>
+            <a href="install_dropbox_for_linux.html">UbuntuにLinux用Dropboxをインストールする</a>
+            2017/06/25
+        </li>
+        <li>
+            <a href="ssh-tunneling-for-samba.html">SSHトンネル経由でWindowsからリモートのSambaサーバへ接続する方法</a>
+            2017/06/19
+        </li>
+        <li>
+            <a href="h270-unixbench.html">Core i7-7700な自作PCを作ったのでUnixBenchを取ってみた</a>
+            2017/06/18
+        </li>
+        <li>
+            <a href="enable-wake-on-lan.html">Ubuntuでwake-on-lanを有効化する</a>
+            2017/06/16
+        </li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+    <h3 class="sidebar_title">関連する記事</h3>
+        <ul id="sidebar_related_article">
+            <li><a href="./tmux-compile.html">最新版tmuxをコンパイルしてpaneごとににpaneタイトルを表示する</a></li>
+            <li><a href="./mintty-ime-color.html">CygwinのターミナルminttyでIMEの状態に応じてカーソル色を変える</a></li>
+            <li><a href="./ssh-tunneling-for-samba.html">SSHトンネル経由でWindowsからリモートのSambaサーバへ接続する方法</a></li>
+            <li><a href="./cygwin-procps.html">cygwinでwatchコマンドはprocpsパッケージでインストールする</a></li>
+            <li><a href="./cygiwn-rsync-network.html">cygiwnでrsyncの差分バックアップ</a></li>
+            <li><a href="./sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a></li>
+            <li><a href="./linux-proxy.html">linuxやcygwinでhttpプロキシを指定する方法</a></li>
+            <li><a href="./awscli-makefile.html">awscliを使って楽にEC2へSSHできるMakefileを書いてみた</a></li>
+            <li><a href="./autoexpect.html">autoexpectコマンドでexpectのスクリプトを自動生成する</a></li>
+            <li><a href="./cygwin-sshd.html">cygwinでsshdを起動する</a></li>
+        </ul>
+    </div>
+</div>        </div>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme baseed on <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>.</p>
+        </footer><!-- /#contentinfo -->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+   ga('create', 'UA-42775386-2', 'auto');
+    ga('send', 'pageview');
+</script>
+</body>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+        <link rel="canonical" href="http://blog.calcurio.com/A_Survey_of_Methods_For_Explaining_Bloack_Box_Models.html" />
+        <meta charset="utf-8" />
+        <title>A Survey of Methods For Explaining Bloack Box Modelsを読んだ | 電脳手帳</title>
+        <link rel="apple-touch-icon" sizes="57x57" href="theme/favicon/apple-touch-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="theme/favicon/apple-touch-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="theme/favicon/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="theme/favicon/apple-touch-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="theme/favicon/apple-touch-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="theme/favicon/apple-touch-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="theme/favicon/apple-touch-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="theme/favicon/apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="theme/favicon/apple-touch-icon-180x180.png">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="theme/favicon/android-chrome-192x192.png" sizes="192x192">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-96x96.png" sizes="96x96">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="theme/favicon/manifest.json">
+        <meta name="msapplication-TileColor" content="#000000">
+        <meta name="msapplication-TileImage" content="theme/favicon/mstile-144x144.png">
+        <meta name="theme-color" content="#ffffff">        <link rel="stylesheet" href="./theme/css/main.css" />
+        <link href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="電脳手帳 Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+        <h1><a href="./">電脳手帳 </a></h1> <div id="subtitle">計算機環境やコーディング，機械学習まわりの話題を書き留めます</div>        </header><!-- /#banner -->
+        <div id="basecontent">
+    <nav id="nav-above">
+    <div class="top-prev"><a href="sixel.html" >&larr; ターミナル上で画像を表示するlibsixelを試してみた</a></div>
+    <div class="top-next"><a href="PALM_Machine_Learning_Explanations_for_Iterative_Debugging.html" >PALM_Machine_Learning_Explanations_for_Iterative_Debugging &rarr;</a></div>
+    </nav>
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="./A_Survey_of_Methods_For_Explaining_Bloack_Box_Models.html" rel="bookmark"
+           title="Permalink to A Survey of Methods For Explaining Bloack Box Modelsを読んだ">A Survey of Methods For Explaining Bloack Box Modelsを読んだ</a></h1>
+    </header>
+    <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2018/10/07 13:40</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2020/05/24 10:42</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/lun wen.html">論文</a>
+<span>| tags: <a href="./tag/ji jie xue xi.html" class="tag">機械学習</a></span>
+
+</footer><!-- /.post-info --><div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>      <p>機械学習モデルの解釈可能性に関する，サーベイ論文として重要な
+[1802.01933] A Survey Of Methods For Explaining Black Box Models - https://arxiv.org/abs/1802.01933 を読んだのでメモ。</p>
+
+
+<h1>Abstract</h1>
+<ul>
+<li>多くの意思決定システムはブラックボックスであり，ユーザにとって内部ロジックは不明</li>
+<li>解釈可能性を向上させる研究は，下記の3つに応じて多数ある<ul>
+<li>問題の定義</li>
+<li>ブラックボックスのアルゴリズム</li>
+<li>望まれる「説明」の定義</li>
+</ul>
+</li>
+<li>本サーベイ論文では上記の3つに応じてた研究をまとめる</li>
+</ul>
+<h1>1 Indtroduction</h1>
+<ul>
+<li>分類・回帰にかかわらず，学習データを作った人間のバイアスがモデルに反映され，誤った推論・意思決定をする可能性がある</li>
+<li>GDPR(EU一般データ保護規則)では，自動化された意思決定システムにおいて，ロジックについて説明を受ける権利が規定されている [1]<ul>
+<li>与信審査，雇用，保険契約などにおいて，偏見や差別のない構成で透明性のある処理を実現するため</li>
+</ul>
+</li>
+<li>自動運転や医療の個人最適化など，信頼性が求められるタスクでも，データの偏りによる誤推論のリスクがある</li>
+<li>
+<p>故にブラックボックスモデルを解釈する研究が求められている</p>
+<ul>
+<li>モデルを説明するものと，推論結果を説明するもの</li>
+</ul>
+</li>
+<li>
+<p>残りの節では下記を議論する</p>
+<ul>
+<li>3: 解釈性とは何か</li>
+<li>4: カテゴライズするための問題定義</li>
+<li>5-9: 先行研究の紹介</li>
+<li>10: まとめ</li>
+</ul>
+</li>
+</ul>
+<p>[1] <a href="https://blog.cloudera.co.jp/eu%E4%B8%80%E8%88%AC%E3%83%87%E3%83%BC%E3%82%BF%E4%BF%9D%E8%AD%B7%E8%A6%8F%E5%89%87-gdpr-%E3%81%A8%E3%83%87%E3%83%BC%E3%82%BF%E3%82%B5%E3%82%A4%E3%82%A8%E3%83%B3%E3%82%B9-39d03f775f59">EU一般データ保護規則 (GDPR) とデータサイエンス – Cloudera Japan Official Blog </a></p>
+<h1>2 Needs for Interpretable Models</h1>
+<ul>
+<li>実際に解釈可能性が必要になるケースを紹介する<ul>
+<li>社会的に問題<ul>
+<li>採用面接の対象者選定: 女性や人種的マイノリティが排除</li>
+<li>犯罪の常習性: 黒人が倍に</li>
+<li>Webテキストからの感情分析: 黒人系の名前が出現すると否定的な感情に分類するモデル</li>
+<li>Amazon.comの無料お急ぎ便クーポン: 人種的マイノリティが除外</li>
+</ul>
+</li>
+<li>学習データの偏り<ul>
+<li>友軍と敵軍戦車の画像分類: 敵軍は曇り，友軍は晴れの日の写真が多いいため，低汎化性能</li>
+<li>狼とハスキー犬の画像分類: 背景の雪を根拠に狼と分類していた</li>
+</ul>
+</li>
+<li>攻撃<ul>
+<li>ホワイトノイズに見える画像を，DNNにトマトと分類させた研究</li>
+<li>人間にはわからないが，DNNのテキスト分類結果を騙す摂動を加えた研究</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>これらは学習データの偏りを反映したもの</li>
+</ul>
+<h1>3 Interpretable, Explainable and Comprehensible Models</h1>
+<ul>
+<li>解釈可能なモデルとは何か示す</li>
+</ul>
+<h2>3.1 Dimensions of Interpretability</h2>
+<ul>
+<li>解釈性を分類する指標には，次の3つがある<ul>
+<li>大域的・局所的 (Global/Local) 解釈性<ul>
+<li>大域的: すべての入力データについてモデルの振る舞いを解釈</li>
+<li>局所的: 特定の入力データ(推論結果)についてモデルの振る舞いを解釈</li>
+</ul>
+</li>
+<li>計算時間<ul>
+<li>ユーザが解釈を閲覧して，直ちに決断する(災害対応など)か，時間的余裕があるか</li>
+</ul>
+</li>
+<li>ユーザの専門性<ul>
+<li>モデルが解くタスクに，ユーザが知識を持っているか</li>
+<li>Domain expertsならば複雑・詳細なモデルの説明を好む。素人ならばシンプルなモデルの説明が良い</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2>3.2 Desiderata of an Interpretable Model</h2>
+<ul>
+<li>
+<p>解釈可能なモデルに対する3つの要求</p>
+<ul>
+<li>解釈性(Interpretability)<ul>
+<li>モデルや推論結果を人間が理解できるか</li>
+<li>指標はモデルサイズ（モデルの複雑性）</li>
+<li>理解可能性(Comprehensibility)とも</li>
+</ul>
+</li>
+<li>精度<ul>
+<li>新しいデータを解釈可能なモデルが正しく分類できるか</li>
+<li>指標は，テストデータに対するaccuracyやF1スコアなど</li>
+</ul>
+</li>
+<li>忠実性<ul>
+<li>説明対象のブラックボックスモデルの再現性。</li>
+<li>指標は，ブラックボックスモデルをオラクルとしたaccuracyやF1スコアで定義</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>倫理的観点からは，下記も大事な指標</p>
+<ul>
+<li>公平性<ul>
+<li>特定グループへの意識的・無意識的な差別</li>
+</ul>
+</li>
+<li>プライバシー<ul>
+<li>モデルから個人情報の流出</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>人間に信用されるモデルとしてはusabilityも大事<ul>
+<li>固定的なモデルよりも，クエリによって振る舞いの変わる柔軟場モデルのほうが，情報量が多いので人間は有用とみなす</li>
+</ul>
+</li>
+</ul>
+<h2>3.3 Recognized Interpretable Models</h2>
+<ul>
+<li>決定木，decision rule，線形モデルは解釈可能とみなされている<ul>
+<li>決定木はif-then形式で記述可能<ul>
+<li>if condition1 ∧ condition2 ∧ condition3 then outcome.</li>
+</ul>
+</li>
+<li>decision ruleは一般化された，classification ruleからなるもの<ul>
+<li>決定木の形式にこだわらないif-then</li>
+<li>m-fo-n rule: n個のルールのうち，m個が満たされたら真</li>
+<li>list of rule:</li>
+<li>falling rule lists:</li>
+<li>decision sets:</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2>3.4 Explanations and Interpretable Models Complexity</h2>
+<ul>
+<li>モデルサイズ<ul>
+<li>決定木: ノード数</li>
+<li>線形モデル; 変数の数</li>
+</ul>
+</li>
+</ul>
+<h2>3.5 Interpretable Data for Interpretable Models</h2>
+<ul>
+<li>Table形式のデータであれば人間も解釈しやすい<ul>
+<li>ベクトル形式のデータにそのまま対応しているので機械学習と親和性高い</li>
+</ul>
+</li>
+<li>その他には画像とテキスト</li>
+<li>時系列データなどの例は無い</li>
+</ul>
+<h1>4 Open The Black Box Problems</h1>
+<ul>
+<li>
+<p>解釈可能なモデルを作るアプローチは2つ</p>
+<ul>
+<li>ブラックボックスモデルをリバースエンジニアリングする</li>
+<li>最初から解釈可能なモデルをデザインする</li>
+</ul>
+</li>
+<li>
+<p>リバースエンジニアリングでは，ブラックボックスモデルの学習に使ったデータ・セットは利用不可能な事が多い</p>
+</li>
+<li>
+<p>4つの問題を定義</p>
+<ul>
+<li>black box model explanation problem<ul>
+<li>大域的に解釈可能なモデルで近似する</li>
+</ul>
+</li>
+<li>black box outcome explanation problem<ul>
+<li>推論結果とともにその理由を示す。局所的な解釈性させあれば良い</li>
+</ul>
+</li>
+<li>black box inspection problem.<ul>
+<li>ブラックボックスモデルの感度分析</li>
+</ul>
+</li>
+<li>transparent box design problem<ul>
+<li>ブラックボックスモデルとは無関係に，最初から解釈可能なモデルを作る</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1>5 Problem And Explanator Based Classification</h1>
+    </div><!-- /.entry-content -->
+<div class="gad">
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* レクタングル大 */
+    google_ad_slot = "2582152705";
+    google_ad_width = 336;
+    google_ad_height = 280;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* テキスト:大 */
+    google_ad_slot = "8524391909";
+    google_ad_width = 728;
+    google_ad_height = 15;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+</div>    <h2 class="related-posts">関連する記事</h2>
+        <ul>
+            <li><a href="./gensim-install.html">Ubuntuへのgensimのinstall</a></li>
+            <li><a href="./PALM_Machine_Learning_Explanations_for_Iterative_Debugging.html">PALM_Machine_Learning_Explanations_for_Iterative_Debugging</a></li>
+            <li><a href="./using-mathjax.html">PelicanでMathJaxを使って数式を表示する</a></li>
+            <li><a href="./install-nvenc-on-ubunu.html">UbuntuにNVENCをインストールしてエンコードしてみる</a></li>
+            <li><a href="./raspi-wifi.html">Raspberry Pi3 Bで802.11ACな安物無線LANアダプタを使う</a></li>
+            <li><a href="./dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a></li>
+            <li><a href="./r-and-bn.html">今日のお勉強</a></li>
+            <li><a href="./ubuntu-nvidia-gt1050ti.html">Ubuntu16.04にGeforge GTX 1050tiをインストールし，TensoFlowの処理を高速化してみた</a></li>
+            <li><a href="./vimperator_statusline.html">vimperatorのステーラスラインにタイトルを表示する</a></li>
+            <li><a href="./cygwin-networkfolder.html">CygwinでNetwork Folderにアクセスする</a></li>
+        </ul>
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_config = function () {
+            var disqus_identifier = "A_Survey_of_Methods_For_Explaining_Bloack_Box_Models.html";
+            var disqus_url = "./A_Survey_of_Methods_For_Explaining_Bloack_Box_Models.html";
+        };
+        var disqus_shortname = 'calcurio';
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+    </div>
+  </article>
+    <nav id="nav-bottom">
+    <div class="top-prev"><a href="sixel.html" >&larr; ターミナル上で画像を表示するlibsixelを試してみた</a></div>
+    <div class="top-next"><a href="PALM_Machine_Learning_Explanations_for_Iterative_Debugging.html" >PALM_Machine_Learning_Explanations_for_Iterative_Debugging &rarr;</a></div>
+    </nav>
+</section>
+<div id="sidebar">
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* スクエア */
+        google_ad_slot = "7175743105";
+        google_ad_width = 200;
+        google_ad_height = 200;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">検索</h3>      <form action="https://www.google.co.jp/search" target="_blank" class="google-search">
+          <input type="hidden" name="q" value="site:http://blog.calcurio.com">
+        <input type="text" name="q">
+      </form>
+    </div>
+    <div class="sidebar_child">
+        Author: M. Tsuyuki
+<p><a href="/pages/about.html">詳しく</a></p>    </div>
+    <div class="sidebar_child">
+        <h3 class="sidebar_title"></h3>
+<h3 class="sidebar_title">カテゴリ</h3>        <ul>            <li><a href="./category/hardware.html">Hardware</a> (11)</li>
+            <li><a href="./category/lun wen.html">論文</a> (2)</li>
+            <li><a href="./category/software.html">Software</a> (79)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">タグ</h3>        <ul>            <li><a href="./tag/aws.html" class="tag">AWS</a> (3)</li>
+            <li><a href="./tag/bash.html" class="tag">bash</a> (6)</li>
+            <li><a href="./tag/blog.html" class="tag">Blog</a> (4)</li>
+            <li><a href="./tag/bot.html" class="tag">bot</a> (1)</li>
+            <li><a href="./tag/cli.html" class="tag">CLI</a> (4)</li>
+            <li><a href="./tag/cui.html" class="tag">CUI</a> (18)</li>
+            <li><a href="./tag/cygwin.html" class="tag">Cygwin</a> (17)</li>
+            <li><a href="./tag/docker.html" class="tag">Docker</a> (11)</li>
+            <li><a href="./tag/dvc.html" class="tag">dvc</a> (1)</li>
+            <li><a href="./tag/ec2.html" class="tag">EC2</a> (2)</li>
+            <li><a href="./tag/firefox.html" class="tag">Firefox</a> (4)</li>
+            <li><a href="./tag/fluentd.html" class="tag">fluentd</a> (1)</li>
+            <li><a href="./tag/git.html" class="tag">Git</a> (3)</li>
+            <li><a href="./tag/github.html" class="tag">Github</a> (1)</li>
+            <li><a href="./tag/hardware.html" class="tag">Hardware</a> (1)</li>
+            <li><a href="./tag/html.html" class="tag">HTML</a> (1)</li>
+            <li><a href="./tag/ji jie xue xi.html" class="tag">機械学習</a> (6)</li>
+            <li><a href="./tag/jia xiang hua.html" class="tag">仮想化</a> (3)</li>
+            <li><a href="./tag/jupyter.html" class="tag">Jupyter</a> (1)</li>
+            <li><a href="./tag/keyboard.html" class="tag">keyboard</a> (1)</li>
+            <li><a href="./tag/linux.html" class="tag">Linux</a> (21)</li>
+            <li><a href="./tag/makefile.html" class="tag">Makefile</a> (1)</li>
+            <li><a href="./tag/math.html" class="tag">math</a> (2)</li>
+            <li><a href="./tag/networking.html" class="tag">Networking</a> (4)</li>
+            <li><a href="./tag/openstack.html" class="tag">OpenStack</a> (2)</li>
+            <li><a href="./tag/pczi zuo.html" class="tag">PC自作</a> (4)</li>
+            <li><a href="./tag/pelican.html" class="tag">Pelican</a> (9)</li>
+            <li><a href="./tag/percol.html" class="tag">percol</a> (2)</li>
+            <li><a href="./tag/preseed.html" class="tag">Preseed</a> (1)</li>
+            <li><a href="./tag/python.html" class="tag">Python</a> (12)</li>
+            <li><a href="./tag/rally.html" class="tag">Rally</a> (1)</li>
+            <li><a href="./tag/raspi.html" class="tag">RasPi</a> (1)</li>
+            <li><a href="./tag/restructuredtext.html" class="tag">reStructuredText</a> (1)</li>
+            <li><a href="./tag/screen.html" class="tag">screen</a> (2)</li>
+            <li><a href="./tag/tesuto.html" class="tag">テスト</a> (1)</li>
+            <li><a href="./tag/thinkpad.html" class="tag">ThinkPad</a> (4)</li>
+            <li><a href="./tag/thinkpad helix.html" class="tag">ThinkPad Helix</a> (2)</li>
+            <li><a href="./tag/tmux.html" class="tag">Tmux</a> (1)</li>
+            <li><a href="./tag/ubuntu.html" class="tag">Ubuntu</a> (27)</li>
+            <li><a href="./tag/vagrant.html" class="tag">vagrant</a> (2)</li>
+            <li><a href="./tag/vim.html" class="tag">Vim</a> (5)</li>
+            <li><a href="./tag/vimperator.html" class="tag">Vimperator</a> (3)</li>
+            <li><a href="./tag/virtualbox.html" class="tag">Virtualbox</a> (1)</li>
+            <li><a href="./tag/windows.html" class="tag">Windows</a> (6)</li>
+            <li><a href="./tag/yoga_tablet2.html" class="tag">yoga_tablet2</a> (1)</li>
+            <li><a href="./tag/zabbix.html" class="tag">zabbix</a> (1)</li>
+            <li><a href="./tag/ziyobusukeziyura.html" class="tag">ジョブスケジューラ</a> (1)</li>
+            <li><a href="./tag/zsh.html" class="tag">zsh</a> (7)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* リンクユニット */
+        google_ad_slot = "1129209509";
+        google_ad_width = 200;
+        google_ad_height = 90;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">最近の投稿</h3>        <ul id="recent-article">
+        <li>
+            <a href="update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a>
+            2020/07/25
+        </li>
+        <li>
+            <a href="vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a>
+            2020/07/24
+        </li>
+        <li>
+            <a href="raspi-wifi.html">Raspberry Pi3 Bで802.11ACな安物無線LANアダプタを使う</a>
+            2019/05/01
+        </li>
+        <li>
+            <a href="PALM_Machine_Learning_Explanations_for_Iterative_Debugging.html">PALM_Machine_Learning_Explanations_for_Iterative_Debugging</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="A_Survey_of_Methods_For_Explaining_Bloack_Box_Models.html">A Survey of Methods For Explaining Bloack Box Modelsを読んだ</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a>
+            2018/04/08
+        </li>
+        <li>
+            <a href="dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a>
+            2018/04/07
+        </li>
+        <li>
+            <a href="transparent-proxy-by-squid.html">Docker buildを高速化するためにsquidで透過型プロキシを立ててみた</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="detect-apt-cacher-in-dockerfile.html">Dockerfile内部でapt-cacher-ngを自動検出する</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="slurm.html">slurmをインストール...したい</a>
+            2017/08/16
+        </li>
+        <li>
+            <a href="install-nvenc-on-ubunu.html">UbuntuにNVENCをインストールしてエンコードしてみる</a>
+            2017/06/26
+        </li>
+        <li>
+            <a href="install_dropbox_for_linux.html">UbuntuにLinux用Dropboxをインストールする</a>
+            2017/06/25
+        </li>
+        <li>
+            <a href="ssh-tunneling-for-samba.html">SSHトンネル経由でWindowsからリモートのSambaサーバへ接続する方法</a>
+            2017/06/19
+        </li>
+        <li>
+            <a href="h270-unixbench.html">Core i7-7700な自作PCを作ったのでUnixBenchを取ってみた</a>
+            2017/06/18
+        </li>
+        <li>
+            <a href="enable-wake-on-lan.html">Ubuntuでwake-on-lanを有効化する</a>
+            2017/06/16
+        </li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+    <h3 class="sidebar_title">関連する記事</h3>
+        <ul id="sidebar_related_article">
+            <li><a href="./gensim-install.html">Ubuntuへのgensimのinstall</a></li>
+            <li><a href="./PALM_Machine_Learning_Explanations_for_Iterative_Debugging.html">PALM_Machine_Learning_Explanations_for_Iterative_Debugging</a></li>
+            <li><a href="./using-mathjax.html">PelicanでMathJaxを使って数式を表示する</a></li>
+            <li><a href="./install-nvenc-on-ubunu.html">UbuntuにNVENCをインストールしてエンコードしてみる</a></li>
+            <li><a href="./raspi-wifi.html">Raspberry Pi3 Bで802.11ACな安物無線LANアダプタを使う</a></li>
+            <li><a href="./dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a></li>
+            <li><a href="./r-and-bn.html">今日のお勉強</a></li>
+            <li><a href="./ubuntu-nvidia-gt1050ti.html">Ubuntu16.04にGeforge GTX 1050tiをインストールし，TensoFlowの処理を高速化してみた</a></li>
+            <li><a href="./vimperator_statusline.html">vimperatorのステーラスラインにタイトルを表示する</a></li>
+            <li><a href="./cygwin-networkfolder.html">CygwinでNetwork Folderにアクセスする</a></li>
+        </ul>
+    </div>
+</div>        </div>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme baseed on <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>.</p>
+        </footer><!-- /#contentinfo -->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+   ga('create', 'UA-42775386-2', 'auto');
+    ga('send', 'pageview');
+</script>
+</body>
+</html>

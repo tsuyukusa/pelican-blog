@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+        <link rel="canonical" href="http://blog.calcurio.com/tag/cui.html" />
+        <meta charset="utf-8" />
+        <title>CUI | 電脳手帳</title>
+        <link rel="apple-touch-icon" sizes="57x57" href="theme/favicon/apple-touch-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="theme/favicon/apple-touch-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="theme/favicon/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="theme/favicon/apple-touch-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="theme/favicon/apple-touch-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="theme/favicon/apple-touch-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="theme/favicon/apple-touch-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="theme/favicon/apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="theme/favicon/apple-touch-icon-180x180.png">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="theme/favicon/android-chrome-192x192.png" sizes="192x192">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-96x96.png" sizes="96x96">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="theme/favicon/manifest.json">
+        <meta name="msapplication-TileColor" content="#000000">
+        <meta name="msapplication-TileImage" content="theme/favicon/mstile-144x144.png">
+        <meta name="theme-color" content="#ffffff">        <link rel="stylesheet" href="../theme/css/main.css" />
+        <link href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="電脳手帳 Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+        <h1><a href="../">電脳手帳 </a></h1> <div id="subtitle">計算機環境やコーディング，機械学習まわりの話題を書き留めます</div>        </header><!-- /#banner -->
+<h1 id="above_content">タグ: CUI の記事一覧</h1>         <div id="basecontent">
+
+<p class="paginator">
+    Page 1 / 2
+            <span class="block">&laquo; 最初</span>
+            <span class="block">&lt; 前</span>
+            <span class="current_page">1</span>
+            <a href="../tag/cui2.html">2</a>
+        <a href="../tag/cui2.html">次 &gt;</a>
+
+            <a href="../tag/cui2.html">最後 &raquo;</a>
+</p>
+            <section id="contents" class="body">
+                <ol id="posts-list" class="hfeed">
+                    <li><article class="hentry">
+                        <header>
+                            <h1><a href="../sixel.html" rel="bookmark"
+                                   title="Permalink to ターミナル上で画像を表示するlibsixelを試してみた">ターミナル上で画像を表示するlibsixelを試してみた</a></h1>
+                        </header>
+
+                        <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2018/04/08 15:51</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2018/04/08 17:06</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/software.html">Software</a>
+<span>| tags: <a href="../tag/ubuntu.html" class="tag">Ubuntu</a><a href="../tag/cli.html" class="tag">CLI</a><a href="../tag/cui.html" class="tag">CUI</a><a href="../tag/cygwin.html" class="tag">Cygwin</a><a href="../tag/linux.html" class="tag">Linux</a></span>
+
+</footer><!-- /.post-info -->                        <p>ssh接続先で数値計算結果を確認するため，matplotlibでグラフ画像を生成することはよくある。今までは画像ファイルをscpでローカルに転送し，表示していたがいちいちコピーするのは面倒だ。ssh先のcatコマンドで画像も表示できたらいいのになーとはよく思っていた。</p>
+<p>ところでw3mやemacsでは，ターミナルに画像を表示する機能があったはず。
+ということで調べてみると，どうやらsixelという規格を使えばターミナルに画像を表示できるようだ。</p>
+<p><a class="reference external" href="https://github.com/saitoha/libsixel/">libsixel</a> はsixelとして表示するためのプログラム。
+libsixelと <a class="reference external" href="https://github.com/saitoha/libsixel#terminal-requirements">sixelに対応したターミナル</a> を組み合わせれば，画像を表示できるはずだ。</p>
+
+                        <a class="readmore" href="../sixel.html">&raquo; read more</a>
+<p><a href="../sixel.html#disqus_thread">comments</a></p>                        </div><!-- /.entry-content -->
+                    </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="../jq-numeric-key.html" rel="bookmark"
+                           title="Permalink to jqコマンドで数値のキーをパースする">jqコマンドで数値のキーをパースする</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/11/22 22:42</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/11/22 22:52</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/software.html">Software</a>
+<span>| tags: <a href="../tag/cli.html" class="tag">CLI</a><a href="../tag/cui.html" class="tag">CUI</a><a href="../tag/linux.html" class="tag">Linux</a></span>
+
+</footer><!-- /.post-info -->                <!-- tags: AWS, bash, blog, Blog, bot, CLI, CUI, Cygwin, Docker, EC2, Firefox, fluentd, git, Git, Github, Hardware, HTML, job, keyboard, Linux, Makefile, math, Networking, OpenStack, PC自作, pelican, Pelican, percol, Preseed, python, Python, Rally, reStructuredText, screen, Screen, ThinkPad, ThinkPadHelix, Tmux, TODO, Ubuntu, Vagrant, Vim, Vimperator, Virtualbox, Windows, yoga_tablet2, zabbix, zsh, テスト, 機械学習, 原稿, 統計 -->
+<!-- category: blog, Hardware/ノートPC, IDEA, software, Software, Software/Blog, Software/CUI, Software/Linux, theory, 原稿, 日報, 未分類 -->
+<p>jqコマンドはjsonを標準入力から受け付けていろいろやってくれるコマンド。
+指定したキーの値を取り出すこともできる。しかし，数値がキーとなっている場合は
+ちょっとコツが必要であったのでやり方を記録しておく。</p>
+
+                <a class="readmore" href="../jq-numeric-key.html">&raquo; read more</a>
+<p><a href="../jq-numeric-key.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+<div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>            <li><article class="hentry">
+                <header>
+                    <h1><a href="../virt-top.html" rel="bookmark"
+                           title="Permalink to virt-topコマンドでKVMの仮想マシンの内部CPU使用率をJson形式で出力する">virt-topコマンドでKVMの仮想マシンの内部CPU使用率をJson形式で出力する</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/10/01 01:52</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/10/01 02:24</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/software.html">Software</a>
+<span>| tags: <a href="../tag/cui.html" class="tag">CUI</a><a href="../tag/ubuntu.html" class="tag">Ubuntu</a><a href="../tag/linux.html" class="tag">Linux</a><a href="../tag/openstack.html" class="tag">OpenStack</a></span>
+
+</footer><!-- /.post-info -->                <!-- tags: AWS, bash, blog, Blog, bot, CLI, CUI, Cygwin, Docker, EC2, Firefox, fluentd, git, Git, Github, Hardware, HTML, job, keyboard, Linux, Makefile, math, Networking, OpenStack, PC自作, pelican, Pelican, percol, Preseed, python, Python, Rally, reStructuredText, screen, ThinkPad, ThinkPadHelix, Tmux, TODO, Ubuntu, Vagrant, Vim, Vimperator, Virtualbox, Windows, yoga_tablet2, zabbix, zsh, テスト, 機械学習, 原稿 -->
+<!-- category: blog, Hardware/ノートPC, IDEA, software, Software, Software/Blog, Software/CUI, Software/Linux, 原稿, 日報, 未分類 -->
+<p>virt-topコマンドは仮想マシンに対するtopコマンドを提供する。</p>
+
+                <a class="readmore" href="../virt-top.html">&raquo; read more</a>
+<p><a href="../virt-top.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="../cygwin-sshd.html" rel="bookmark"
+                           title="Permalink to cygwinでsshdを起動する">cygwinでsshdを起動する</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/08/12 22:07</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/08/12 22:10</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/software.html">Software</a>
+<span>| tags: <a href="../tag/cygwin.html" class="tag">Cygwin</a><a href="../tag/cui.html" class="tag">CUI</a></span>
+
+</footer><!-- /.post-info -->                <p>Cgywin環境下でsshサーバを動作させる方法をメモしておく。</p>
+
+                <a class="readmore" href="../cygwin-sshd.html">&raquo; read more</a>
+<p><a href="../cygwin-sshd.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+<div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>            <li><article class="hentry">
+                <header>
+                    <h1><a href="../install_runC.html" rel="bookmark"
+                           title="Permalink to runCをインストールして，Dockerコンテナのスナップショットを取る">runCをインストールして，Dockerコンテナのスナップショットを取る</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/08/12 22:05</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/09/28 00:14</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/software.html">Software</a>
+<span>| tags: <a href="../tag/docker.html" class="tag">Docker</a><a href="../tag/ubuntu.html" class="tag">Ubuntu</a><a href="../tag/linux.html" class="tag">Linux</a><a href="../tag/cui.html" class="tag">CUI</a></span>
+
+</footer><!-- /.post-info -->                <p>CRIUを使ってコンテナのチェックポイントを作成したい。
+ここでは，docker engineではなくruncに統合されているcheckpointサブコマンドを使って
+コンテナのチェックポイントを作成する方法を示す。</p>
+
+                <a class="readmore" href="../install_runC.html">&raquo; read more</a>
+<p><a href="../install_runC.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="../Docker-snapshot.html" rel="bookmark"
+                           title="Permalink to CRIUを使ってDockerのsnapshotを取る">CRIUを使ってDockerのsnapshotを取る</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/08/05 20:18</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/08/12 22:02</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/software.html">Software</a>
+<span>| tags: <a href="../tag/docker.html" class="tag">Docker</a><a href="../tag/ubuntu.html" class="tag">Ubuntu</a><a href="../tag/linux.html" class="tag">Linux</a><a href="../tag/cui.html" class="tag">CUI</a><a href="../tag/aws.html" class="tag">AWS</a></span>
+
+</footer><!-- /.post-info -->                <p><tt class="docutils literal">CRIU</tt> はプロセスのスナップショットを取れるツールであり，
+これを使えばDockerのコンテナのスナップショットも取れるという。</p>
+<p>スナップショット機能を使えば起動後のコンテナの状態をイメージ化して保存できるため，
+コンテナの起動時間短縮や，ライブマイグレーションに役立つ。</p>
+<p>この記事では <tt class="docutils literal">CRIU</tt> を統合した開発版Dockerをコンパイルして
+<tt class="docutils literal">docker snapshot</tt> サブコマンドを使えるようにすることを目指す。
+現時点では成功していないが，近いところまでは来ている。</p>
+
+                <a class="readmore" href="../Docker-snapshot.html">&raquo; read more</a>
+<p><a href="../Docker-snapshot.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="../tmux-compile.html" rel="bookmark"
+                           title="Permalink to 最新版tmuxをコンパイルしてpaneごとににpaneタイトルを表示する">最新版tmuxをコンパイルしてpaneごとににpaneタイトルを表示する</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/07/28 03:11</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/08/08 06:43</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/software.html">Software</a>
+<span>| tags: <a href="../tag/tmux.html" class="tag">Tmux</a><a href="../tag/cui.html" class="tag">CUI</a><a href="../tag/ubuntu.html" class="tag">Ubuntu</a><a href="../tag/cygwin.html" class="tag">Cygwin</a></span>
+
+</footer><!-- /.post-info -->                <!-- tags: AWS, bash, blog, Blog, CLI, CUI, Cygwin, Docker, EC2, Firefox, git, Git, Github, Hardware, HTML, job, keyboard, Linux, Makefile, math, Networking, OpenStack, PC自作, pelican, Pelican, percol, Preseed, python, Rally, reStructuredText, screen, ThinkPad, ThinkPadHelix, TODO, Ubuntu, Vim, Vimperator, Virtualbox, Windows, yoga_tablet2, zabbix, zsh, テスト, 原稿 -->
+<!-- category: blog, Hardware/ノートPC, IDEA, software, Software, Software/Blog, Software/CUI, Software/Linux, 原稿, 未分類 -->
+<p>Tmuxの開発版ではGNU Screenのようにpaneのタイトルをpaneの最下部に表示できる。
+コンパイルして有効化する方法を書いておく。</p>
+
+                <a class="readmore" href="../tmux-compile.html">&raquo; read more</a>
+<p><a href="../tmux-compile.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="../cygwin-procps.html" rel="bookmark"
+                           title="Permalink to cygwinでwatchコマンドはprocpsパッケージでインストールする">cygwinでwatchコマンドはprocpsパッケージでインストールする</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/07/27 01:00</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/07/27 01:15</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/software.html">Software</a>
+<span>| tags: <a href="../tag/cygwin.html" class="tag">Cygwin</a><a href="../tag/cui.html" class="tag">CUI</a><a href="../tag/windows.html" class="tag">Windows</a></span>
+
+</footer><!-- /.post-info -->                <!-- tags: AWS, bash, blog, CUI, Cygwin, Docker, EC2, Firefox, git, Github, Hardware, job, keyboard, Linux, math, Networking, OpenStack, PC自作, pelican, Pelican, percol, Preseed, python, Rally, reStructuredText, screen, ThinkPad, ThinkPadHelix, TODO, Ubuntu, Vim, Vimperator, Virtualbox, Windows, yoga_tablet2, zabbix, zsh, テスト, 原稿 -->
+<!-- category: blog, Hardware/ノートPC, IDEA, software, Software, Software/Blog, Software/CUI, Software/Linux, 原稿, 未分類 -->
+<p>Cygwinでは最初からWtachコマンドは実装されていない。
+これをインストールするためには，procpsパッケージをインストールする。</p>
+
+                <a class="readmore" href="../cygwin-procps.html">&raquo; read more</a>
+<p><a href="../cygwin-procps.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="../ssh_port_forwarding.html" rel="bookmark"
+                           title="Permalink to sshのport forwarding機能を使って公開されていないポートへアクセスする">sshのport forwarding機能を使って公開されていないポートへアクセスする</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/07/24 17:57</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/07/24 18:39</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/software.html">Software</a>
+<span>| tags: <a href="../tag/linux.html" class="tag">Linux</a><a href="../tag/cui.html" class="tag">CUI</a><a href="../tag/ubuntu.html" class="tag">Ubuntu</a><a href="../tag/networking.html" class="tag">Networking</a></span>
+
+</footer><!-- /.post-info -->                <!-- tags: bash, blog, CUI, Cygwin, Docker, Firefox, git, Github, Hardware, job, keyboard, Linux, math, OpenStack, PC自作, pelican, Pelican, percol, Preseed, python, Rally, reStructuredText, screen, ThinkPad, ThinkPadHelix, TODO, Ubuntu, Vim, Vimperator, Virtualbox, Windows, yoga_tablet2, zabbix, zsh, テスト, 原稿 -->
+<!-- category: blog, Hardware/ノートPC, IDEA, software, Software, Software/Blog, Software/CUI, Software/Linux, 原稿, 未分類 -->
+<p>外部ネットワークのPC <tt class="docutils literal"><span class="pre">client-pc</span></tt> からプライベートLANの中のサーバ <tt class="docutils literal">target</tt> へのアクセスは，踏み台サーバ <tt class="docutils literal"><span class="pre">ssh-gateway</span></tt> を経由したSSH接続しか許可されていないというのはよくあるシチュエーション。</p>
+note-pc  --ssh--&gt; ssh-gateway  --ssh--&gt; target
+</pre>
+<p>そんな状況下で，一時的にWebサーバを立てるため， <tt class="docutils literal">target</tt> のポートを外に露出させたくなるのも良くあること。
+これにsshのポートフォワーディングで対応する方法をメモしておく。</p>
+
+                <a class="readmore" href="../ssh_port_forwarding.html">&raquo; read more</a>
+<p><a href="../ssh_port_forwarding.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="../bash_if_main.html" rel="bookmark"
+                           title="Permalink to bashでpythonの if __name__ == '__main__': っぽいことをする方法">bashでpythonの if __name__ == '__main__': っぽいことをする方法</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/07/24 17:45</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/07/24 18:31</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/software.html">Software</a>
+<span>| tags: <a href="../tag/bash.html" class="tag">bash</a><a href="../tag/cui.html" class="tag">CUI</a></span>
+
+</footer><!-- /.post-info -->                <!-- tags: bash, blog, CUI, Cygwin, Docker, Firefox, git, Github, Hardware, job, keyboard, Linux, math, OpenStack, PC自作, pelican, Pelican, percol, Preseed, python, Rally, reStructuredText, screen, ThinkPad, ThinkPadHelix, TODO, Ubuntu, Vim, Vimperator, Virtualbox, Windows, yoga_tablet2, zabbix, zsh, テスト, 原稿 -->
+<!-- category: blog, Hardware/ノートPC, IDEA, software, Software, Software/Blog, Software/CUI, Software/Linux, 原稿, 未分類 -->
+<p>pythonならば，スクリプトを直接実行にのみ実行するコードは</p>
+
+</pre>
+<p>の後に記述すれば良い。ここに書かれたコードはimportされた場合には実行されないようにできる。</p>
+<p>同様にシェルスクリプトで，すなわちbashで <tt class="docutils literal">source</tt> した場合には実行されないようにする方法を調べたのでメモ。</p>
+
+                <a class="readmore" href="../bash_if_main.html">&raquo; read more</a>
+<p><a href="../bash_if_main.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+            </ol><!-- /#posts-list -->
+            </section><!-- /#content -->
+<div id="sidebar">
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* スクエア */
+        google_ad_slot = "7175743105";
+        google_ad_width = 200;
+        google_ad_height = 200;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">検索</h3>
+      <form action="https://www.google.co.jp/search" target="_blank" class="google-search">
+          <input type="hidden" name="q" value="site:http://blog.calcurio.com">
+        <input type="text" name="q">
+      </form>
+    </div>
+    <div class="sidebar_child">
+        Author: M. Tsuyuki
+<p><a href="/pages/about.html">詳しく</a></p>    </div>
+    <div class="sidebar_child">
+        <h3 class="sidebar_title"></h3>
+<h3 class="sidebar_title">カテゴリ</h3>        <ul>            <li><a href="../category/hardware.html">Hardware</a> (11)</li>
+            <li><a href="../category/lun wen.html">論文</a> (2)</li>
+            <li><a href="../category/software.html">Software</a> (79)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">タグ</h3>        <ul>            <li><a href="../tag/aws.html" class="tag">AWS</a> (3)</li>
+            <li><a href="../tag/bash.html" class="tag">bash</a> (6)</li>
+            <li><a href="../tag/blog.html" class="tag">Blog</a> (4)</li>
+            <li><a href="../tag/bot.html" class="tag">bot</a> (1)</li>
+            <li><a href="../tag/cli.html" class="tag">CLI</a> (4)</li>
+            <li><a href="../tag/cui.html" class="tag">CUI</a> (18)</li>
+            <li><a href="../tag/cygwin.html" class="tag">Cygwin</a> (17)</li>
+            <li><a href="../tag/docker.html" class="tag">Docker</a> (11)</li>
+            <li><a href="../tag/dvc.html" class="tag">dvc</a> (1)</li>
+            <li><a href="../tag/ec2.html" class="tag">EC2</a> (2)</li>
+            <li><a href="../tag/firefox.html" class="tag">Firefox</a> (4)</li>
+            <li><a href="../tag/fluentd.html" class="tag">fluentd</a> (1)</li>
+            <li><a href="../tag/git.html" class="tag">Git</a> (3)</li>
+            <li><a href="../tag/github.html" class="tag">Github</a> (1)</li>
+            <li><a href="../tag/hardware.html" class="tag">Hardware</a> (1)</li>
+            <li><a href="../tag/html.html" class="tag">HTML</a> (1)</li>
+            <li><a href="../tag/ji jie xue xi.html" class="tag">機械学習</a> (6)</li>
+            <li><a href="../tag/jia xiang hua.html" class="tag">仮想化</a> (3)</li>
+            <li><a href="../tag/jupyter.html" class="tag">Jupyter</a> (1)</li>
+            <li><a href="../tag/keyboard.html" class="tag">keyboard</a> (1)</li>
+            <li><a href="../tag/linux.html" class="tag">Linux</a> (21)</li>
+            <li><a href="../tag/makefile.html" class="tag">Makefile</a> (1)</li>
+            <li><a href="../tag/math.html" class="tag">math</a> (2)</li>
+            <li><a href="../tag/networking.html" class="tag">Networking</a> (4)</li>
+            <li><a href="../tag/openstack.html" class="tag">OpenStack</a> (2)</li>
+            <li><a href="../tag/pczi zuo.html" class="tag">PC自作</a> (4)</li>
+            <li><a href="../tag/pelican.html" class="tag">Pelican</a> (9)</li>
+            <li><a href="../tag/percol.html" class="tag">percol</a> (2)</li>
+            <li><a href="../tag/preseed.html" class="tag">Preseed</a> (1)</li>
+            <li><a href="../tag/python.html" class="tag">Python</a> (12)</li>
+            <li><a href="../tag/rally.html" class="tag">Rally</a> (1)</li>
+            <li><a href="../tag/raspi.html" class="tag">RasPi</a> (1)</li>
+            <li><a href="../tag/restructuredtext.html" class="tag">reStructuredText</a> (1)</li>
+            <li><a href="../tag/screen.html" class="tag">screen</a> (2)</li>
+            <li><a href="../tag/tesuto.html" class="tag">テスト</a> (1)</li>
+            <li><a href="../tag/thinkpad.html" class="tag">ThinkPad</a> (4)</li>
+            <li><a href="../tag/thinkpad helix.html" class="tag">ThinkPad Helix</a> (2)</li>
+            <li><a href="../tag/tmux.html" class="tag">Tmux</a> (1)</li>
+            <li><a href="../tag/ubuntu.html" class="tag">Ubuntu</a> (27)</li>
+            <li><a href="../tag/vagrant.html" class="tag">vagrant</a> (2)</li>
+            <li><a href="../tag/vim.html" class="tag">Vim</a> (5)</li>
+            <li><a href="../tag/vimperator.html" class="tag">Vimperator</a> (3)</li>
+            <li><a href="../tag/virtualbox.html" class="tag">Virtualbox</a> (1)</li>
+            <li><a href="../tag/windows.html" class="tag">Windows</a> (6)</li>
+            <li><a href="../tag/yoga_tablet2.html" class="tag">yoga_tablet2</a> (1)</li>
+            <li><a href="../tag/zabbix.html" class="tag">zabbix</a> (1)</li>
+            <li><a href="../tag/ziyobusukeziyura.html" class="tag">ジョブスケジューラ</a> (1)</li>
+            <li><a href="../tag/zsh.html" class="tag">zsh</a> (7)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* リンクユニット */
+        google_ad_slot = "1129209509";
+        google_ad_width = 200;
+        google_ad_height = 90;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">最近の投稿</h3>        <ul id="recent-article">
+        <li>
+            <a href="sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a>
+            2018/04/08
+        </li>
+        <li>
+            <a href="jq-numeric-key.html">jqコマンドで数値のキーをパースする</a>
+            2016/11/22
+        </li>
+        <li>
+            <a href="virt-top.html">virt-topコマンドでKVMの仮想マシンの内部CPU使用率をJson形式で出力する</a>
+            2016/10/01
+        </li>
+        <li>
+            <a href="cygwin-sshd.html">cygwinでsshdを起動する</a>
+            2016/08/12
+        </li>
+        <li>
+            <a href="install_runC.html">runCをインストールして，Dockerコンテナのスナップショットを取る</a>
+            2016/08/12
+        </li>
+        <li>
+            <a href="Docker-snapshot.html">CRIUを使ってDockerのsnapshotを取る</a>
+            2016/08/05
+        </li>
+        <li>
+            <a href="tmux-compile.html">最新版tmuxをコンパイルしてpaneごとににpaneタイトルを表示する</a>
+            2016/07/28
+        </li>
+        <li>
+            <a href="cygwin-procps.html">cygwinでwatchコマンドはprocpsパッケージでインストールする</a>
+            2016/07/27
+        </li>
+        <li>
+            <a href="ssh_port_forwarding.html">sshのport forwarding機能を使って公開されていないポートへアクセスする</a>
+            2016/07/24
+        </li>
+        <li>
+            <a href="bash_if_main.html">bashでpythonの if __name__ == '__main__': っぽいことをする方法</a>
+            2016/07/24
+        </li>
+        <li>
+            <a href="docker_usage.html">Dockerイメージをダウンロードしてコンテナを起動するまでの手順</a>
+            2016/06/20
+        </li>
+        <li>
+            <a href="ipmitool-interval.html">ipmitoolのintervalを長くしてSOL接続をタイムアウトさせないようにする</a>
+            2016/06/19
+        </li>
+        <li>
+            <a href="autoexpect.html">autoexpectコマンドでexpectのスクリプトを自動生成する</a>
+            2016/06/09
+        </li>
+        <li>
+            <a href="linux-proxy.html">linuxやcygwinでhttpプロキシを指定する方法</a>
+            2016/06/09
+        </li>
+        <li>
+            <a href="mintty-ime-color.html">CygwinのターミナルminttyでIMEの状態に応じてカーソル色を変える</a>
+            2016/06/06
+        </li>
+        </ul>
+    </div>
+</div><p class="paginator">
+    Page 1 / 2
+            <span class="block">&laquo; 最初</span>
+            <span class="block">&lt; 前</span>
+            <span class="current_page">1</span>
+            <a href="../tag/cui2.html">2</a>
+        <a href="../tag/cui2.html">次 &gt;</a>
+
+            <a href="../tag/cui2.html">最後 &raquo;</a>
+</p>
+        </div>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme baseed on <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>.</p>
+        </footer><!-- /#contentinfo -->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+   ga('create', 'UA-42775386-2', 'auto');
+    ga('send', 'pageview');
+</script>
+</body>
+</html>

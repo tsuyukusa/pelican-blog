@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+        <link rel="canonical" href="http://blog.calcurio.com/qfixhowm-pelican.html" />
+        <meta charset="utf-8" />
+        <title>QFixHowmでPelicanのブログ記事を書く | 電脳手帳</title>
+        <link rel="apple-touch-icon" sizes="57x57" href="theme/favicon/apple-touch-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="theme/favicon/apple-touch-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="theme/favicon/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="theme/favicon/apple-touch-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="theme/favicon/apple-touch-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="theme/favicon/apple-touch-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="theme/favicon/apple-touch-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="theme/favicon/apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="theme/favicon/apple-touch-icon-180x180.png">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="theme/favicon/android-chrome-192x192.png" sizes="192x192">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-96x96.png" sizes="96x96">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="theme/favicon/manifest.json">
+        <meta name="msapplication-TileColor" content="#000000">
+        <meta name="msapplication-TileImage" content="theme/favicon/mstile-144x144.png">
+        <meta name="theme-color" content="#ffffff">        <link rel="stylesheet" href="./theme/css/main.css" />
+        <link href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="電脳手帳 Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+        <h1><a href="./">電脳手帳 </a></h1> <div id="subtitle">計算機環境やコーディング，機械学習まわりの話題を書き留めます</div>        </header><!-- /#banner -->
+        <div id="basecontent">
+    <nav id="nav-above">
+    <div class="top-prev"><a href="cygiwn-rsync-network.html" >&larr; cygiwnでrsyncの差分バックアップ</a></div>
+    <div class="top-next"><a href="thinkpad-x260-battery.html" >ThinkPad X260の内部バッテリーから使用されてしまう問題 &rarr;</a></div>
+    </nav>
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="./qfixhowm-pelican.html" rel="bookmark"
+           title="Permalink to QFixHowmでPelicanのブログ記事を書く">QFixHowmでPelicanのブログ記事を書く</a></h1>
+    </header>
+    <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/06/01 00:35</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/07/19 01:58</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/software.html">Software</a>
+        <span class="article_category_separator"> &raquo; </span>
+        <a class=article_subcategory_name href="./subcategory/software/blog.html">Blog</a>
+<span>| tags: <a href="./tag/pelican.html" class="tag">Pelican</a><a href="./tag/vim.html" class="tag">Vim</a></span>
+
+</footer><!-- /.post-info --><div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>      <p>QFixHowmで記事を書いて，PelicanでWebに公開する。
+このフローを簡単に実現したい。</p>
+<p>ちなみにOctpressとの連携ならWeb上に例があるが，Pelicanと連携した記事はない。
+reStructuredTextなPelicanとMarkdownなQFixHowmの相性が悪いからだろうか。</p>
+
+<div class="section" id="qfixhowm-g-c-pelicandraft">
+<h2>目的：QFixHowmで <tt class="docutils literal">g,c</tt> するPelicanのdraftとして新しいページを作成する</h2>
+<p>QFixHowmで <tt class="docutils literal">g,C</tt> としてファイル名を指定してメモを作成するときは，最初から清書としてHTML変換したい。
+一方で， <tt class="docutils literal">g,c</tt> で日付でファイル名を自動作成する場合は，下書きとしてHTML化しないようにする。</p>
+<p>まず， <tt class="docutils literal">pelicanconf.py</tt> に以下の記述をし，パス名にdraftを含むファイルを
+<tt class="docutils literal">make html</tt> などで無視させる。</p>
+<div class="highlight"><pre><span></span><span class="n">IGNORE_FILES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;.#*&#39;</span><span class="p">,</span> <span class="s1">&#39;*draft*&#39;</span><span class="p">]</span>
+</pre></div>
+<p>QFixHowmの下書きファイルを保存するディレクトリを作成する。</p>
+<div class="highlight"><pre><span></span>$ mkdir <span class="nv">$HOME</span>/pelican/content/draft-howm
+</pre></div>
+<p><tt class="docutils literal">.vimrc</tt> で <tt class="docutils literal"><span class="pre">$HOME/pelican/content/draft-howm</span></tt> をhowmのメモの保存先として設定する。
+ポイントは <tt class="docutils literal"><span class="pre">draft-howm/</span></tt> は <tt class="docutils literal">howm_filename</tt> オプションの一部としてに記述すること。
+これにより，QFixHowmのgrep検索で <tt class="docutils literal">howm_dir</tt> 以下にある清書と下書きの両方を
+検索対象にしてくれる。
+それと同時に， <tt class="docutils literal">g,c</tt> のキー入力でPelicanの下書きファイルとしてQFixHowmのメモを保存できる。</p>
+<div class="highlight"><pre><span></span><span class="c">&quot; ベースディレクトリ</span>
+<span class="k">let</span> howm_dir <span class="p">=</span> $HOME.<span class="s1">&#39;/pelican/content/&#39;</span>
+<span class="c">&quot; g,cで開くメモ</span>
+<span class="k">let</span> howm_filename <span class="p">=</span> <span class="s1">&#39;draft-howm/%Y-%m/%Y-%m-%d-%H%M%S.rst&#39;</span>
+<span class="c">&quot; g,Cで開くファイル名の初期値</span>
+<span class="k">let</span> qfixmemo_misc_file <span class="p">=</span> <span class="s1">&#39;%Y-%m/&#39;</span>
+<span class="c">&quot; g,&lt;Space&gt;で開く日記</span>
+<span class="k">let</span> qfixmemo_diary <span class="p">=</span> <span class="s1">&#39;draft-howm/%Y-%m/%Y-%m-%d-DailyReport.rst&#39;</span>
+<span class="c">&quot; TODOと予定</span>
+<span class="k">let</span> QFixHowm_ScheduleSearchDir <span class="p">=</span> howm_dir.<span class="s1">&#39;/draft-howm/schedule&#39;</span>
+<span class="c">&quot; メニューファイルディレクトリ</span>
+<span class="k">let</span> QFixHowm_MenuDir <span class="p">=</span> howm_dir.<span class="s2">&quot;/draft-howm/&quot;</span>
+</pre></div>
+</div>
+<div class="section" id="id1">
+<h2>目的：新規エントリのテンプレートを作成する</h2>
+<p>1つの方法はQFixHowmのテンプレートを以下のように <tt class="docutils literal">.vimrc</tt> で指定すること。
+これではslug，category，tagsの入力が面倒なので，何らかの形で支援したい。</p>
+<div class="highlight"><pre><span></span><span class="k">let</span> QFixHowm_Template <span class="p">=</span> [
+  \<span class="s2">&quot;&quot;</span><span class="p">,</span>
+  \<span class="s2">&quot;###########################################&quot;</span><span class="p">,</span>
+  \<span class="s2">&quot;&quot;</span><span class="p">,</span>
+  \<span class="s2">&quot;:date: %Y-%m-%d %H:%M:%S&quot;</span> <span class="p">,</span>
+  \<span class="s2">&quot;:modified: %Y-%m-%d %H:%M:%S&quot;</span> <span class="p">,</span>
+  \<span class="s2">&quot;:category:&quot;</span><span class="p">,</span>
+  \<span class="s2">&quot;:tags:&quot;</span><span class="p">,</span>
+  \<span class="s2">&quot;:slug:&quot;</span><span class="p">,</span>
+  \<span class="s2">&quot;:authors: M\. Tsuyuki&quot;</span><span class="p">,</span>
+  \<span class="s2">&quot;&quot;</span><span class="p">,</span>
+  \<span class="s2">&quot;.. PELICAN_END_SUMMARY&quot;</span><span class="p">,</span>
+  \<span class="s2">&quot;&quot;</span><span class="p">,</span>
+  \]
+</pre></div>
+<p>そう考えると，結局は以前書いた記事： <a class="reference external" href="http://blog.calcurio.com/pelican-vim.html">Pelicanの記事をVimで楽々編集する | 電脳手帳</a>
+と同じようにシェルスクリプトを呼び出すしかない。
+このシェルスクリプト中で
+タグやカテゴリをGrepしてSortしてUniqすれば，
+現在使用中のカテゴリやタグの一覧が作れる。
+入力支援といってもこれぐらいで十分だろう。</p>
+</div>
+<div class="section" id="qfixhowmrestructuredtext">
+<h2>目的：QFixHowmをreStructuredTextのタイトル行に対応させる</h2>
+<p>QFixHowmはMarkdownが前提となっている。
+Markdownの見出しは1行だが，reSTの見出しは2行である。</p>
+<div class="highlight"><pre><span></span># Markdown
+
+<span class="gh">reStrucutruedText</span>
+<span class="gh">#######################</span>
+</pre></div>
+<p>reSTの見出しをQFixGrepで扱えるようにしたいが，
+外部シェルスクリプトに任せる泥臭いやり方しか思いつかなかった。
+とりあえずは期待通りに動いているが何となく気持ち悪い。</p>
+<p>まず，ファイル保存時に勝手にタイトル行を追加されても迷惑なだけなので
+OFFにする。</p>
+<div class="highlight"><pre><span></span><span class="k">let</span> qfixmemo_alt_title_regxp <span class="p">=</span> <span class="s1">&#39;.&#39;</span>
+</pre></div>
+<p>次に正規表現で <tt class="docutils literal">#</tt> が文頭から文末まで続く行をタイトル行として指定する。</p>
+<div class="highlight"><pre><span></span><span class="c">&quot; タイトル行検索の正規表現</span>
+<span class="k">let</span> QFixMRU_Title <span class="p">=</span> {}
+<span class="k">let</span> QFixMRU_Title[<span class="s1">&#39;rst&#39;</span>] <span class="p">=</span> <span class="s1">&#39;^##*$&#39;</span>
+<span class="k">let</span> QFixMRU_Title[<span class="s1">&#39;rst_regxp&#39;</span>] <span class="p">=</span> <span class="s1">&#39;^##*$&#39;</span>
+</pre></div>
+<p>このままでは， <tt class="docutils literal">g,g</tt> で検索した結果がすべて <tt class="docutils literal"><span class="pre">###############</span></tt>
+となる無意味な表示になってしまう。そこで <tt class="docutils literal"><span class="pre">###############</span></tt> の1つ
+上の行をGrep形式の検索結果として整形し，標準出力で返す
+外部シェルスクリプト <tt class="docutils literal">mygrepprg.sh</tt> をGrepコマンドとして登録する。</p>
+<div class="highlight"><pre><span></span><span class="c">&quot; QFixHowmでrst対応させるためのgrep</span>
+<span class="k">let</span> mygrepprg <span class="p">=</span> $HOME.<span class="s1">&#39;/.vim/mygrepprg.sh&#39;</span>
+</pre></div>
+<p><tt class="docutils literal">mygrepprg.sh</tt> の中身は以下の通り。
+読めば分かる通り，正規表現 <tt class="docutils literal"><span class="pre">^##*$</span></tt> を使った検索時のみ，1行前の検索結果
+を整形して返すようにしている。これを設定しておけば，
+今のところは特に問題なくreSTのタイトル行に対応できている。</p>
+<div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># custom grep command for  qfixgrep and qfixhowm</span>
+
+<span class="k">if</span> grep  -F <span class="s1">&#39;^##*$&#39;</span> <span class="nv">$8</span> &gt; /dev/null <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> <span class="p">;</span> <span class="k">then</span>
+    grep -B1 -Z <span class="nv">$@</span>  <span class="p">|</span> sed  -e <span class="s1">&#39;/\#.*$/d&#39;</span> -e <span class="s1">&#39;s/\x0\([0-9]\)-/:\1:/&#39;</span>
+<span class="k">else</span>
+    grep  <span class="nv">$@</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+<div class="section" id="vimpelicanmakefile">
+<h2>VimからPelicanのMakefileを呼び出すコマンドを作成</h2>
+<p>ここまで来たら，VimからPelicanブログのデプロイまでしてしまいたい。
+PelicanのMakefileをVimから呼び出すのが一番楽かな。
+単なるエイリアスになるけど。</p>
+<p>ちなみに，以下の記事でMakefileを使って自動的にgithub pagesにデプロイする方法を書いた。</p>
+<blockquote>
+<a class="reference external" href="http://blog.calcurio.com/pelican-github-pages.html">ブログをgithub pagesに移行した | 電脳手帳</a></blockquote>
+</div>
+<div class="section" id="vimrc">
+<h2>.vimrcまとめ</h2>
+<p>最後に今のところの <tt class="docutils literal">.vimrc</tt> を載せておく。</p>
+<div class="highlight"><pre><span></span><span class="c">&quot;---------------------------------------------------------------------</span>
+<span class="c">&quot; QFixHowm</span>
+<span class="c">&quot;---------------------------------------------------------------------</span>
+<span class="c">&quot; キーマップリーダー</span>
+<span class="k">let</span> QFixHowm_Key <span class="p">=</span> <span class="s1">&#39;g&#39;</span>
+<span class="c">&quot; howm_dirはファイルを保存したいディレクトリを設定</span>
+<span class="k">let</span> howm_dir<span class="p">=</span> $HOME.<span class="s1">&#39;/git_projects/pelican-blog/tech_content&#39;</span>
+<span class="k">let</span> pelican_dir<span class="p">=</span> $HOME.<span class="s1">&#39;/git_projects/pelican-blog&#39;</span>
+<span class="k">let</span> howm_filename <span class="p">=</span> <span class="s1">&#39;draft-howm/%Y-%m/%Y-%m-%d-%H%M%S.rst&#39;</span>
+<span class="k">let</span> qfixmemo_diary <span class="p">=</span> <span class="s1">&#39;draft-howm/%Y-%m/%Y-%m-%d-DailyReport.rst&#39;</span>
+<span class="k">let</span> qfixmemo_misc_file <span class="p">=</span> <span class="s1">&#39;%Y-%m/&#39;</span>
+<span class="k">let</span> howm_fileencoding <span class="p">=</span> <span class="s1">&#39;utf-8&#39;</span>
+<span class="k">let</span> howm_fileformat <span class="p">=</span> <span class="s1">&#39;unix&#39;</span>
+<span class="k">let</span> QFixHowm_FileType <span class="p">=</span> <span class="s1">&#39;rst&#39;</span>
+<span class="c">&quot;予定・TODOの検索場所指定</span>
+<span class="k">let</span> QFixHowm_ScheduleSearchDir <span class="p">=</span> howm_dir.<span class="s1">&#39;/draft-howm/schedule&#39;</span>
+<span class="c">&quot;予定・TODOでのプレビュー表示ON/OFF</span>
+<span class="k">let</span> QFixHowm_SchedulePreview <span class="p">=</span> <span class="m">1</span>
+<span class="c">&quot;予定やTODOに現在日付行や現在時刻行、境界行を表示する</span>
+<span class="k">let</span> QFixHowm_ShowTodayLine <span class="p">=</span> <span class="m">1</span> <span class="c">&quot;0にすると一部の予定が表示されなくなる？</span>
+
+<span class="c">&quot; タイトル行検索の正規表現</span>
+<span class="k">let</span> QFixMRU_Title <span class="p">=</span> {}
+<span class="k">let</span> QFixMRU_Title[<span class="s1">&#39;rst&#39;</span>] <span class="p">=</span> <span class="s1">&#39;^##*$&#39;</span>
+<span class="k">let</span> QFixMRU_Title[<span class="s1">&#39;rst_regxp&#39;</span>] <span class="p">=</span> <span class="s1">&#39;^##*$&#39;</span>
+
+<span class="c">&quot; 擬似タイトル行とみなす正規表現(Vim)</span>
+<span class="c">&quot; ファイルの一行目が特定の文字列で始まっていたらタイトル行やタイムスタンプの付</span>
+<span class="c">&quot; 加を行いたくない場合に使用する</span>
+<span class="k">let</span> qfixmemo_alt_title_regxp <span class="p">=</span> <span class="s1">&#39;.&#39;</span>
+
+<span class="c">&quot; 表示するファイルリストの指定</span>
+<span class="k">let</span> QFixHowm_FileList <span class="p">=</span> <span class="s1">&#39;**/*&#39;</span>
+
+<span class="c">&quot;新規エントリのテンプレート</span>
+<span class="k">let</span> QFixHowm_Template <span class="p">=</span> []
+<span class="c">&quot; let QFixHowm_Template = [</span>
+<span class="c">&quot;   \&quot;&quot;,</span>
+<span class="c">&quot;   \&quot;###########################################&quot;,</span>
+<span class="c">&quot;   \&quot;&quot;,</span>
+<span class="c">&quot;   \&quot;:date: %Y-%m-%d %H:%M:%S&quot; ,</span>
+<span class="c">&quot;   \&quot;:modified: %Y-%m-%d %H:%M:%S&quot; ,</span>
+<span class="c">&quot;   \&quot;:category:&quot;,</span>
+<span class="c">&quot;   \&quot;:tags:&quot;,</span>
+<span class="c">&quot;   \&quot;:slug:&quot;,</span>
+<span class="c">&quot;   \&quot;:authors: M\. Tsuyuki&quot;,</span>
+<span class="c">&quot;   \&quot;&quot;,</span>
+<span class="c">&quot;   \&quot;.. PELICAN_END_SUMMARY&quot;,</span>
+<span class="c">&quot;   \&quot;&quot;,</span>
+<span class="c">&quot;   \]</span>
+
+<span class="c">&quot; テンプレートに挿入されるタグ</span>
+
+<span class="c">&quot; 時間関係</span>
+<span class="c">&quot; 更新時間管理モード</span>
+<span class="k">let</span> QFixHowm_RecentMode <span class="p">=</span> <span class="m">0</span>
+<span class="c">&quot; タイムスタンプ付加</span>
+<span class="k">let</span> qfixmemo_use_addtime <span class="p">=</span> <span class="m">-1</span>
+<span class="c">&quot; タイムスタンプアップデート</span>
+<span class="k">let</span> QFixHowm_SaveTime <span class="p">=</span> <span class="m">-1</span>
+<span class="k">let</span> qfixmemo_use_updatetime <span class="p">=</span> <span class="m">-1</span>
+<span class="c">&quot;QFixGrepの検索時にカーソル位置の単語を拾う/拾わない</span>
+<span class="k">let</span> MyGrep_DefaultSearchWord <span class="p">=</span> <span class="m">0</span>
+<span class="c">&quot;QFixHowmの検索時にカーソル位置の単語を拾う/拾わない</span>
+<span class="k">let</span> QFixHowm_DefaultSearchWord <span class="p">=</span> <span class="m">0</span>
+
+<span class="c">&quot; メニューファイルディレクトリ</span>
+<span class="k">let</span> QFixHowm_MenuDir <span class="p">=</span> howm_dir.<span class="s2">&quot;/draft-howm/&quot;</span>
+<span class="c">&quot; メニューファイル</span>
+<span class="k">let</span> QFixHowm_Menufile <span class="p">=</span> <span class="s1">&#39;Menu-00-00-000000.howm&#39;</span>
+<span class="c">&quot;カレンダー表示の分割指定(vertical topleft, vertical botright,  rightbelow, leftabove)</span>
+<span class="k">let</span> QFixHowm_CalendarWinCmd <span class="p">=</span> <span class="s1">&#39;rightbelow&#39;</span>
+<span class="c">&quot;---------------------------------------------------------------------</span>
+<span class="c">&quot; QFixGrep</span>
+<span class="c">&quot;---------------------------------------------------------------------</span>
+<span class="c">&quot; QFixHowmでrst対応させるためのgrep</span>
+<span class="k">let</span> mygrepprg <span class="p">=</span> $HOME.<span class="s1">&#39;/.vim/mygrepprg.sh&#39;</span>
+<span class="c">&quot; 外部grep(shell)のエンコーディング(Unix)</span>
+<span class="k">let</span> MyGrep_ShellEncoding <span class="p">=</span> <span class="s1">&#39;utf-8&#39;</span>
+<span class="c">&quot; QuickFixウィンドウでもプレビューや絞り込みを有効化</span>
+<span class="k">let</span> QFixWin_EnableMode <span class="p">=</span> <span class="m">1</span>
+<span class="c">&quot; QFixHowm/QFixGrepの結果表示にロケーションリストを使用する/しない</span>
+<span class="k">let</span> QFix_UseLocationList <span class="p">=</span> <span class="m">0</span>
+<span class="c">&quot; QuickFixウィンドウから開いた後ウィンドウを閉じる</span>
+<span class="k">let</span> QFix_CloseOnJump <span class="p">=</span> <span class="m">1</span>
+
+<span class="c">&quot; ------------ Pelican ---------------------------------------------</span>
+<span class="c">&quot; スケルトンを作成</span>
+autocmd <span class="nb">BufNewFile</span> $HOME<span class="sr">/git_projects/</span>pelican<span class="p">-</span>blog<span class="sr">/*_content/</span>*.md <span class="k">silent</span><span class="p">!</span> exe <span class="s2">&quot;0r! sh $HOME/git_projects/pelican-blog/mkskel.sh  %&quot;</span>
+autocmd <span class="nb">BufNewFile</span> $HOME<span class="sr">/git_projects/</span>pelican<span class="p">-</span>blog<span class="sr">/*_content/</span>*.rst <span class="k">silent</span><span class="p">!</span> exe <span class="s2">&quot;0r! sh $HOME/git_projects/pelican-blog/mkskel.sh  %&quot;</span>
+<span class="c">&quot; 保存時に更新日時を書き換え</span>
+autocmd <span class="nb">BufWrite</span> $HOME<span class="sr">/git_projects/</span>pelican<span class="p">-</span>blog<span class="sr">/*_content/</span>*.md exe <span class="s2">&quot;%s/^Modified:.*/Modified: &quot;</span>.strftime<span class="p">(</span><span class="s2">&quot;%F %T&quot;</span><span class="p">)</span>.<span class="s2">&quot;/ | normal ``zz&quot;</span>
+autocmd <span class="nb">BufWrite</span> $HOME<span class="sr">/git_projects/</span>pelican<span class="p">-</span>blog<span class="sr">/*_content/</span>*.rst exe <span class="s2">&quot;%s/^:modified:.*/:modified: &quot;</span>.strftime<span class="p">(</span><span class="s2">&quot;%F %T&quot;</span><span class="p">)</span>.<span class="s2">&quot;/ | normal ``zz&quot;</span>
+</pre></div>
+</div>
+
+    </div><!-- /.entry-content -->
+<div class="gad">
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* レクタングル大 */
+    google_ad_slot = "2582152705";
+    google_ad_width = 336;
+    google_ad_height = 280;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* テキスト:大 */
+    google_ad_slot = "8524391909";
+    google_ad_width = 728;
+    google_ad_height = 15;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+</div>    <h2 class="related-posts">関連する記事</h2>
+        <ul>
+            <li><a href="./update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a></li>
+            <li><a href="./pelican_make.html">PelicanのMakefileを書き換えて便利機能を追加する</a></li>
+            <li><a href="./github-pages-subdomain.html">Github Pagesを独自のサブドメインで公開する</a></li>
+            <li><a href="./using-mathjax.html">PelicanでMathJaxを使って数式を表示する</a></li>
+            <li><a href="./vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a></li>
+            <li><a href="./pelican_multisite.html">Pelicanで複数のサイトを生成・管理する</a></li>
+            <li><a href="./pelican-vim.html">Pelicanの記事をVimで楽々編集する</a></li>
+            <li><a href="./pelican-github-pages.html">ブログをgithub pagesに移行した</a></li>
+            <li><a href="./pelican-robots.html">pelicanにrobots.txtを追加する</a></li>
+            <li><a href="./using-mathjax-md.html">render_mathのMarkdownにおけるレンダリング結果</a></li>
+        </ul>
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_config = function () {
+            var disqus_identifier = "qfixhowm-pelican.html";
+            var disqus_url = "./qfixhowm-pelican.html";
+        };
+        var disqus_shortname = 'calcurio';
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+    </div>
+  </article>
+    <nav id="nav-bottom">
+    <div class="top-prev"><a href="cygiwn-rsync-network.html" >&larr; cygiwnでrsyncの差分バックアップ</a></div>
+    <div class="top-next"><a href="thinkpad-x260-battery.html" >ThinkPad X260の内部バッテリーから使用されてしまう問題 &rarr;</a></div>
+    </nav>
+</section>
+<div id="sidebar">
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* スクエア */
+        google_ad_slot = "7175743105";
+        google_ad_width = 200;
+        google_ad_height = 200;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">検索</h3>      <form action="https://www.google.co.jp/search" target="_blank" class="google-search">
+          <input type="hidden" name="q" value="site:http://blog.calcurio.com">
+        <input type="text" name="q">
+      </form>
+    </div>
+    <div class="sidebar_child">
+        Author: M. Tsuyuki
+<p><a href="/pages/about.html">詳しく</a></p>    </div>
+    <div class="sidebar_child">
+        <h3 class="sidebar_title"></h3>
+<h3 class="sidebar_title">カテゴリ</h3>        <ul>            <li><a href="./category/hardware.html">Hardware</a> (11)</li>
+            <li><a href="./category/lun wen.html">論文</a> (2)</li>
+            <li><a href="./category/software.html">Software</a> (79)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">タグ</h3>        <ul>            <li><a href="./tag/aws.html" class="tag">AWS</a> (3)</li>
+            <li><a href="./tag/bash.html" class="tag">bash</a> (6)</li>
+            <li><a href="./tag/blog.html" class="tag">Blog</a> (4)</li>
+            <li><a href="./tag/bot.html" class="tag">bot</a> (1)</li>
+            <li><a href="./tag/cli.html" class="tag">CLI</a> (4)</li>
+            <li><a href="./tag/cui.html" class="tag">CUI</a> (18)</li>
+            <li><a href="./tag/cygwin.html" class="tag">Cygwin</a> (17)</li>
+            <li><a href="./tag/docker.html" class="tag">Docker</a> (11)</li>
+            <li><a href="./tag/dvc.html" class="tag">dvc</a> (1)</li>
+            <li><a href="./tag/ec2.html" class="tag">EC2</a> (2)</li>
+            <li><a href="./tag/firefox.html" class="tag">Firefox</a> (4)</li>
+            <li><a href="./tag/fluentd.html" class="tag">fluentd</a> (1)</li>
+            <li><a href="./tag/git.html" class="tag">Git</a> (3)</li>
+            <li><a href="./tag/github.html" class="tag">Github</a> (1)</li>
+            <li><a href="./tag/hardware.html" class="tag">Hardware</a> (1)</li>
+            <li><a href="./tag/html.html" class="tag">HTML</a> (1)</li>
+            <li><a href="./tag/ji jie xue xi.html" class="tag">機械学習</a> (6)</li>
+            <li><a href="./tag/jia xiang hua.html" class="tag">仮想化</a> (3)</li>
+            <li><a href="./tag/jupyter.html" class="tag">Jupyter</a> (1)</li>
+            <li><a href="./tag/keyboard.html" class="tag">keyboard</a> (1)</li>
+            <li><a href="./tag/linux.html" class="tag">Linux</a> (21)</li>
+            <li><a href="./tag/makefile.html" class="tag">Makefile</a> (1)</li>
+            <li><a href="./tag/math.html" class="tag">math</a> (2)</li>
+            <li><a href="./tag/networking.html" class="tag">Networking</a> (4)</li>
+            <li><a href="./tag/openstack.html" class="tag">OpenStack</a> (2)</li>
+            <li><a href="./tag/pczi zuo.html" class="tag">PC自作</a> (4)</li>
+            <li><a href="./tag/pelican.html" class="tag">Pelican</a> (9)</li>
+            <li><a href="./tag/percol.html" class="tag">percol</a> (2)</li>
+            <li><a href="./tag/preseed.html" class="tag">Preseed</a> (1)</li>
+            <li><a href="./tag/python.html" class="tag">Python</a> (12)</li>
+            <li><a href="./tag/rally.html" class="tag">Rally</a> (1)</li>
+            <li><a href="./tag/raspi.html" class="tag">RasPi</a> (1)</li>
+            <li><a href="./tag/restructuredtext.html" class="tag">reStructuredText</a> (1)</li>
+            <li><a href="./tag/screen.html" class="tag">screen</a> (2)</li>
+            <li><a href="./tag/tesuto.html" class="tag">テスト</a> (1)</li>
+            <li><a href="./tag/thinkpad.html" class="tag">ThinkPad</a> (4)</li>
+            <li><a href="./tag/thinkpad helix.html" class="tag">ThinkPad Helix</a> (2)</li>
+            <li><a href="./tag/tmux.html" class="tag">Tmux</a> (1)</li>
+            <li><a href="./tag/ubuntu.html" class="tag">Ubuntu</a> (27)</li>
+            <li><a href="./tag/vagrant.html" class="tag">vagrant</a> (2)</li>
+            <li><a href="./tag/vim.html" class="tag">Vim</a> (5)</li>
+            <li><a href="./tag/vimperator.html" class="tag">Vimperator</a> (3)</li>
+            <li><a href="./tag/virtualbox.html" class="tag">Virtualbox</a> (1)</li>
+            <li><a href="./tag/windows.html" class="tag">Windows</a> (6)</li>
+            <li><a href="./tag/yoga_tablet2.html" class="tag">yoga_tablet2</a> (1)</li>
+            <li><a href="./tag/zabbix.html" class="tag">zabbix</a> (1)</li>
+            <li><a href="./tag/ziyobusukeziyura.html" class="tag">ジョブスケジューラ</a> (1)</li>
+            <li><a href="./tag/zsh.html" class="tag">zsh</a> (7)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* リンクユニット */
+        google_ad_slot = "1129209509";
+        google_ad_width = 200;
+        google_ad_height = 90;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">最近の投稿</h3>        <ul id="recent-article">
+        <li>
+            <a href="update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a>
+            2020/07/25
+        </li>
+        <li>
+            <a href="vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a>
+            2020/07/24
+        </li>
+        <li>
+            <a href="raspi-wifi.html">Raspberry Pi3 Bで802.11ACな安物無線LANアダプタを使う</a>
+            2019/05/01
+        </li>
+        <li>
+            <a href="PALM_Machine_Learning_Explanations_for_Iterative_Debugging.html">PALM_Machine_Learning_Explanations_for_Iterative_Debugging</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="A_Survey_of_Methods_For_Explaining_Bloack_Box_Models.html">A Survey of Methods For Explaining Bloack Box Modelsを読んだ</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a>
+            2018/04/08
+        </li>
+        <li>
+            <a href="dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a>
+            2018/04/07
+        </li>
+        <li>
+            <a href="transparent-proxy-by-squid.html">Docker buildを高速化するためにsquidで透過型プロキシを立ててみた</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="detect-apt-cacher-in-dockerfile.html">Dockerfile内部でapt-cacher-ngを自動検出する</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="slurm.html">slurmをインストール...したい</a>
+            2017/08/16
+        </li>
+        <li>
+            <a href="install-nvenc-on-ubunu.html">UbuntuにNVENCをインストールしてエンコードしてみる</a>
+            2017/06/26
+        </li>
+        <li>
+            <a href="install_dropbox_for_linux.html">UbuntuにLinux用Dropboxをインストールする</a>
+            2017/06/25
+        </li>
+        <li>
+            <a href="ssh-tunneling-for-samba.html">SSHトンネル経由でWindowsからリモートのSambaサーバへ接続する方法</a>
+            2017/06/19
+        </li>
+        <li>
+            <a href="h270-unixbench.html">Core i7-7700な自作PCを作ったのでUnixBenchを取ってみた</a>
+            2017/06/18
+        </li>
+        <li>
+            <a href="enable-wake-on-lan.html">Ubuntuでwake-on-lanを有効化する</a>
+            2017/06/16
+        </li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+    <h3 class="sidebar_title">関連する記事</h3>
+        <ul id="sidebar_related_article">
+            <li><a href="./update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a></li>
+            <li><a href="./pelican_make.html">PelicanのMakefileを書き換えて便利機能を追加する</a></li>
+            <li><a href="./github-pages-subdomain.html">Github Pagesを独自のサブドメインで公開する</a></li>
+            <li><a href="./using-mathjax.html">PelicanでMathJaxを使って数式を表示する</a></li>
+            <li><a href="./vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a></li>
+            <li><a href="./pelican_multisite.html">Pelicanで複数のサイトを生成・管理する</a></li>
+            <li><a href="./pelican-vim.html">Pelicanの記事をVimで楽々編集する</a></li>
+            <li><a href="./pelican-github-pages.html">ブログをgithub pagesに移行した</a></li>
+            <li><a href="./pelican-robots.html">pelicanにrobots.txtを追加する</a></li>
+            <li><a href="./using-mathjax-md.html">render_mathのMarkdownにおけるレンダリング結果</a></li>
+        </ul>
+    </div>
+</div>        </div>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme baseed on <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>.</p>
+        </footer><!-- /#contentinfo -->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+   ga('create', 'UA-42775386-2', 'auto');
+    ga('send', 'pageview');
+</script>
+</body>
+</html>

@@ -1,0 +1,2261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>電脳手帳 - Hardware</title><link href="http://blog.calcurio.com/" rel="alternate"></link><link href="http://blog.calcurio.com/feeds/hardware.atom.xml" rel="self"></link><id>http://blog.calcurio.com/</id><updated>2020-05-24T10:41:00+09:00</updated><subtitle>計算機環境やコーディング，機械学習まわりの話題を書き留めます</subtitle><entry><title>Raspberry Pi3 Bで802.11ACな安物無線LANアダプタを使う</title><link href="http://blog.calcurio.com/raspi-wifi.html" rel="alternate"></link><published>2019-05-01T14:18:15+09:00</published><updated>2020-05-24T10:41:00+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2019-05-01:/raspi-wifi.html</id><summary type="html">&lt;p&gt;最新のRaspberry Pi3 B+の内蔵無線LANチップは802.11acに準拠し，5.8Ghz帯を利用できる。一方，私の所有するRaspberry Pi3 Bでは，802.11nまでの対応となり2.4Ghz帯しか利用できない。&lt;/p&gt;
+&lt;p&gt;自宅の無線LANルータが5.8Ghz帯のみ対応だったのでRasPiを更新するか，アダプタを購入するか悩んだのだが，安価であることとRasPiの再設定が面倒なのでアタプタで対応することにした。&lt;/p&gt;
+&lt;p&gt;今回はRaspbianへのドライバインストールから無線LANへ接続可能になるところまでの手順を記録しておく。自宅のRasPiは録画サーバ兼NASとして運用しているのだが，今回のac対応により有線LANと遜色ない速度で利用可能になった。内蔵無線LANではパケ詰まりのような症状があってNASとしては使い物にならなかったのだが，解消して嬉しい。&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;最新のRaspberry Pi3 B+の内蔵無線LANチップは802.11acに準拠し，5.8Ghz帯を利用できる。一方，私の所有するRaspberry Pi3 Bでは，802.11nまでの対応となり2.4Ghz帯しか利用できない。&lt;/p&gt;
+&lt;p&gt;自宅の無線LANルータが5.8Ghz帯のみ対応だったのでRasPiを更新するか，アダプタを購入するか悩んだのだが，安価であることとRasPiの再設定が面倒なのでアタプタで対応することにした。&lt;/p&gt;
+&lt;p&gt;今回はRaspbianへのドライバインストールから無線LANへ接続可能になるところまでの手順を記録しておく。自宅のRasPiは録画サーバ兼NASとして運用しているのだが，今回のac対応により有線LANと遜色ない速度で利用可能になった。内蔵無線LANではパケ詰まりのような症状があってNASとしては使い物にならなかったのだが，解消して嬉しい。&lt;/p&gt;
+&lt;!-- PELICAN_END_SUMMARY --&gt;
+
+&lt;h1&gt;前提環境&lt;/h1&gt;
+&lt;p&gt;今回使用したRasPiの仕様は以下の通り。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Raspberry Pi3 B&lt;/li&gt;
+&lt;li&gt;ディストリ: Raspbian Stretch 9.9&lt;/li&gt;
+&lt;li&gt;カーネル: Linux raspberrypi 4.14.98-v7+ #1200 SMP Tue Feb 12 20:27:48 GMT 2019 armv7l GNU/Linux&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;アタプタの購入とハードウェアの仕様&lt;/h1&gt;
+&lt;p&gt;今回はAmazonで買える安価かつそれなりに早そうなTexrraの無線LANアダプタ &lt;a href="https://www.amazon.co.jp/gp/product/B07JJ9B731/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&amp;amp;psc=1"&gt;Amazon | 無線LANアダプタ 1200Mbps USB3.0高速モデル | TEXRRA&lt;/a&gt; を購入した。執筆時点(2019/05/02)で2080円。RasPiだとUSB2.0の300Mbpsが上限になるだろうがそこはあまり気にしないことにする。&lt;/p&gt;
+&lt;p&gt;Raspbianで &lt;code&gt;lsusb&lt;/code&gt; コマンドを実行すると下記のように表示される。IDが &lt;code&gt;0bda:b812&lt;/code&gt; であることから，&lt;a href="https://wikidevi.com/wiki/0bda"&gt;WikiDevi&lt;/a&gt; によるとこの無線LANアダプタはRealtekのRTL8812BUチップセットを採用していることがわかる。これに対応するドライバをインストールすれば良い。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;Bus 001 Device 009: ID 0bda:b812 Realtek Semiconductor Corp.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;ドライバのインストール&lt;/h1&gt;
+&lt;p&gt;基本的な手順は &lt;a href="https://edimax.freshdesk.com/support/solutions/articles/14000062079-how-to-install-ew-7822ulc-adapter-on-raspberry-pi"&gt;EDiMAXの記事&lt;/a&gt; に従う。RTL8822buを搭載した別製品の記事だが，ドライバ自体はRTL88x2bu向けとしてインストールされるので，同じ手順を利用できる。&lt;/p&gt;
+&lt;p&gt;ドライバをコンパイルする環境を整えていく。まず，カーネルのソースを取得する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;sudo apt update
+sudo apt install raspberrypi-kernel-headers
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;今回は稼働中のカーネルのバージョン &lt;code&gt;4.14.98-v7+&lt;/code&gt; に対応するソースコードが取得された。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ ls /lib/modules
+&lt;span class="m"&gt;4&lt;/span&gt; &lt;span class="m"&gt;4&lt;/span&gt;.14.98-v7+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;次に，コンパイルに必要なツールセットをインストールする。私の環境は既にいろいろインストール済みなので，もしかしたら別のパッケージもインストールする必要があるかもしれない。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;sudo apt install gcc make git bc
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;いよいよ，ドライバのコードを取得する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; /usr/src
+git clone https://github.com/jackfan108/rtl8822bu.git
+&lt;span class="nb"&gt;cd&lt;/span&gt; rtl8822bu
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;ARM向けにMakefileを改変する。 &lt;code&gt;/lib/modules/4.14.98-v7+/build&lt;/code&gt; の部分は自分のカーネルのバージョンに合わせて改変すること。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="c"&gt;# 改変前 (1800行付近)&lt;/span&gt;
+
+&lt;span class="nf"&gt;modules&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;$(&lt;/span&gt;MAKE&lt;span class="k"&gt;)&lt;/span&gt; &lt;span class="nv"&gt;ARCH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;ARCH&lt;span class="k"&gt;)&lt;/span&gt; &lt;span class="nv"&gt;CROSS_COMPILE&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;CROSS_COMPILE&lt;span class="k"&gt;)&lt;/span&gt; -C &lt;span class="k"&gt;$(&lt;/span&gt;KSRC&lt;span class="k"&gt;)&lt;/span&gt; &lt;span class="nv"&gt;M&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;shell &lt;span class="nb"&gt;pwd&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;  modules
+
+&lt;span class="c"&gt;# 改変後 (1800行付近)&lt;/span&gt;
+
+&lt;span class="nf"&gt;modules&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;$(&lt;/span&gt;MAKE&lt;span class="k"&gt;)&lt;/span&gt; &lt;span class="nv"&gt;ARCH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;arm &lt;span class="nv"&gt;CROSS_COMPILE&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;CROSS_COMPILE&lt;span class="k"&gt;)&lt;/span&gt; -C /lib/modules/4.14.98-v7+/build &lt;span class="nv"&gt;M&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;shell &lt;span class="nb"&gt;pwd&lt;/span&gt;&lt;span class="k"&gt;)&lt;/span&gt;  modules
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;後はコンパイルしてインストールするだけ。せっかくなので4並列でコンパイルしよう。ちなみに &lt;code&gt;sudo make uninstall &amp;amp;&amp;amp; make clean&lt;/code&gt; でアンインストールできる。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;make -j &lt;span class="m"&gt;4&lt;/span&gt;
+suod make install
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;再起動後にwlan1が追加されていればインストール成功である。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;reboot
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ ip link
+&lt;span class="m"&gt;1&lt;/span&gt;: lo: &amp;lt;LOOPBACK,UP,LOWER_UP&amp;gt; mtu &lt;span class="m"&gt;65536&lt;/span&gt; qdisc noqueue state UNKNOWN mode DEFAULT group default qlen &lt;span class="m"&gt;1000&lt;/span&gt;
+    link/loopback &lt;span class="m"&gt;00&lt;/span&gt;:00:00:00:00:00 brd &lt;span class="m"&gt;00&lt;/span&gt;:00:00:00:00:00
+&lt;span class="m"&gt;2&lt;/span&gt;: eth0: &amp;lt;BROADCAST,MULTICAST,UP,LOWER_UP&amp;gt; mtu &lt;span class="m"&gt;1500&lt;/span&gt; qdisc pfifo_fast state UP mode DEFAULT group default qlen &lt;span class="m"&gt;1000&lt;/span&gt;
+    link/ether xx:xx:xx:xx:xx:xx brd ff:ff:ff:ff:ff:ff
+&lt;span class="m"&gt;3&lt;/span&gt;: wlan0: &amp;lt;BROADCAST,MULTICAST&amp;gt; mtu &lt;span class="m"&gt;1500&lt;/span&gt; qdisc noop state DOWN mode DEFAULT group default qlen &lt;span class="m"&gt;1000&lt;/span&gt;
+    link/ether xx:xx:xx:xx:xx:xx brd ff:ff:ff:ff:ff:ff
+&lt;span class="m"&gt;4&lt;/span&gt;: wlan1: &amp;lt;BROADCAST,MULTICAST,UP,LOWER_UP&amp;gt; mtu &lt;span class="m"&gt;1500&lt;/span&gt; qdisc mq state DOWN mode DORMANT group default qlen &lt;span class="m"&gt;1000&lt;/span&gt;
+    link/ether xx:xx:xx:xx:xx:xx brd ff:ff:ff:ff:ff:ff
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;将来のカーネル更新を見据えて，dkmsを使ってインストールしておいた方が良いかもしれない。今回は面倒なので普通にmakeしてしまった。&lt;/p&gt;
+&lt;h1&gt;無線LAN接続設定&lt;/h1&gt;
+&lt;p&gt;無線LAN設定はRasPi内蔵の無線LANチップを利用する場合と同じ手順でよい。&lt;code&gt;raspi-config&lt;/code&gt; コマンドで設定すれば， &lt;code&gt;/etc/wpa_supplicant/wpa_supplicant.conf&lt;/code&gt; にアクセスポイントの設定が保存される。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="nx"&gt;ctrl_interface&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nx"&gt;DIR&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="err"&gt;/var/run/wpa_supplicant GROUP=netdev&lt;/span&gt;
+&lt;span class="nx"&gt;update_config&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="nx"&gt;country&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nx"&gt;JP&lt;/span&gt;
+
+&lt;span class="nx"&gt;network&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="nx"&gt;ssid&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;XXXXXX&amp;quot;&lt;/span&gt;
+        &lt;span class="nx"&gt;psk&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;XXXXXX&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;wlan1の設定を &lt;code&gt;/etc/network/interfaces&lt;/code&gt; に記述する。例えば，固定IPアドレスを割り当てるなら下記のような感じ。なお，省電力モードへの移行を阻止したかったので &lt;code&gt;wireless-power off&lt;/code&gt; の設定も試してみたが，対応していないようだったので無効化した。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;auto wlan1
+allow-hotplug wlan1
+iface wlan1 inet static
+  address 192.168.10.2
+  netmask 255.255.255.0
+  broadcast 192.168.10.255
+  gateway 192.168.10.1
+  dns-nameservers 192.168.10.1
+  wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+  # wireless-power off
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;接続の安定化&lt;/h1&gt;
+&lt;p&gt;ここまでの設定で無事に5.8Ghzの無線LAN接続が可能になったが，10時間程度経つと無線LAN接続が切れてしまう問題があった。しかも &lt;code&gt;ifdown wlan1 &amp;amp;&amp;amp; ifup wlan1&lt;/code&gt; を実行しても接続できず，OSを再起動するしかない。未だ原因ははっきり分かっていないのだが考えられる原因は以下の2つ。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;無線LANアダプタが省電力モードになること&lt;/li&gt;
+&lt;li&gt;USBの供給する電力不足&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;a href="http://min117.hatenablog.com/entry/2017/10/09/163052"&gt;RasPiの無線LANが切れるのは省電力機能が原因という記事&lt;/a&gt; があったので確認してみたが省電力モードの無効化ができないし，そもそもパワーマネジメントが管理されているかもイマイチよくわからなかった。&lt;a href="https://www.angelcurio.com/raspberrypi/?Raspberry%20Pi/%E7%84%A1%E7%B7%9ALAN/%E3%81%9D%E3%81%AE3-%E7%84%A1%E7%B7%9ALAN%E3%81%AE%E3%81%BF%E3%81%A7%E9%81%8B%E7%94%A8%EF%BC%88%E8%A7%A3%E6%B1%BA%E7%B7%A8%EF%BC%89"&gt;Raspberry Pi/無線LAN/その3-無線LANのみで運用（解決編） - Berry Pie Lab&lt;/a&gt; によると省電力機能が有効な場合は &lt;code&gt;rtw_power_mgnt&lt;/code&gt; が1になるというが，下記のようにうちの環境では2になる。2とは何を意味するのか...。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ cat /sys/module/88x2bu/parameters/rtw_power_mgnt
+&lt;span class="m"&gt;2&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;そこでwlan1経由で常にpingを打ち続けてみたが，接続断の問題は解決しなかった。したがって，電力不足が原因ではないかと考えている。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;lsusb&lt;/code&gt;の出力をみるに消費電力は 2.5W (5V/500mA) が上限と大容量を必要とするようだ。やはり，RasPiでUSB機器をつなげるときは何よりも最初に電源の安定供給を考えるべきだろう，ということで今はセルフパワーなUSBハブに無線LANアダプタを接続して様子見をしている。&lt;/p&gt;
+&lt;h1&gt;参考URL&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://www.amazon.co.jp/gp/product/B07JJ9B731/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&amp;amp;psc=1"&gt;Amazon | 無線LANアダプタ 1200Mbps USB3.0高速モデル | TEXRRA&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://wikidevi.com/wiki/0bda"&gt;0bda - WikiDevi&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://edimax.freshdesk.com/support/solutions/articles/14000062079-how-to-install-ew-7822ulc-adapter-on-raspberry-pi"&gt;How to install EW-7822ULC/UTC adapter on Raspberry Pi : EDiMAX&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://min117.hatenablog.com/entry/2017/10/09/163052"&gt;RaspberryPi 3 無線LANが寸断するのは /etc/modprobe.d/8192cu.conf に「options 8192cu rtw_power_mgnt=0 rtw_enusbss=1 rtw_ips_mode=1」を書いて解決 - min117の日記&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.angelcurio.com/raspberrypi/?Raspberry%20Pi/%E7%84%A1%E7%B7%9ALAN/%E3%81%9D%E3%81%AE3-%E7%84%A1%E7%B7%9ALAN%E3%81%AE%E3%81%BF%E3%81%A7%E9%81%8B%E7%94%A8%EF%BC%88%E8%A7%A3%E6%B1%BA%E7%B7%A8%EF%BC%89"&gt;Raspberry Pi/無線LAN/その3-無線LANのみで運用（解決編） - Berry Pie Lab&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="Hardware"></category><category term="RasPi"></category><category term="Linux"></category></entry><entry><title>Core i7-7700な自作PCを作ったのでUnixBenchを取ってみた</title><link href="http://blog.calcurio.com/h270-unixbench.html" rel="alternate"></link><published>2017-06-18T20:45:10+09:00</published><updated>2017-06-18T22:18:42+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2017-06-18:/h270-unixbench.html</id><summary type="html">&lt;!-- tags: AWS, bash, blog, Blog, bot, CLI, CUI, Cygwin, Docker, EC2, Firefox, fluentd, git, Git, Github, Hardware, HTML, job, keyboard, Linux, Makefile, math, Networking, OpenStack, PC自作, pelican, Pelican, percol, Preseed, python, Python, Rally, reStructuredText, screen, Screen, ThinkPad, ThinkPadHelix, Tmux, TODO, ubuntu, Ubuntu, vagrant, Vagrant, Vim, Vimperator, Virtualbox, Windows, yoga_tablet2, zabbix, zsh, テスト, 仮想化, 機械学習, 原稿, 統計 --&gt;
+&lt;!-- category: blog, hardware, Hardware, Hardware/ノートPC, IDEA, software, Software, Software/Blog, Software/CUI, Software/Linux, theory, 原稿, 日報, 未分類 --&gt;
+&lt;p&gt;2009年に買ったCore i5 750な自作PCはいい加減古い。
+コンパイルやらエンコードをするわけでもないので，
+実はあまりCPUパワーに不足を感じてなかったが，
+USB3やPCIe3.0，NVMeのような新しいデバイスに対応したPCが欲しかった。&lt;/p&gt;
+&lt;p&gt;パーツを購入し，組み上げてからとりあえずUnixBenchを取ってみたので記録しておく。
+しかしHyperThreadingとはいえ，8スレッド動作してるとなんだか
+すごいマシンを買ったような気分になって嬉しい。&lt;/p&gt;
+</summary><content type="html">&lt;!-- tags: AWS, bash, blog, Blog, bot, CLI, CUI, Cygwin, Docker, EC2, Firefox, fluentd, git, Git, Github, Hardware, HTML, job, keyboard, Linux, Makefile, math, Networking, OpenStack, PC自作, pelican, Pelican, percol, Preseed, python, Python, Rally, reStructuredText, screen, Screen, ThinkPad, ThinkPadHelix, Tmux, TODO, ubuntu, Ubuntu, vagrant, Vagrant, Vim, Vimperator, Virtualbox, Windows, yoga_tablet2, zabbix, zsh, テスト, 仮想化, 機械学習, 原稿, 統計 --&gt;
+&lt;!-- category: blog, hardware, Hardware, Hardware/ノートPC, IDEA, software, Software, Software/Blog, Software/CUI, Software/Linux, theory, 原稿, 日報, 未分類 --&gt;
+&lt;p&gt;2009年に買ったCore i5 750な自作PCはいい加減古い。
+コンパイルやらエンコードをするわけでもないので，
+実はあまりCPUパワーに不足を感じてなかったが，
+USB3やPCIe3.0，NVMeのような新しいデバイスに対応したPCが欲しかった。&lt;/p&gt;
+&lt;p&gt;パーツを購入し，組み上げてからとりあえずUnixBenchを取ってみたので記録しておく。
+しかしHyperThreadingとはいえ，8スレッド動作してるとなんだか
+すごいマシンを買ったような気分になって嬉しい。&lt;/p&gt;
+&lt;!-- PELICAN_END_SUMMARY --&gt;
+&lt;div class="section" id="id1"&gt;
+&lt;h2&gt;購入したパーツ&lt;/h2&gt;
+&lt;p&gt;まず，それぞれのパーツ選定理由を書いておく。&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;i7-7700kだとCPUの差額とCPUクーラー代金，マザーボード代で+2.5万円になるため，i7-7700にする&lt;ul&gt;
+&lt;li&gt;i7-7700kだとi7-7700と差額が0.5万円&lt;/li&gt;
+&lt;li&gt;i7-7700kだとリテールCPUクーラーが付属しない。これで+0.5万円。&lt;/li&gt;
+&lt;li&gt;i7-7700kだとZ270でオーバクロック対応のマザーを購入するべきとなり，H270のマザーから+1万円。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;RAMはマザーボード上限(16x4=64GB)まで増設を見据える&lt;/li&gt;
+&lt;li&gt;ケースはATX電源とフルハイトPCIeカード対応なもののうち，可能な限り小さく。&lt;/li&gt;
+&lt;li&gt;電源は将来のGPU増設に耐えられる程度の容量を確保しておく。&lt;/li&gt;
+&lt;li&gt;ストレージはNVMeの高速なものを (使ってみたかっただけ)&lt;ul&gt;
+&lt;li&gt;ただし発熱が心配なので安価なヒートシンクを設置&lt;/li&gt;
+&lt;li&gt;M.2スロットを活用するため，PCIe変換ボードは購入しない&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;GPUは購入済みのGeforce GTX 1050 Tiを流用&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="code literal-block"&gt;
+CPU          | Intel Core i7-7700 3.6GHz 4コア/8スレッド                | ￥ 36,760
+マザーボード | ASRock H270 Pro4 (ATX)                                   | ￥ 11,643
+RAM          | Crucial DDR4 16GB  CT16G4DFD8213                         | ￥ 13,800
+ストレージ   | Samsung SSD 250GB 960 EVO M.2 Type2280 PCIe3.0x4 NVMe1.2 | ￥ 16,178
+             | アイネックス M.2 SSD用ヒートシンク HM-21                 | ￥    733
+電源         | 玄人志向 600W ATX電源 KRPW-L5-600W/80+                   | ￥  5,255
+ケース       | CoolerMaster スリム型ATX PCケース Elite 361              | ￥  6,458
+GPU          | 玄人志向 GF-GTX1050Ti-4GB/OC/SF                          | ￥ 15,214
+===================================================================================
+             |                                                   total  | ￥106,041
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div class="section" id="unixbench"&gt;
+&lt;h2&gt;UnixBench計測条件&lt;/h2&gt;
+&lt;pre class="code literal-block"&gt;
+BYTE UNIX Benchmarks (Version 5.1.3)
+OS: GNU/Linux 4.4.0-79-generic Ubuntu SMP Wed May 17 19:58:14 UTC 2017 x86_64
+CPU: Intel(R) Core(TM) i7-7700 CPU &amp;#64; 3.60GHz (7199.8 bogomips)
+     Hyper-Threading, x86-64, MMX, Physical Address Ext,
+     SYSENTER/SYSEXIT, SYSCALL/SYSRET, Intel virtualization
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id2"&gt;
+&lt;h2&gt;1スレッドのベンチマーク結果&lt;/h2&gt;
+&lt;p&gt;&lt;a class="reference external" href="http://qiita.com/TatsuyaYamaguci/items/bc058bd055fe0b229d50"&gt;AWS、GCP、さくらのクラウド でUnixBench CPU性能比較 - Qiita&lt;/a&gt;
+を参考にすると1スレッドの性能が2451ってことは，さくらのクラウド(KVM, Xeon E5-2650 v3)と同等程度の性能か。
+さくらのクラウドには仮想化によるオーバヘッドがあるとしても，1スレッドあたりでは高価なXeonと同等っていうのは嬉しい。&lt;/p&gt;
+&lt;p&gt;さくらのクラウドで8コア，16GB RAM，250GB SSDなインスタンスを借りると1ヶ月33750円だから，
+なんど3ヶ月で元が取れる計算になる。一方，さくらのVPSなら15,552円/月だから6ヶ月かな。
+IaaSやVPSと比較するのもアレだが今風の比較対象ということで。&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+Benchmark Run: 日  6月 18 2017 19:31:08 - 19:59:19
+8 CPUs in system; running 1 parallel copy of tests
+
+Dhrystone 2 using register variables       48594345.4 lps   (10.0 s, 7 samples)
+Double-Precision Whetstone                     4772.6 MWIPS (10.5 s, 7 samples)
+Execl Throughput                               1331.0 lps   (30.0 s, 2 samples)
+File Copy 1024 bufsize 2000 maxblocks       1652601.3 KBps  (30.0 s, 2 samples)
+File Copy 256 bufsize 500 maxblocks          437712.4 KBps  (30.0 s, 2 samples)
+File Copy 4096 bufsize 8000 maxblocks       3434012.3 KBps  (30.0 s, 2 samples)
+Pipe Throughput                             3050060.8 lps   (10.0 s, 7 samples)
+Pipe-based Context Switching                 311309.3 lps   (10.0 s, 7 samples)
+Process Creation                              22308.9 lps   (30.0 s, 2 samples)
+Shell Scripts (1 concurrent)                  17608.3 lpm   (60.0 s, 2 samples)
+Shell Scripts (8 concurrent)                   7472.3 lpm   (60.0 s, 2 samples)
+System Call Overhead                        5533931.1 lps   (10.0 s, 7 samples)
+
+System Benchmarks Index Values               BASELINE       RESULT    INDEX
+Dhrystone 2 using register variables         116700.0   48594345.4   4164.0
+Double-Precision Whetstone                       55.0       4772.6    867.7
+Execl Throughput                                 43.0       1331.0    309.5
+File Copy 1024 bufsize 2000 maxblocks          3960.0    1652601.3   4173.2
+File Copy 256 bufsize 500 maxblocks            1655.0     437712.4   2644.8
+File Copy 4096 bufsize 8000 maxblocks          5800.0    3434012.3   5920.7
+Pipe Throughput                               12440.0    3050060.8   2451.8
+Pipe-based Context Switching                   4000.0     311309.3    778.3
+Process Creation                                126.0      22308.9   1770.5
+Shell Scripts (1 concurrent)                     42.4      17608.3   4152.9
+Shell Scripts (8 concurrent)                      6.0       7472.3  12453.8
+System Call Overhead                          15000.0    5533931.1   3689.3
+                                                                   ========
+System Benchmarks Index Score                                        2451.5
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id3"&gt;
+&lt;h2&gt;8スレッドのベンチマーク結果&lt;/h2&gt;
+&lt;p&gt;8スレッドのスコアを見てみると，1スレッドの8倍とはならず頭打ちになっていることがわかる。
+並列化のオーバヘッドか，あるいはこれがHyperThreadingの限界なのだろう。&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+Benchmark Run: 日  6月 18 2017 19:59:19 - 20:27:23
+8 CPUs in system; running 8 parallel copies of tests
+
+Dhrystone 2 using register variables      221989254.4 lps   (10.0 s, 7 samples)
+Double-Precision Whetstone                    38543.8 MWIPS (9.6 s, 7 samples)
+Execl Throughput                              38725.7 lps   (30.0 s, 2 samples)
+File Copy 1024 bufsize 2000 maxblocks       1646189.8 KBps  (30.0 s, 2 samples)
+File Copy 256 bufsize 500 maxblocks          437168.8 KBps  (30.0 s, 2 samples)
+File Copy 4096 bufsize 8000 maxblocks       4263709.3 KBps  (30.0 s, 2 samples)
+Pipe Throughput                            14575778.3 lps   (10.0 s, 7 samples)
+Pipe-based Context Switching                2272045.8 lps   (10.0 s, 7 samples)
+Process Creation                              91785.5 lps   (30.0 s, 2 samples)
+Shell Scripts (1 concurrent)                  71192.7 lpm   (60.0 s, 2 samples)
+Shell Scripts (8 concurrent)                   9257.2 lpm   (60.0 s, 2 samples)
+System Call Overhead                       11139531.9 lps   (10.0 s, 7 samples)
+
+System Benchmarks Index Values               BASELINE       RESULT    INDEX
+Dhrystone 2 using register variables         116700.0  221989254.4  19022.2
+Double-Precision Whetstone                       55.0      38543.8   7008.0
+Execl Throughput                                 43.0      38725.7   9006.0
+File Copy 1024 bufsize 2000 maxblocks          3960.0    1646189.8   4157.0
+File Copy 256 bufsize 500 maxblocks            1655.0     437168.8   2641.5
+File Copy 4096 bufsize 8000 maxblocks          5800.0    4263709.3   7351.2
+Pipe Throughput                               12440.0   14575778.3  11716.9
+Pipe-based Context Switching                   4000.0    2272045.8   5680.1
+Process Creation                                126.0      91785.5   7284.6
+Shell Scripts (1 concurrent)                     42.4      71192.7  16790.7
+Shell Scripts (8 concurrent)                      6.0       9257.2  15428.7
+System Call Overhead                          15000.0   11139531.9   7426.4
+                                                                   ========
+System Benchmarks Index Score                                        8184.8
+&lt;/pre&gt;
+&lt;/div&gt;
+</content><category term="Hardware"></category><category term="Ubuntu"></category><category term="PC自作"></category></entry><entry><title>Ubuntu16.04にGeforge GTX 1050tiをインストールし，TensoFlowの処理を高速化してみた</title><link href="http://blog.calcurio.com/ubuntu-nvidia-gt1050ti.html" rel="alternate"></link><published>2017-05-29T21:17:39+09:00</published><updated>2017-06-14T05:50:30+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2017-05-29:/ubuntu-nvidia-gt1050ti.html</id><summary type="html">&lt;p&gt;いうまでもなく，行列の積和演算のような処理はGPGPUを使えば高速化できる。
+ここでは&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Ubuntu Server 16.04にGPUのドライバをあてて&lt;/li&gt;
+&lt;li&gt;CUDAとcuDNNをインストールし，&lt;/li&gt;
+&lt;li&gt;さらにnvidia-dockerをインストールしたうえで&lt;/li&gt;
+&lt;li&gt;TensorFlowで適当なベンチマークを実行する&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;ところまでのやり方を示す。&lt;/p&gt;
+&lt;p&gt;ついでにnvidia-dockerを挟むか，挟まないかで性能が変わるのかチェックしてみる。&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;いうまでもなく，行列の積和演算のような処理はGPGPUを使えば高速化できる。
+ここでは&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Ubuntu Server 16.04にGPUのドライバをあてて&lt;/li&gt;
+&lt;li&gt;CUDAとcuDNNをインストールし，&lt;/li&gt;
+&lt;li&gt;さらにnvidia-dockerをインストールしたうえで&lt;/li&gt;
+&lt;li&gt;TensorFlowで適当なベンチマークを実行する&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;ところまでのやり方を示す。&lt;/p&gt;
+&lt;p&gt;ついでにnvidia-dockerを挟むか，挟まないかで性能が変わるのかチェックしてみる。&lt;/p&gt;
+&lt;!-- PELICAN_END_SUMMARY --&gt;
+&lt;div class="section" id="gpu"&gt;
+&lt;h2&gt;GPUの選定理由&lt;/h2&gt;
+&lt;p&gt;現在できるだけ低コストでかつそれなりのパフォーマンスを得たい場合はGeforce GTX1050tiがベスト。
+2017/05/29現在では1.5万円程度で購入できた。
+もっと安いGPUはあるが，あまり低性能だと将来でてくるライブラリを動かせなかったりしそうなので避けた。&lt;/p&gt;
+&lt;p&gt;GPUはすぐに陳腐化するようなのでその都度最新のアーキテクチャで一番コスパのよいGPUを選定するべきだ。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id1"&gt;
+&lt;h2&gt;GPUのドライバインストール&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# kernelが認識しているか確認&lt;/span&gt;
+$ dmesg &lt;span class="p"&gt;|&lt;/span&gt; grep -i nouveau
+&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;.091896&lt;span class="o"&gt;]&lt;/span&gt; nouveau &lt;span class="m"&gt;0000&lt;/span&gt;:07:00.0: unknown chipset &lt;span class="o"&gt;(&lt;/span&gt;137000a1&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;.091899&lt;span class="o"&gt;]&lt;/span&gt; nouveau: probe of &lt;span class="m"&gt;0000&lt;/span&gt;:07:00.0 failed with error -12
+
+&lt;span class="c1"&gt;# nvidiaのドライバをubuntuのリポジトリからインストール。375はドライバのバージョンを示す。&lt;/span&gt;
+&lt;span class="c1"&gt;# 将来的に自動アップデートしたいのでaptを使う。とりあえず最大の数字をインストールしておけばOKかな？&lt;/span&gt;
+$ sudo apt install nvidia-375
+
+&lt;span class="c1"&gt;# nvidiaのドライバ適用を確認&lt;/span&gt;
+$ dmesg &lt;span class="p"&gt;|&lt;/span&gt; grep -i nvidia
+&lt;span class="o"&gt;[&lt;/span&gt;    &lt;span class="m"&gt;5&lt;/span&gt;.485548&lt;span class="o"&gt;]&lt;/span&gt; input: HDA NVidia HDMI/DP,pcm&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt; as /devices/pci0000:00/0000:00:03.0/0000:07:00.1/sound/card1/input16
+&lt;span class="o"&gt;[&lt;/span&gt;    &lt;span class="m"&gt;5&lt;/span&gt;.485641&lt;span class="o"&gt;]&lt;/span&gt; input: HDA NVidia HDMI/DP,pcm&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;7&lt;/span&gt; as /devices/pci0000:00/0000:00:03.0/0000:07:00.1/sound/card1/input17
+&lt;span class="o"&gt;[&lt;/span&gt;    &lt;span class="m"&gt;5&lt;/span&gt;.485729&lt;span class="o"&gt;]&lt;/span&gt; input: HDA NVidia HDMI/DP,pcm&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;8&lt;/span&gt; as /devices/pci0000:00/0000:00:03.0/0000:07:00.1/sound/card1/input18
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="nvidia-docker"&gt;
+&lt;h2&gt;nvidia-dockerのセットアップ&lt;/h2&gt;
+&lt;p&gt;公式のドキュメント &lt;a class="reference external" href="https://github.com/NVIDIA/nvidia-docker"&gt;NVIDIA/nvidia-docker: Build and run Docker containers leveraging NVIDIA GPUs&lt;/a&gt;
+に従って作業するだけ。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# Install nvidia-docker and nvidia-docker-plugin&lt;/span&gt;
+$ sudo apt-get install nvidia-modprobe
+$ wget -P /tmp https://github.com/NVIDIA/nvidia-docker/releases/download/v1.0.1/nvidia-docker_1.0.1-1_amd64.deb
+$ sudo dpkg -i /tmp/nvidia-docker*.deb &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; rm -f /tmp/nvidia-docker*.deb
+
+&lt;span class="c1"&gt;# Test nvidia-smi&lt;/span&gt;
+$ nvidia-docker run --rm nvidia/cuda nvidia-smi
+Mon May &lt;span class="m"&gt;29&lt;/span&gt; &lt;span class="m"&gt;14&lt;/span&gt;:32:48 &lt;span class="m"&gt;2017&lt;/span&gt;
++-----------------------------------------------------------------------------+
+&lt;span class="p"&gt;|&lt;/span&gt; NVIDIA-SMI &lt;span class="m"&gt;375&lt;/span&gt;.51                 Driver Version: &lt;span class="m"&gt;375&lt;/span&gt;.51                    &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt;-------------------------------+----------------------+----------------------+
+&lt;span class="p"&gt;|&lt;/span&gt; GPU  Name        Persistence-M&lt;span class="p"&gt;|&lt;/span&gt; Bus-Id        Disp.A &lt;span class="p"&gt;|&lt;/span&gt; Volatile Uncorr. ECC &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; Fan  Temp  Perf  Pwr:Usage/Cap&lt;span class="p"&gt;|&lt;/span&gt;         Memory-Usage &lt;span class="p"&gt;|&lt;/span&gt; GPU-Util  Compute M. &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="o"&gt;===============================&lt;/span&gt;+&lt;span class="o"&gt;======================&lt;/span&gt;+&lt;span class="o"&gt;======================&lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt;   &lt;span class="m"&gt;0&lt;/span&gt;  GeForce GTX &lt;span class="m"&gt;105&lt;/span&gt;...  Off  &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;0000&lt;/span&gt;:07:00.0     Off &lt;span class="p"&gt;|&lt;/span&gt;                  N/A &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;54&lt;/span&gt;%   45C    P8    35W /  75W &lt;span class="p"&gt;|&lt;/span&gt;      0MiB /  4038MiB &lt;span class="p"&gt;|&lt;/span&gt;      &lt;span class="m"&gt;0&lt;/span&gt;%      Default &lt;span class="p"&gt;|&lt;/span&gt;
++-------------------------------+----------------------+----------------------+
+
++-----------------------------------------------------------------------------+
+&lt;span class="p"&gt;|&lt;/span&gt; Processes:                                                       GPU Memory &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt;  GPU       PID  Type  Process name                               Usage      &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="o"&gt;=============================================================================&lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt;  No running processes found                                                 &lt;span class="p"&gt;|&lt;/span&gt;
++-----------------------------------------------------------------------------+
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="tensorflow"&gt;
+&lt;h2&gt;TensorFlowのセットアップ&lt;/h2&gt;
+&lt;p&gt;次のDockerfileをbuildしてrunする。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;FROM nvidia/cuda:8.0-cudnn5-runtime
+
+LABEL maintainer &lt;span class="s2"&gt;&amp;quot;test&amp;quot;&lt;/span&gt;
+
+RUN apt-get update
+RUN apt-get -y install python3-pip curl
+RUN pip3 install keras tensorflow-gpu
+&lt;/pre&gt;&lt;/div&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ dokcer build -t tensorflow-bench .
+$ docker run -it --rm tensorflow-bench /bin/bash
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="nvidia-docker-cuda"&gt;
+&lt;h2&gt;nvidia-dockerならば不要: CUDAのインストール&lt;/h2&gt;
+&lt;p&gt;&lt;a class="reference external" href="https://developer.nvidia.com/cuda-downloads"&gt;CUDA Toolkit Download | NVIDIA Developer&lt;/a&gt; より，Ubuntu 16.04用のリポジトリのdebファイルを取得し，cudaパッケージをインストールする。パッケージサイズが大きいため，ダウンロードに1時間以上かかるので退屈。こんなところにもnvidia-dockerを使う恩恵があったとは。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ wget http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
+$ sudo dpkg -i cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
+$ sudo apt update
+$ sudo apt install cuda libcupti-dev
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="nvidia-docker-cudnn"&gt;
+&lt;h2&gt;nvidia-dockerならば不要: cuDNNのインストール&lt;/h2&gt;
+&lt;p&gt;&lt;a class="reference external" href="https://developer.nvidia.com/rdp/cudnn-download"&gt;cuDNN Download | NVIDIA Developer&lt;/a&gt; でユーザ登録をした上で，インストールしたcudaにあったバージョンのcuDNNをダウンロードし，インストールし再起動する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo tar xvf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local
+$ sudo reboot
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="cpu-vs-gpu"&gt;
+&lt;h2&gt;ベンチマーク CPU vs GPU&lt;/h2&gt;
+&lt;p&gt;コンテナ内部・外部で次のコマンドを実行する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;from keras.datasets import mnist \n mnist.load_data()&amp;#39;&lt;/span&gt; &amp;gt; mnist_loda_data.py
+$ python mnist_load_data.py
+$ curl -O https://raw.githubusercontent.com/fchollet/keras/master/examples/mnist_cnn.py
+$ &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;K.clear_session()&amp;#39;&lt;/span&gt; &amp;gt;&amp;gt; mnist_cnn.py
+$ &lt;span class="nb"&gt;time&lt;/span&gt; python mnist_cnn.py
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;結果は以下の通り。ただし，mnist_cnn.pyの初回実行にはGPUデバイス作成の時間が含まれる。
+以下には二回目の所要時間を示した。&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+                                      epoc                total
+Core i5 750     on baremetal    :     171s              2063.73s
+GTX1050ti (4GB) on baremetal    :      10s               128.15s
+GTX1050ti (4GB) on nvidia-docker:      10s               128.52s
+&lt;/pre&gt;
+&lt;p&gt;GPUなら1エポックあたり10秒で終わり，CPUよりも16~17倍高速という結果になった。
+また，Dockerによるオーバヘッドは1秒以下であり，ほとんど無視できる程度。&lt;/p&gt;
+&lt;p&gt;17倍の差が出たが，Core i5 750は2009年発売のCPUだから性能がでなくてもしかたない。
+あとSSE4.2を有効化してTensorFlowを再コンパイルしたらもう少し早くなるはず。
+Dockerで動かす場合も既存イメージを使わずに，Dockerfile内部でコンパイルするようにすると高速化できるだろう。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="url"&gt;
+&lt;h2&gt;参考URL&lt;/h2&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;&lt;a class="reference external" href="http://gihyo.jp/admin/serial/01/ubuntu-recipe/0454?page=3"&gt;第454回　Ubuntu 16.04 LTSにNVIDIA製ドライバーをインストールする3つの方法：Ubuntu Weekly Recipe｜gihyo.jp … 技術評論社&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class="reference external" href="http://blog.amedama.jp/entry/2017/03/13/123742"&gt;Python: Keras/TensorFlow の学習を GPU で高速化する (Ubuntu 16.04 LTS) - CUBE SUGAR CONTAINER&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class="reference external" href="https://github.com/NVIDIA/nvidia-docker"&gt;NVIDIA/nvidia-docker: Build and run Docker containers leveraging NVIDIA GPUs&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class="reference external" href="http://qiita.com/ttomoaki/items/5a180f61647750eb8d70"&gt;Tensorflow + GPU 環境を nvidia-docker を使って楽に作る (on CentOS 7.2) - Qiita&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+</content><category term="hardware"></category><category term="Ubuntu"></category><category term="機械学習"></category><category term="Python"></category></entry><entry><title>ThinkPad x260 のSSDを交換した</title><link href="http://blog.calcurio.com/thinkpadx260-change-ssd.html" rel="alternate"></link><published>2017-02-26T11:38:03+09:00</published><updated>2017-03-25T00:28:47+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2017-02-26:/thinkpadx260-change-ssd.html</id><summary type="html">&lt;p&gt;最近手狭になってきたThinkPad X260のストレージをSamusngの128GB SSDからCrucialの512GB SSD (CT525MX300SSD1)に交換した。&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;最近手狭になってきたThinkPad X260のストレージをSamusngの128GB SSDからCrucialの512GB SSD (CT525MX300SSD1)に交換した。&lt;/p&gt;
+&lt;!-- PELICAN_END_SUMMARY --&gt;
+&lt;div class="section" id="id1"&gt;
+&lt;h2&gt;0. 環境&lt;/h2&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;ThinkPad x260&lt;/li&gt;
+&lt;li&gt;Windows7&lt;/li&gt;
+&lt;li&gt;UEFI/GPT&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id2"&gt;
+&lt;h2&gt;1. ディスク内容のクローン&lt;/h2&gt;
+&lt;p&gt;事前調査では，UEFI/GPT非対応のクローンソフトを使うと高確率でOSが起動しなくなるということだった。
+そこでGPTに対応している，現在(2017/02/26)で最新の &lt;a class="reference external" href="http://jp.easeus.com/backup-software/free.html"&gt;EaeUS Todo Backup Free 10.0.0.0 (build 20161212)&lt;/a&gt; を利用した。&lt;/p&gt;
+&lt;p&gt;クローニングの手順は以下の通り。&lt;/p&gt;
+&lt;ol class="arabic simple"&gt;
+&lt;li&gt;クローンしたいOS上で，WinPE版の起動ディクスを作成&lt;/li&gt;
+&lt;li&gt;起動ディスクからbootし，クローン開始&lt;/li&gt;
+&lt;li&gt;SSDを差し替える&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;EaseUS Todo Backup 10.0はクローン時にパーティションのサイズも変更できた。
+以前はクローンしてからgpartedでサイズを変更していた記憶があったが，
+無駄な手順が不要になって嬉しい。&lt;/p&gt;
+&lt;p&gt;USB2.0接続の条件で，128GBのクローンは1時間程度で終了した。
+SSDの交換後，Windowsを起動するとファイルシステムのチェックが自動的に開始された。
+クローンしたSSDのNTFSのインデックス情報が不完全だったのだろうか。
+ログは以下の通り。少し心配だが，現在は特に問題なく動作している。しばらく様子を見たい。&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+ログの名前:         Application
+ソース:           Microsoft-Windows-Wininit
+日付:            2017/02/26 2:29:55
+イベント ID:       1001
+タスクのカテゴリ:      なし
+レベル:           情報
+キーワード:         クラシック
+ユーザー:          N/A
+コンピューター:       x260
+説明:
+
+
+Checking file system on C:
+The type of the file system is NTFS.
+Volume label is Windows7_OS.
+
+
+One of your disks needs to be checked for consistency. You
+may cancel the disk check, but it is strongly recommended
+that you continue.
+Windows will now check the disk.
+
+CHKDSK is verifying files (stage 1 of 3)...
+  368384 file records processed.
+
+File verification completed.
+  1255 large file records processed.
+
+  0 bad file records processed.
+
+  2 EA records processed.
+
+  54 reparse records processed.
+
+CHKDSK is verifying indexes (stage 2 of 3)...
+Unable to locate the file name attribute of index entry FO8B1D~1.DAT
+of index $I30 with parent 0xdaf in file 0x13fb.
+Deleting index entry FO8B1D~1.DAT in index $I30 of file 3503.
+Unable to locate the file name attribute of index entry FontCache-System.dat
+of index $I30 with parent 0xdaf in file 0x13fb.
+Deleting index entry FontCache-System.dat in index $I30 of file 3503.
+Index entry 7 of index $I30 in file 0x139aa points to unused file 0xed9b.
+Deleting index entry 7 in index $I30 of file 80298.
+Unable to locate the file name attribute of index entry 5
+of index $I30 with parent 0x146a2 in file 0xe43d.
+Deleting index entry 5 in index $I30 of file 83618.
+Index entry 6 of index $I30 in file 0x149c4 points to unused file 0xe911.
+Deleting index entry 6 in index $I30 of file 84420.
+  470860 index entries processed.
+
+Index verification completed.
+CHKDSK is scanning unindexed files for reconnect to their original directory.
+Recovering orphaned file ETWRTE~1.ETL (1626) into directory file 4434.
+Recovering orphaned file EtwRTEventlog-Security.etl (1626) into directory file 4434.
+Recovering orphaned file ~FONTC~2.DAT (5115) into directory file 3503.
+Recovering orphaned file ~FontCache-System.dat (5115) into directory file 3503.
+Recovering orphaned file ETWRTU~1.ETL (12272) into directory file 4434.
+Recovering orphaned file EtwRTUBPM.etl (12272) into directory file 4434.
+Recovering orphaned file 00695D~1.LOG (37676) into directory file 345660.
+Recovering orphaned file 0000000054-0000000000.log (37676) into directory file 345660.
+Recovering orphaned file MPB2F6~1.BIN (56542) into directory file 80216.
+Recovering orphaned file MpWppTracing-02262017-022121-00000003-ffffffff.bin (56542) into directory file 80216.
+Recovering orphaned file 823BA3~1.BIN (56543) into directory file 81823.
+Recovering orphaned file 823BA3E3-D796-4349-8F18-67F5591EA96C-0.bin (56543) into directory file 81823.
+Recovering orphaned file LASTAL~1.DAT (56573) into directory file 3503.
+Recovering orphaned file lastalive0.dat (56573) into directory file 3503.
+Recovering orphaned file LASTAL~2.DAT (57433) into directory file 3503.
+Recovering orphaned file lastalive1.dat (57433) into directory file 3503.
+Recovering orphaned file ETWRTD~2.ETL (57663) into directory file 4434.
+Recovering orphaned file EtwRTDiagtrack-Listener.etl (57663) into directory file 4434.
+Recovering orphaned file ETWRTM~1.ETL (57777) into directory file 4434.
+Recovering orphaned file EtwRTMuroc System Trace.etl (57777) into directory file 4434.
+  11 unindexed files scanned.
+
+Recovering orphaned file IMPSER~1.LOC (58259) into directory file 80199.
+Recovering orphaned file IMpServiceEDB4FA23-53B8-4AFA-8C5D-99752CCA7094.lock (58259) into directory file 80199.
+  0 unindexed files recovered.
+
+CHKDSK is verifying security descriptors (stage 3 of 3)...
+  368384 file SDs/SIDs processed.
+
+Cleaning up 1189 unused index entries from index $SII of file 0x9.
+Cleaning up 1189 unused index entries from index $SDH of file 0x9.
+Cleaning up 1189 unused security descriptors.
+Security descriptor verification completed.
+  51239 data files processed.
+
+CHKDSK is verifying Usn Journal...
+  36995784 USN bytes processed.
+
+Usn Journal verification completed.
+Correcting errors in the master file table's (MFT) BITMAP attribute.
+CHKDSK discovered free space marked as allocated in the volume bitmap.
+Windows has made corrections to the file system.
+
+ 500607939 KB total disk space.
+  87084532 KB in 271998 files.
+    155308 KB in 51240 indexes.
+         0 KB in bad sectors.
+    488075 KB in use by the system.
+     65536 KB occupied by the log file.
+ 412880024 KB available on disk.
+
+      4096 bytes in each allocation unit.
+ 125151984 total allocation units on disk.
+ 103220006 allocation units available on disk.
+
+Internal Info:
+00 9f 05 00 b2 eb 04 00 cd 89 08 00 00 00 00 00  ................
+88 01 00 00 36 00 00 00 00 00 00 00 00 00 00 00  ....6...........
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+
+Windows has finished checking your disk.
+Please wait while your computer restarts.
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id3"&gt;
+&lt;h2&gt;2. ベンチマーク&lt;/h2&gt;
+&lt;p&gt;せっかくなので交換後のSSDのベンチマークを取ってみた。
+Web上にある他人の結果と遜色ない，良好な結果だ。&lt;/p&gt;
+&lt;img alt="ベンチマーク結果" src="http://blog.calcurio.com/images/thinkpadx260_512GBSSD.png" /&gt;
+&lt;/div&gt;
+</content><category term="Hardware"></category><category term="ThinkPad"></category><category term="PC自作"></category></entry><entry><title>HD5450のHDMI端子で4k 30Hz出力する方法</title><link href="http://blog.calcurio.com/4k-HD5450.html" rel="alternate"></link><published>2017-01-08T21:28:19+09:00</published><updated>2017-01-08T21:37:22+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2017-01-08:/4k-HD5450.html</id><summary type="html">&lt;!-- tags: AWS, bash, blog, Blog, bot, CLI, CUI, Cygwin, Docker, EC2, Firefox, fluentd, git, Git, Github, Hardware, HTML, job, keyboard, Linux, Makefile, math, Networking, OpenStack, PC自作, pelican, Pelican, percol, Preseed, python, Python, Rally, reStructuredText, screen, Screen, ThinkPad, ThinkPadHelix, Tmux, TODO, Ubuntu, Vagrant, Vim, Vimperator, Virtualbox, Windows, yoga_tablet2, zabbix, zsh, テスト, 機械学習, 原稿, 統計 --&gt;
+&lt;!-- category: blog, Hardware/ノートPC, IDEA, software, Software, Software/Blog, Software/CUI, Software/Linux, theory, 原稿, 日報, 未分類 --&gt;
+&lt;p&gt;LGの4Kディスプレイ27MU67を購入した。&lt;/p&gt;
+&lt;p&gt;さっそくデスクトップPCにつなげようとしたのだが，
+&lt;a class="reference external" href="http://www.kuroutoshikou.com/product/graphics_bord/amd/rh5450-le1gb_d3_hs/"&gt;玄人志向 | RH5450-LE1GB/D3/HS：Radeon HD5450&lt;/a&gt;
+では1920x1080 60Hzのfull hd出力までしか選択できなかった。&lt;/p&gt;
+&lt;p&gt;スペック的にはHDMI1.4で3840x2160 30Hzの出力にしているはずだ。
+問題は選択メニューに出てこないことだ。&lt;/p&gt;
+</summary><content type="html">&lt;!-- tags: AWS, bash, blog, Blog, bot, CLI, CUI, Cygwin, Docker, EC2, Firefox, fluentd, git, Git, Github, Hardware, HTML, job, keyboard, Linux, Makefile, math, Networking, OpenStack, PC自作, pelican, Pelican, percol, Preseed, python, Python, Rally, reStructuredText, screen, Screen, ThinkPad, ThinkPadHelix, Tmux, TODO, Ubuntu, Vagrant, Vim, Vimperator, Virtualbox, Windows, yoga_tablet2, zabbix, zsh, テスト, 機械学習, 原稿, 統計 --&gt;
+&lt;!-- category: blog, Hardware/ノートPC, IDEA, software, Software, Software/Blog, Software/CUI, Software/Linux, theory, 原稿, 日報, 未分類 --&gt;
+&lt;p&gt;LGの4Kディスプレイ27MU67を購入した。&lt;/p&gt;
+&lt;p&gt;さっそくデスクトップPCにつなげようとしたのだが，
+&lt;a class="reference external" href="http://www.kuroutoshikou.com/product/graphics_bord/amd/rh5450-le1gb_d3_hs/"&gt;玄人志向 | RH5450-LE1GB/D3/HS：Radeon HD5450&lt;/a&gt;
+では1920x1080 60Hzのfull hd出力までしか選択できなかった。&lt;/p&gt;
+&lt;p&gt;スペック的にはHDMI1.4で3840x2160 30Hzの出力にしているはずだ。
+問題は選択メニューに出てこないことだ。&lt;/p&gt;
+&lt;!-- PELICAN_END_SUMMARY --&gt;
+&lt;p&gt;そこで対策として， &lt;a class="reference external" href="https://www.monitortests.com/forum/Thread-AMD-ATI-Pixel-Clock-Patcher"&gt;AMD/ATI Pixel Clock Patcher&lt;/a&gt;
+を使ってドライバにパッチを当てた。&lt;/p&gt;
+&lt;p&gt;単にプログラムをダウンロードして実行するだけなので，とても簡単にパッチを当てることができる。
+あとは，通常通りにコントロールパネルの「画面の解像度」から3840x2160 30Hzを選択するだけでOKだ。&lt;/p&gt;
+&lt;div class="section" id="url"&gt;
+&lt;h2&gt;参考URL&lt;/h2&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;&lt;a class="reference external" href="http://viewfinderdesign.co.uk/archive/757/running-a-4k-screen-using-a-radeon-hd-5450/"&gt;Running a 4k screen using a Radeon HD 5450 : Viewfinder Design&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+</content><category term="Hardware"></category><category term="Windows"></category></entry><entry><title>ThinkPad X260の内部バッテリーから使用されてしまう問題</title><link href="http://blog.calcurio.com/thinkpad-x260-battery.html" rel="alternate"></link><published>2016-06-04T15:35:45+09:00</published><updated>2017-04-09T22:18:18+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2016-06-04:/thinkpad-x260-battery.html</id><summary type="html">&lt;p&gt;ThinkPad X260で外部バッテリー（リアバッテリー）と内部バッテリー（フロントバッテリー）の2つあるタイプを購入した。
+最初は特に気にしていなかったのだが，あるとき内部バッテリーから充放電されることに気づいた。本来ならば，&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;内部バッテリーで動作させつつ，外部バッテリーを交換する&lt;/li&gt;
+&lt;li&gt;交換困難な内部バッテリーの消耗を抑える&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;という目的から，外部バッテリーから充放電されるべきである。
+これは明らかに問題であり，修理するべくいろいろ頑張ったので記録しておく。
+誰かの役にたてば幸いである。&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;2017/04/09 追記:
+現時点で最新のBIOSでは完全に問題が解決している。
+外部バッテリーから消費するし，バッテリーを認識しなくなることもない。
+古いBIOSを利用している場合は，何よりも先に更新してみることをオススメする。&lt;/em&gt;&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;ThinkPad X260で外部バッテリー（リアバッテリー）と内部バッテリー（フロントバッテリー）の2つあるタイプを購入した。
+最初は特に気にしていなかったのだが，あるとき内部バッテリーから充放電されることに気づいた。本来ならば，&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;内部バッテリーで動作させつつ，外部バッテリーを交換する&lt;/li&gt;
+&lt;li&gt;交換困難な内部バッテリーの消耗を抑える&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;という目的から，外部バッテリーから充放電されるべきである。
+これは明らかに問題であり，修理するべくいろいろ頑張ったので記録しておく。
+誰かの役にたてば幸いである。&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;2017/04/09 追記:
+現時点で最新のBIOSでは完全に問題が解決している。
+外部バッテリーから消費するし，バッテリーを認識しなくなることもない。
+古いBIOSを利用している場合は，何よりも先に更新してみることをオススメする。&lt;/em&gt;&lt;/p&gt;
+&lt;!-- PELICAN_END_SUMMARY --&gt;
+&lt;div class="section" id="web"&gt;
+&lt;h2&gt;Web検索の結果&lt;/h2&gt;
+&lt;p&gt;まず，Googleで調べてみると以下の記事が見つかった。&lt;/p&gt;
+&lt;p&gt;&lt;a class="reference external" href="https://forums.lenovo.com/t5/ThinkPad-X-Series-Laptops/x260-internal-battery-discharged-first-is-this-normal/m-p/3319170"&gt;Solved: x260 internal battery discharged first - is this n... - Lenovo Community&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;この体験談をまとめると，
+以下の手順を踏むことで外部バッテリーから充放電されるようにできたという。&lt;/p&gt;
+&lt;ol class="arabic simple"&gt;
+&lt;li&gt;両方のバッテリーがほとんど0になるまで使う&lt;/li&gt;
+&lt;li&gt;Windowsを立ち上げてから，外部バッテリーを取り外す&lt;/li&gt;
+&lt;li&gt;ACアダプターを接続する。内部バッテリーが充電開始される&lt;/li&gt;
+&lt;li&gt;外部バッテリーを接続する&lt;/li&gt;
+&lt;li&gt;Windowsバッテリーメータに認識されないこと，内部バッテリーが充電中であることを確認する&lt;/li&gt;
+&lt;li&gt;再起動する。以下の3点を確認する。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;blockquote&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;両方のバッテリーが認識されている&lt;/li&gt;
+&lt;li&gt;内部バッテリーが充電中&lt;/li&gt;
+&lt;li&gt;外部バッテリーは動作なし&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;ol class="arabic simple" start="7"&gt;
+&lt;li&gt;満充電まで待機する&lt;/li&gt;
+&lt;li&gt;ACアダプターを外して動作確認。運が良ければ，外部バッテリーが先に使われる&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;理由は全く分からないが，上手く行けば儲けもののおまじないといったところだろうか。
+しかし，私の個体では上手く行かなかった。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="lenovo"&gt;
+&lt;h2&gt;Lenovoへの修理依頼&lt;/h2&gt;
+&lt;p&gt;仕方ないのでLenovoへメールで修理依頼をしたところ，まずは&lt;/p&gt;
+&lt;ol class="arabic simple"&gt;
+&lt;li&gt;ACケーブルと外部バッテリーを外してから，&lt;/li&gt;
+&lt;li&gt;筐体裏の外部バッテリーの左にあるリセットホールを押してみろ&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;とのことであった。これにより一時的に内部バッテリーを無効にできる。
+充放電の順序も変更できるかもしれないらしいが，無駄だった。&lt;/p&gt;
+&lt;p&gt;治らない旨連絡すると引取修理になり，1週間ほど待ったのちに
+マザーボード交換対応となって帰ってきた。同梱の書類によると
+正常動作を確認したとあったが，バッテリーの使用順序は元のまま
+内部バッテリーから充放電されてしまう。彼らは一体何を確認したのだろうか。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="lenovo2"&gt;
+&lt;h2&gt;Lenovoへの修理依頼2&lt;/h2&gt;
+&lt;p&gt;再度Lenovoサポートへ連絡すると，2度目の修理対応となった。
+また修理に1週間かかって，今度はBIOSを更新してくれたようだ。
+BISOのバージョンは以下のようになっていた。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;R02ET48W&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;.21&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="m"&gt;2016&lt;/span&gt;-06-01
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;気になるのでBIOSのリリースノートを確認してみると&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;- Fixed an issue related to incorrect battery charge/discharge sequence.
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;とある。ver1.21は2016/6/21公開の最新版みたいだし，これは期待できそうだ。
+(私のThinkPadの修理日は6/22なので，実はこの修理依頼がきっかけとなって修正された不具合だったりして)&lt;/p&gt;
+&lt;p&gt;…と思っていたのだが，実際にWindowsを起動してみると
+今度は内部バッテリーが認識されたりされなくなったりする。
+新しいBIOSの不具合なのか，バッテリが死にかけてるのか知らないが，
+そろそろもう嫌になってきた。&lt;/p&gt;
+&lt;p&gt;しばらく様子を見てみることにする。&lt;/p&gt;
+&lt;!-- 省電力マネージャーを開いてしばらく放置していると，内部バッテリーが認識されないのは --&gt;
+&lt;!-- 完全に放電されているためとメッセージがでた。そこで，ACアダプタをつなげて半日ぐらい放置 --&gt;
+&lt;!-- したところ，ようやく内部バッテリーが復活して使えるようになった。 --&gt;
+&lt;!--  --&gt;
+&lt;!-- ということで認識されなくても焦らず待つ気持ちが大事のようだ。 --&gt;
+&lt;!-- ACアダプタを外してみたところ，外部バッテリーから放電されている。 --&gt;
+&lt;!-- やっと直った… --&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id1"&gt;
+&lt;h2&gt;まとめ&lt;/h2&gt;
+&lt;p&gt;内部バッテリーから充放電される場合は，
+まずは上記の掲示板にあるおまじないをやってみる。
+それでダメなら，バッテリーのリセットスイッチを押してみる。
+それでもダメなら，BIOSを更新する。&lt;/p&gt;
+&lt;p&gt;この3つが全部ダメで，どうしてもなんとかしたいならLenovoに修理に出してみる。
+私の場合は，なんだかんだで1ヶ月ぐらいノートPCが使えなくなっている。
+それでも平気なら，たぶんサポートがなんとかしてくれる。たぶん。&lt;/p&gt;
+&lt;/div&gt;
+</content><category term="Hardware"></category><category term="ThinkPad"></category><category term="Hardware"></category></entry><entry><title>ThinkPad X61改造記録</title><link href="http://blog.calcurio.com/making_x61.html" rel="alternate"></link><published>2016-02-15T04:38:30+09:00</published><updated>2016-06-06T22:54:52+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2016-02-15:/making_x61.html</id><summary type="html">&lt;!-- tags: bash, bash, screen, cygwin, bash, zsh, cygwin, Firefox, keyboard, math, PC自作, pelican, Pelican, percol, python, python, reStructuredText, Vimperator, thinkpad, thinkpadhelix, TODO, Vim, Vimperator, yoga_tablet2, zsh --&gt;
+&lt;!-- category: blog, PC, Software, Software/Blog, Software/CUI --&gt;
+&lt;p&gt;2012年春ごろに行ったThinkPadX61改造の記録。このマシンはフランケンシュタインよろしくジャンクの寄せ集めなのだ！
+X61改の現状&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;システムボード:X61 Core 2 Duo T8300&lt;/li&gt;
+&lt;li&gt;ボトムケース:X61&lt;/li&gt;
+&lt;li&gt;パームレスト:X60&lt;/li&gt;
+&lt;li&gt;キーボード:X6x NMB US配列(FRU失念)&lt;/li&gt;
+&lt;li&gt;トップカバー:X60s&lt;/li&gt;
+&lt;li&gt;液晶ベゼル:X60&lt;/li&gt;
+&lt;li&gt;液晶ケーブル＆インバータ:X60s&lt;/li&gt;
+&lt;li&gt;液晶パネル:X6x tablet (SXGA+でIPSなHV121P01-101)&lt;/li&gt;
+&lt;li&gt;無線LANカード:Intel Centrino Ultimate-N 6300&lt;/li&gt;
+&lt;li&gt;ストレージ:Crucial M4 SSD 64GB&lt;/li&gt;
+&lt;li&gt;メモリ:2GBx2=4GB&lt;/li&gt;
+&lt;li&gt;OS:debian wheezy/sid&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;ちなみにWindows7を入れてエクスペリエンス・インデックスを測ってみたら以下のようになった。このときはSSDじゃなくてHDDだったが。&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;プロセッサ:6.0&lt;/li&gt;
+&lt;li&gt;メモリ:5.9&lt;/li&gt;
+&lt;li&gt;グラフィックス:3.4&lt;/li&gt;
+&lt;li&gt;ゲーム用グラフィックス:3.2&lt;/li&gt;
+&lt;li&gt;プライマリハードディスク:5.9&lt;/li&gt;
+&lt;/ul&gt;
+</summary><content type="html">&lt;!-- tags: bash, bash, screen, cygwin, bash, zsh, cygwin, Firefox, keyboard, math, PC自作, pelican, Pelican, percol, python, python, reStructuredText, Vimperator, thinkpad, thinkpadhelix, TODO, Vim, Vimperator, yoga_tablet2, zsh --&gt;
+&lt;!-- category: blog, PC, Software, Software/Blog, Software/CUI --&gt;
+&lt;p&gt;2012年春ごろに行ったThinkPadX61改造の記録。このマシンはフランケンシュタインよろしくジャンクの寄せ集めなのだ！
+X61改の現状&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;システムボード:X61 Core 2 Duo T8300&lt;/li&gt;
+&lt;li&gt;ボトムケース:X61&lt;/li&gt;
+&lt;li&gt;パームレスト:X60&lt;/li&gt;
+&lt;li&gt;キーボード:X6x NMB US配列(FRU失念)&lt;/li&gt;
+&lt;li&gt;トップカバー:X60s&lt;/li&gt;
+&lt;li&gt;液晶ベゼル:X60&lt;/li&gt;
+&lt;li&gt;液晶ケーブル＆インバータ:X60s&lt;/li&gt;
+&lt;li&gt;液晶パネル:X6x tablet (SXGA+でIPSなHV121P01-101)&lt;/li&gt;
+&lt;li&gt;無線LANカード:Intel Centrino Ultimate-N 6300&lt;/li&gt;
+&lt;li&gt;ストレージ:Crucial M4 SSD 64GB&lt;/li&gt;
+&lt;li&gt;メモリ:2GBx2=4GB&lt;/li&gt;
+&lt;li&gt;OS:debian wheezy/sid&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;ちなみにWindows7を入れてエクスペリエンス・インデックスを測ってみたら以下のようになった。このときはSSDじゃなくてHDDだったが。&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;プロセッサ:6.0&lt;/li&gt;
+&lt;li&gt;メモリ:5.9&lt;/li&gt;
+&lt;li&gt;グラフィックス:3.4&lt;/li&gt;
+&lt;li&gt;ゲーム用グラフィックス:3.2&lt;/li&gt;
+&lt;li&gt;プライマリハードディスク:5.9&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- PELICAN_END_SUMMARY --&gt;
+&lt;div class="section" id="mission1-sxga"&gt;
+&lt;h2&gt;Mission1 -- SXGA+液晶化&lt;/h2&gt;
+&lt;p&gt;2012年1月の時点でX201とX60s，X60を持っていたのに関わらず，X61改を作ろうと思ったのはSXGA+化ができると知ったからだ。簡単な改造で12.1インチの筐体にSXGA+(1400x1050)でIPS(FlexView)なパネルを詰め込めると知ったら最後，もう頭のなかは改造一色になった。手順は単純でX6x tabletのSXGA+パネルをX6xの上半身に詰め込んで改変BIOSを上書きするだけなのだ。もちろん，そんな簡単にはいかないが十分に挑戦しがいのある課題だった。
+パーツを入手
+必要なもの&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;X6x tabletのSXGA+液晶パネル&lt;/li&gt;
+&lt;li&gt;変換ケーブル&lt;/li&gt;
+&lt;li&gt;カプトンテープ&lt;/li&gt;
+&lt;li&gt;アセテート粘着テープ&lt;/li&gt;
+&lt;li&gt;ドライバ&lt;/li&gt;
+&lt;li&gt;ニッパー&lt;/li&gt;
+&lt;li&gt;改変BIOS&lt;/li&gt;
+&lt;li&gt;X61ドナー&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;X6x Tabletの液晶パネルはX6xのものとコネクタの形状が異なる。そのため，X6x系液晶ケーブル端子への変換ケーブルが必要となる。これはググれば作り方の情報があるのだが，必要な部品とスキルが足りないのでパス。液晶パネルと同時に変換ケーブルを入手することにした。&lt;/p&gt;
+&lt;img alt="材料" src="http://blog.calcurio.com/images/making_x6102.jpg" /&gt;
+&lt;p&gt;パネルと変換ケーブルはヤフオクやebayで買うことができる。しかし前者は出玉が少なく，後者は使ったことがないので避けたいところだった。ebayのためだけにクレジットカードとか作りたくないし。そこで，この世界では有名な某氏に連絡をとってSXGA+パネルと変換ケーブルを譲っていただくことにした(もちろん有料で)。上の画像は氏に頂いたもの撮ったのだが，パネルと変換ケーブルの他にご好意で液晶クロスとL字電源アダプタ，カプトンテープの3つをオマケに付けて頂いた。非常にありがたく，嬉しかった。ちなみに頂いたパネルの型番はHV121P01-101だった。&lt;/p&gt;
+&lt;p&gt;当時はX60sとX60しか持っていなかった。せっかくの高解像度パネルだからどうせなら良いCPUのマシンに積みたいわけで，X61最速のCore2DuoT9300(2.5GHz)を狙うことにした。ところが世の中同じ事を考える人は居るもので，超プレミア価格になっている。どうも高すぎるので結局はランクを1つ落としてT8300(2.4GHz)のシステムボード+ボトムケースを15kで購入した。&lt;/p&gt;
+&lt;div class="section" id="id1"&gt;
+&lt;h3&gt;組み立て開始&lt;/h3&gt;
+&lt;img alt="作業台" src="http://blog.calcurio.com/images/making_x6103.jpg" /&gt;
+&lt;img alt="動作確認" src="http://blog.calcurio.com/images/making_x6104.jpg" /&gt;
+&lt;p&gt;システムボード・ボトムケース以外のパーツはX60とX60sから移植することにして組立を開始した。まずはインバータだけつなげてパネルの動作確認。うん，中央上部に楕円形に青色常時点灯部があるがキニシナイで組み込んでいくことにする(右上のはただのゴミ)。オマケも頂いてるしね！&lt;/p&gt;
+&lt;img alt="パネル" src="http://blog.calcurio.com/images/making_x6105.jpg" /&gt;
+&lt;img alt="ネジ" src="http://blog.calcurio.com/images/making_x6107.jpg" /&gt;
+&lt;p&gt;パネルを上半身に組み込むためには左右のミミが邪魔になる。ネジを外してから基板ミミを切り取る。まだこの段階ではプラスチックの部分は切り取らない。&lt;/p&gt;
+&lt;img alt="ミミを" src="http://blog.calcurio.com/images/making_x6108.jpg" /&gt;
+&lt;img alt="ペンチで" src="http://blog.calcurio.com/images/making_x6109.jpg" /&gt;
+&lt;img alt="切る" src="http://blog.calcurio.com/images/making_x6110.jpg" /&gt;
+&lt;p&gt;で，基板を保護しているビニールを剥がす。後で貼り直すのできれいに剥がす。&lt;/p&gt;
+&lt;img alt="シール剥がす" src="http://blog.calcurio.com/images/making_x6110.jpg" /&gt;
+&lt;p&gt;今度は外側の金属枠を取り外すためにネジを外していく。冷陰極管の付近にあるシールの下にもネジがあるので注意。&lt;/p&gt;
+&lt;img alt="シールを" src="http://blog.calcurio.com/images/making_x6112.jpg" /&gt;
+&lt;img alt="剥がす" src="http://blog.calcurio.com/images/making_x6113.jpg" /&gt;
+&lt;img alt="剥がす" src="http://blog.calcurio.com/images/making_x6115.jpg" /&gt;
+&lt;p&gt;シールをはがして金属枠を取り外す。金属枠はツメで嵌めこまれている。枠がないと液晶パネルはバラバラになってしまうので慎重に机の上に置く。&lt;/p&gt;
+&lt;img alt="金属枠を取る" src="http://blog.calcurio.com/images/making_x6120.jpg" /&gt;
+&lt;img alt="手で抑えながら" src="http://blog.calcurio.com/images/making_x6121.jpg" /&gt;
+&lt;img alt="枠を取る" src="http://blog.calcurio.com/images/making_x6122.jpg" /&gt;
+&lt;p&gt;写真は完成間近のものだが，パネル下部の金属部品は取らなくても大丈夫なのでネジをはめ直す。&lt;/p&gt;
+&lt;img alt="ネジをはめ直す" src="http://blog.calcurio.com/images/making_x6134.jpg" /&gt;
+&lt;p&gt;ここでカプトンテープの出番。液晶の底面を固定する。ケチってセロハンテープとかにすると劣化した時に大変なことになるらしい。耐熱・絶縁なカプトンテープを使おう。&lt;/p&gt;
+&lt;img alt="カプトンテープの出番" src="http://blog.calcurio.com/images/making_x6123.jpg" /&gt;
+&lt;p&gt;次にトップカバーを用意する。今回はX60sのものを使用した。X60のアンテナはパネルに付いているがX60sはトップカバー側に付いているからだ(モノによっては違うかもしれないが)。とりあえず横にあるゴムパーツは邪魔なのでとりはずし，代わりにアセテート粘着テープでアンテナ線を固定する。&lt;/p&gt;
+&lt;img alt="トップカバーのゴムパーツを取る" src="http://blog.calcurio.com/images/making_x6125.jpg" /&gt;
+&lt;img alt="アセテートテープ" src="http://blog.calcurio.com/images/making_x6127.jpg" /&gt;
+&lt;img alt="アンテナ線を固定する" src="http://blog.calcurio.com/images/making_x6128.jpg" /&gt;
+&lt;p&gt;そして側面の白いプラスチックのミミをすべてニッパーで切る。バリが残ってもいいがトップカバーとベゼルの間に収まるように調整する。トップカバーはX60sのものでも大丈夫だが，ベゼルはX60sのものではネジ止めするためのミミが邪魔なのでダメだ。ツメを嵌めるだけのX60系ベゼルでないとパネルが入らない。この段階で私はかなり苦戦してパネルの枠をヤスリで削ってしまったが，絶対にそんなことはしないほうがいいと思う。運良く無事だったが，ゴミが混入したりや割れてしまっては目も当てられない。&lt;/p&gt;
+&lt;p&gt;いい感じに収まるようになったら枠とパネルをカプトンテープでぐるっと接着し，基板保護のビニールをつける。後はトップカバーに入れて上半身を組み立て，完成だ。&lt;/p&gt;
+&lt;img alt="やすりで調整" src="http://blog.calcurio.com/images/making_x6131.jpg" /&gt;
+&lt;img alt="カプトンテープ再び" src="http://blog.calcurio.com/images/making_x6132.jpg" /&gt;
+&lt;img alt="基盤保護のビニールをつける" src="http://blog.calcurio.com/images/making_x6133.jpg" /&gt;
+&lt;p&gt;実際に組み込んで使用するためにはBIOSを改変しないと正常に映らない。BIOSも某氏からいただいていたが，SATA2開放対応でなかったので &lt;a class="reference external" href="http://forum.notebookreview.com/threads/t61-x61-sata-ii-1-5-gb-s-cap-willing-to-pay-for-a-solution.459591/page-8#post6501443"&gt;T61/X61 SATA II 1.5 Gb/s cap - willing to pay for a solution | Page 8 | NotebookReview&lt;/a&gt;  からダウンロードしたものを使用した。ついでにこのBIOSは無線LANのホワイトリストを無効にしてくれるので次の無線LAN換装が楽にできた。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id2"&gt;
+&lt;h3&gt;参考サイト&lt;/h3&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;とくぼーのブログ : X61　SXGA+パネルの改造&lt;/li&gt;
+&lt;li&gt;福原 毅のBlog - ThinkPad X61のSATAコントローラをSATA-II 3.0G bps化してみました&lt;/li&gt;
+&lt;li&gt;ThinkPad X61の液晶をSXGA+に換装しました。その後・・。｜webyassie&lt;/li&gt;
+&lt;li&gt;T61/X61 SATA II 1.5 Gb/s cap - willing to pay for a solution - Page 8&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="mission2-minipcielan"&gt;
+&lt;h2&gt;Mission2 -- miniPCIe無線LANカード換装&lt;/h2&gt;
+&lt;p&gt;X60はパームレストの発熱が酷いことで有名だ。X61になると少しは改善されているがやはり熱い。11nに対応させたいこともあって，無線LANカードをIntel Centrino Ultimate-N 6300に換装した。以前にも無線LANは換装していて，Atheros AR5BXB6 → Intel 3945BG → Intel Ultimate-N 6300と換えてきたことになる。注意が必要なのはX6xはBIOSに無線LANカードのホワイトリストを持っていてリストにないカードだと起動してくれないこと。まあ，事前に改造BIOSを入れていたためここは無問題だが。なお，X61はハーフサイズのmPCIeカードに対応していないのでスペーサを噛ませている。写真では画像のように基板型の短いアンテナにしたが，やはり感度が悪いのでシート型のを天板に仕込んだ。&lt;/p&gt;
+&lt;img alt="mPCIeカード" src="http://blog.calcurio.com/images/making_x6138.jpg" /&gt;
+&lt;p&gt;実際に換装してみると発熱はAtheros AR5BXB6を積んでいたときよりは改善された。デカイのはAtherosのヤツは有線LAN使用時(無線LANオフ)でも発熱してくれたが，Intelは発熱しないということ。Intel同士の比較,3945BGと6300では発熱は大差ない。それよりも11nの300Mbpsで接続できるようになったことが嬉しいね。目指すは450Mbpsだがこちらはルータを買い換えないと無理そうだ。&lt;/p&gt;
+&lt;/div&gt;
+</content><category term="Hardware"></category><category term="PC自作"></category><category term="ThinkPad"></category></entry><entry><title>Aspire5520の冷陰極管交換修理</title><link href="http://blog.calcurio.com/aspire5520-ccfl.html" rel="alternate"></link><published>2016-02-15T03:35:01+09:00</published><updated>2016-06-06T22:55:05+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2016-02-15:/aspire5520-ccfl.html</id><summary type="html">&lt;img alt="aspire5520" src="http://blog.calcurio.com/images/aspire00.jpg" /&gt;
+&lt;p&gt;2011年夏ごろにAspire5520の冷陰極管を交換して液晶を修理した際の記録&lt;/p&gt;
+&lt;p&gt;2008年ぐらいから使っていたノートパソコン，Aspire5520の液晶が真っ暗になってつかなくなってしまった。完全に点灯しなくなる前に，黄ばみ→赤ばみ?という症状があったためインバータでなく冷陰極管の劣化が原因と推定。幸いなことに家には液晶割れの同型機がもう一台あるため，冷陰極管を交換することにした。&lt;/p&gt;
+&lt;p&gt;早速分解するといいたいところだが，まずは落ち着いてWeb上の情報をサーチする。Aspire5520はそんなにメジャーな機種ではないので分解記事は殆ど無いし，冷陰極管の交換記事なんて無いようだ。分解記事はせいぜい次のサイトぐらいだ。 &lt;a class="reference external" href="http://takayamacity.jyoukamachi.com/_hardwere/acer/aspire5520.htm"&gt;Acer Aspire 5520の修理&lt;/a&gt; キーボードの交換をしようというなら参考になるだろうが，残念ながら冷陰極管の交換には役に立たなそうだ。&lt;/p&gt;
+&lt;p&gt;仕方ないので手探りで始めることにしよう。&lt;/p&gt;
+</summary><content type="html">&lt;img alt="aspire5520" src="http://blog.calcurio.com/images/aspire00.jpg" /&gt;
+&lt;p&gt;2011年夏ごろにAspire5520の冷陰極管を交換して液晶を修理した際の記録&lt;/p&gt;
+&lt;p&gt;2008年ぐらいから使っていたノートパソコン，Aspire5520の液晶が真っ暗になってつかなくなってしまった。完全に点灯しなくなる前に，黄ばみ→赤ばみ?という症状があったためインバータでなく冷陰極管の劣化が原因と推定。幸いなことに家には液晶割れの同型機がもう一台あるため，冷陰極管を交換することにした。&lt;/p&gt;
+&lt;p&gt;早速分解するといいたいところだが，まずは落ち着いてWeb上の情報をサーチする。Aspire5520はそんなにメジャーな機種ではないので分解記事は殆ど無いし，冷陰極管の交換記事なんて無いようだ。分解記事はせいぜい次のサイトぐらいだ。 &lt;a class="reference external" href="http://takayamacity.jyoukamachi.com/_hardwere/acer/aspire5520.htm"&gt;Acer Aspire 5520の修理&lt;/a&gt; キーボードの交換をしようというなら参考になるだろうが，残念ながら冷陰極管の交換には役に立たなそうだ。&lt;/p&gt;
+&lt;p&gt;仕方ないので手探りで始めることにしよう。&lt;/p&gt;
+&lt;!-- PELICAN_END_SUMMARY --&gt;
+&lt;p&gt;まずは上半身と下半身を分離させる。背面のバッテリーを外し，その下にある7つのネジ(画像の青丸のネジ)を外す。また，バッテリーの左右にあるネジを3つ外す(画像の赤丸のネジ2つと右の方にあるネジ1つ)。&lt;/p&gt;
+&lt;img alt="aspire5520のネジの位置" src="http://blog.calcurio.com/images/aspire09.jpg" /&gt;
+&lt;p&gt;これにより，キーボードの上のカバーを外せる。ツメではめてあるだけなのでパキパキと外すだけだ。&lt;/p&gt;
+&lt;img alt="aspire5520のツメをはずす" src="http://blog.calcurio.com/images/aspire10.jpg" /&gt;
+&lt;p&gt;画像中央にあるネジを2つ外す。ネジの長さは異なるので戻すときにちゃんと戻せるように注意する。このネジを外せば上半身と下半身を分離できる。&lt;/p&gt;
+&lt;img alt="aspire5520のネジ" src="http://blog.calcurio.com/images/aspire03.jpg" /&gt;
+&lt;p&gt;液晶画面が汚れてるのは気にしないでください。さて，上半身の4隅(画像赤丸の部分)にある緩衝ゴムを外した下にあるネジを4つ外す。&lt;/p&gt;
+&lt;img alt="aspire5520の緩衝ゴムの下のネジ" src="http://blog.calcurio.com/images/aspire13.jpg" /&gt;
+&lt;p&gt;これで上半身を開くことができる。ツメを外せば画像のように開いて液晶パネルにアクセスできるようになる。赤丸で示した部分のネジをはずせば ，上半身から液晶パネルを取り外せる。ちなみに画像中央下にある赤丸ネジ2つ出固定されているのがインバータだ。もし，インバータの交換で治るならここまでの分解で用が足りる。今回の場合は念のためインバータを交換してみたが直らず，冷陰極管の交換へ向かって地獄の分解をするハメになった。&lt;/p&gt;
+&lt;img alt="aspire5520の緩衝ゴムの下のネジ" src="http://blog.calcurio.com/images/aspire14.jpg" /&gt;
+&lt;p&gt;液晶パネルを取り外せるとは言っても，まだケーブルがつながっているのでコネクタを外す。これで完全に液晶パネルを取り外せる。別に取り外さなくても良いが，外したほうが後々楽なので外しておく。&lt;/p&gt;
+&lt;img alt="コネクタ" src="http://blog.calcurio.com/images/aspire20.jpg" /&gt;
+&lt;p&gt;冷陰極管は液晶パネルの最下部，画像の赤丸の部分に内蔵されている。ここを裸にするのを目指して分解を進めていく。&lt;/p&gt;
+&lt;img alt="赤丸部分を目指す" src="http://blog.calcurio.com/images/aspire15.jpg" /&gt;
+&lt;p&gt;冷陰極管を取り出すために液晶パネルの分解を始める。まずは左右のフレームを外す。赤丸で示したネジを4本と反対側にあるネジを4本外す。&lt;/p&gt;
+&lt;img alt="またネジ" src="http://blog.calcurio.com/images/aspire19.jpg" /&gt;
+&lt;p&gt;液晶パネル上部と下部にある金属部品2つを外す。この部品は金属製だが歪み易いので注意する。赤丸部分の極小ネジを2つ外せば取り外せる。&lt;/p&gt;
+&lt;img alt="赤丸部分のネジを外す" src="http://blog.calcurio.com/images/aspire21.jpg" /&gt;
+&lt;p&gt;改めて液晶パネル下部を見てみると冷陰極管の頭が顔を出しているのが分かる。画像中央，液晶パネルの角の金属フレームの隙間に見える白いゴムがそれだ。&lt;/p&gt;
+&lt;img alt="白いゴム" src="http://blog.calcurio.com/images/aspire24.jpg" /&gt;
+&lt;p&gt;邪魔なのでインバータのコネクタを2つとも外す。心配しなくても正しい場所と向きでしかコネクタは刺さらない形状になっているので大丈夫。ついでに画像右上の白色テープと銀色シールを剥がす。この2つのテープは後で再利用するので丁寧に剥がす。&lt;/p&gt;
+&lt;img alt="再利用する" src="http://blog.calcurio.com/images/aspire28.jpg" /&gt;
+&lt;p&gt;全部剥がすとこんな感じ。全部剥がす必要はないが，邪魔なのではがしてしまった。&lt;/p&gt;
+&lt;img alt="邪魔なので剥がしてしまった" src="http://blog.calcurio.com/images/aspire29.jpg" /&gt;
+&lt;p&gt;銀色テープの下には金属部品同士のツメがある。一番外側の金属フレームを取り外すためにツメを外していく。また左右にある樹脂製フレームとのツメも外していく。&lt;/p&gt;
+&lt;img alt="金属部分のツメ" src="http://blog.calcurio.com/images/aspire30.jpg" /&gt;
+&lt;img alt="樹脂製フレームのツメ" src="http://blog.calcurio.com/images/aspire31.jpg" /&gt;
+&lt;p&gt;フレームを外すとこんな感じ。冷陰極管につながる導線は黄色テープと樹脂製フレームで固定されているので両方外す。白色線と赤色線の両方とも樹脂製フレームの溝にはめられているので取り外す。&lt;/p&gt;
+&lt;img alt="フレームが取れた" src="http://blog.calcurio.com/images/aspire33.jpg" /&gt;
+&lt;img alt="黄色いテープを剥がす" src="http://blog.calcurio.com/images/aspire34.jpg" /&gt;
+&lt;img alt="ケーブルを引っこ抜く" src="http://blog.calcurio.com/images/aspire37.jpg" /&gt;
+&lt;p&gt;ここまでくれば冷陰極管はもうすぐだ。樹脂製フレームを外したら液晶パネルはばらばらになってしまう。液晶パネルを構成するシートやパネルがずれたり，その間にゴミが入らないように注意しよう。冷陰極管を包み込む反射板は一番後ろのガラス板を挟み込まれているので新しい冷陰極管と交換してはめ直す。あとは元通りに組み直して修理完了だ。冷陰極管をはめなおしてパネルを組み直すのが一番難しい作業だろう。&lt;/p&gt;
+&lt;img alt="冷陰極管が見えた！" src="http://blog.calcurio.com/images/aspire39.jpg" /&gt;
+&lt;p&gt;ここで，もう少し冷陰極管について詳しく書こう。冷陰極管はコの字型の反射板に挟まれている。今回は反射板ごと冷陰極管を交換した。もし，冷陰極管しか持っていないなら反射板から冷陰極管を取り外してはめ直す必要があるだろう。その作業の際にもしも反射板を歪ませてしまうと組み直した際に輝度ムラが出てしまうので注意する。ちなみに画像は2つめまでは新しい冷陰極管で，3つめの画像以後は点灯しなくなった古い冷陰極管だ。よく見ると冷陰極管の端の方が黒くなっている。劣化した蛍光灯によく見られる状態だ。&lt;/p&gt;
+&lt;img alt="冷陰極管とフレーム" src="http://blog.calcurio.com/images/aspire07.jpg" /&gt;
+&lt;img alt="冷陰極管とフレーム" src="http://blog.calcurio.com/images/aspire08.jpg" /&gt;
+&lt;img alt="冷陰極管劣化しとるな" src="http://blog.calcurio.com/images/aspire45.jpg" /&gt;
+&lt;img alt="冷陰極管とれた" src="http://blog.calcurio.com/images/aspire46.jpg" /&gt;
+&lt;img alt="冷陰極管はめ直す" src="http://blog.calcurio.com/images/aspire47.jpg" /&gt;
+&lt;p&gt;もし，組み直してから点灯しないことが発覚したら悲劇以外の何者でもない。それを避けるためケーブルだけ繋いで点灯試験をする。運良く綺麗に点灯した時には感動した。
+冷陰極管の交換は初めての経験だった。作業には約5時間もかかり，非常に疲れた。ネジは多いし，パネルはデリケートだし，もう二度とやりたくない(とかいってまたやるんだろうが)。今，無事作業が終わった達成感ともう一台をもとに戻さなきゃいけない絶望感を味わっている。&lt;/p&gt;
+&lt;img alt="点灯試験" src="http://blog.calcurio.com/images/aspire40.jpg" /&gt;
+&lt;img alt="光漏れてる" src="http://blog.calcurio.com/images/aspire42.jpg" /&gt;
+&lt;p&gt;余談だが，今回の作業では非常にネジが多く出た。画像のように外したフレームの中に並べていくとなくさなくていいかも知れない&lt;/p&gt;
+&lt;img alt="こうするとなくさない" src="http://blog.calcurio.com/images/aspire43.jpg" /&gt;
+</content><category term="Hardware"></category><category term="PC自作"></category></entry><entry><title>2015年2月発売のThinkPad Helix 2ndのレビュー</title><link href="http://blog.calcurio.com/helix-review.html" rel="alternate"></link><published>2015-03-14T16:23:51+09:00</published><updated>2019-05-02T14:27:39+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2015-03-14:/helix-review.html</id><summary type="html">&lt;!-- tags: bash, bash, screen, cygwin, bash, zsh, cygwin, Firefox, keyboard, math, pelican, Pelican, percol, python, python, reStructuredText, Vimperator, thinkpadhelix, TODO, Vim, Vimperator, yoga_tablet2, zsh --&gt;
+&lt;!-- category: blog, PC, Software, Software/Blog, Software/CUI --&gt;
+
+&lt;img alt="Helix 2ndの写真" src="http://blog.calcurio.com/images/helix.jpg" /&gt;
+&lt;p class="caption"&gt;開封後の写真。画面はグレアで僕の姿もよく映る。&lt;/p&gt;
+
+&lt;p&gt;2014年の9月に発表された新しいThinkPad Helix。トラックポイント付きのUltrabook Proキーボードがついてくるというのでずっと期待してまっていたのだが，日本で発売されたのは2015年の2月末になってからだ。今回は第一陣で購入してから2周間以上使った感触をつらつらと書いてみた。&lt;/p&gt;
+&lt;p&gt;ちなみに，最近は「新しい**」とかいうネーミングが多くて困るなぁとか思っていたら，Helixの場合はどうやらThinkPad Helix 2nd Genが正式名称のようだ。&lt;/p&gt;
+&lt;p&gt;外見に関しては &lt;a class="reference external" href="http://weekly.ascii.jp/elem/000/000/253/253993/"&gt;Core M搭載2-in-1PC レノボ『ThinkPad Helix』をじっくり触りました：IFA2014 - 週アスPLUS&lt;/a&gt; なんかを見れば十分だし，僕は下手くそなので撮らないことにする。&lt;/p&gt;
+&lt;p&gt;たぶんHelixというとキーボード着脱式でタブレットとしても使えるっていうのが一番のウリ。だがしかし，僕としてはタブレットとかはどうでもよくて，&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;トラックポイントがついていて&lt;/li&gt;
+&lt;li&gt;それなりに高解像度&lt;/li&gt;
+&lt;li&gt;OfficeとかFirefoxが快適に動作する程度にパワフルなCPU&lt;/li&gt;
+&lt;li&gt;ファンレスでゼロスピンドル&lt;/li&gt;
+&lt;li&gt;トリプルディスプレイ可能&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;なノートPCだから買った。実際，購入してから一度もタブレットモードを使ったことがないし，必要性を感じることもない。&lt;/p&gt;
+</summary><content type="html">&lt;!-- tags: bash, bash, screen, cygwin, bash, zsh, cygwin, Firefox, keyboard, math, pelican, Pelican, percol, python, python, reStructuredText, Vimperator, thinkpadhelix, TODO, Vim, Vimperator, yoga_tablet2, zsh --&gt;
+&lt;!-- category: blog, PC, Software, Software/Blog, Software/CUI --&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Helix 2ndの写真" src="http://blog.calcurio.com/images/helix.jpg" /&gt;
+&lt;p class="caption"&gt;開封後の写真。画面はグレアで僕の姿もよく映る。&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;2014年の9月に発表された新しいThinkPad Helix。トラックポイント付きのUltrabook Proキーボードがついてくるというのでずっと期待してまっていたのだが，日本で発売されたのは2015年の2月末になってからだ。今回は第一陣で購入してから2周間以上使った感触をつらつらと書いてみた。&lt;/p&gt;
+&lt;p&gt;ちなみに，最近は「新しい**」とかいうネーミングが多くて困るなぁとか思っていたら，Helixの場合はどうやらThinkPad Helix 2nd Genが正式名称のようだ。&lt;/p&gt;
+&lt;p&gt;外見に関しては &lt;a class="reference external" href="http://weekly.ascii.jp/elem/000/000/253/253993/"&gt;Core M搭載2-in-1PC レノボ『ThinkPad Helix』をじっくり触りました：IFA2014 - 週アスPLUS&lt;/a&gt; なんかを見れば十分だし，僕は下手くそなので撮らないことにする。&lt;/p&gt;
+&lt;p&gt;たぶんHelixというとキーボード着脱式でタブレットとしても使えるっていうのが一番のウリ。だがしかし，僕としてはタブレットとかはどうでもよくて，&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;トラックポイントがついていて&lt;/li&gt;
+&lt;li&gt;それなりに高解像度&lt;/li&gt;
+&lt;li&gt;OfficeとかFirefoxが快適に動作する程度にパワフルなCPU&lt;/li&gt;
+&lt;li&gt;ファンレスでゼロスピンドル&lt;/li&gt;
+&lt;li&gt;トリプルディスプレイ可能&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;なノートPCだから買った。実際，購入してから一度もタブレットモードを使ったことがないし，必要性を感じることもない。&lt;/p&gt;
+&lt;!-- PELICAN_END_SUMMARY --&gt;
+&lt;div class="section" id="id1"&gt;
+&lt;h2&gt;スペック詳細とベンチマーク&lt;/h2&gt;
+&lt;p&gt;スペック詳細とベンチマークについては， &lt;a class="reference external" href="http://blog.calcurio.com/2015-03/helix-benchmark.rst"&gt;別記事:ThinkPad Helix 2ndのベンチマークをとってみた&lt;/a&gt; にあるので，そちらを参照してほしい。&lt;/p&gt;
+&lt;p&gt;簡単にまとめておくと，僕が購入したのは&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Intel Core M-5Y71 CPU &amp;#64; 1.20GHz&lt;/li&gt;
+&lt;li&gt;SSD 128GB&lt;/li&gt;
+&lt;li&gt;デジタイザー付き&lt;/li&gt;
+&lt;li&gt;バッテリー＆トラックポイント内蔵の Ultrabook Pro Keyboard&lt;/li&gt;
+&lt;li&gt;Intel Dual Band Wireless-AC 7265 Wi-Fi + Bluetooth&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;で16万円程度な個体。デジタイザー付きでペンも付属していたが，ペンホルダーが無いのが謎。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id3"&gt;
+&lt;h2&gt;トラックポイント&lt;/h2&gt;
+&lt;p&gt;一番心配していたのはトラックポイント。Helix 2ndではクリックボタンも復活しているので，古いThinkPadと外見は同じだ。 &lt;a class="reference external" href="https://sites.google.com/site/agkh6mze/trackwheel"&gt;TrackWheel&lt;/a&gt; も使えるし，ドリフト現象を含めて昔と同じように動作するのだが，唯一違うのはデフォルトで左クリックボタンが効かないことがある点だ。キー入力の直後にトラックポイントの左クリックボタンを押しても動作しない。&lt;/p&gt;
+&lt;p&gt;例えば， &lt;tt class="docutils literal"&gt;j&lt;/tt&gt; などの通常のアルファベットのキーを押下した直後に左クリックボタンを押しても動作しない。一呼吸置いてから左クリックすれば動作する。一方， &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;Ctrl-j&lt;/span&gt;&lt;/tt&gt; のように修飾キー付きや &lt;tt class="docutils literal"&gt;F1&lt;/tt&gt; のようなファンクションキーの場合は直後でも問題なく動作する。また，中クリックや右クリックは問題なく動作する。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;これはWindows8.1のタッチパッドの誤タップ防止機能のせいだ。&lt;/strong&gt; この機能はチャームの 設定 -&amp;gt; PC設定の変更 で呼び出せる画面から&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+PCとデバイス -&amp;gt; マウスとタッチパッド -&amp;gt; 入力中に誤ってカーソルを動かさないように、クリックが動作するまでの待ち時間を変更します。
+&lt;/pre&gt;
+&lt;p&gt;を「待ち時間なし（常に有効）」に設定しておけば無効になる。&lt;/p&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="設定画面" src="http://blog.calcurio.com/images/touchpad_click.png" /&gt;
+&lt;p class="caption"&gt;「待ち時間なし」に設定するとトラックポイントの左クリックの待ち時間もなくなる&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;トラックポイントはタッチパッドとは違うのだが，偉い人にはそれがわからないようだ。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id4"&gt;
+&lt;h2&gt;キーボード&lt;/h2&gt;
+&lt;p&gt;昔のX60世代のキーボードと比較すると，キーストロークは浅いし確実に劣化している。 だが，最近の &lt;a class="reference external" href="http://weekly.ascii.jp/elem/000/000/153/153463/"&gt;Bluetooth トラックポイントキーボード&lt;/a&gt; に慣れていれば，ほとんど問題はないという印象だ。Bluetoothキーボードと比較して&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;良い点&lt;ul&gt;
+&lt;li&gt;バックライトがある&lt;/li&gt;
+&lt;li&gt;ファンクションキーの間に間隔が空いた&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;悪い点&lt;ul&gt;
+&lt;li&gt;EndキーとInsertキーが1つにまとめられてしまった&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;という感じか。EndキーとInsertキーがまとめられた結果，ファンクションロック(FnLk)するとInsertになってしまうのは問題だ。Homeキーは直接押せるのに，Endは Fn+End になるという非対称的な動作となる。この辺りはAutoHotkeyやら何やらでソフトウェア的に対応でき，本質的な問題にはならないけどね。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id5"&gt;
+&lt;h2&gt;タッチパッド&lt;/h2&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="タッチパッドの設定画面" src="http://blog.calcurio.com/images/touch_setting.png" /&gt;
+&lt;p class="caption"&gt;なにやらたくさん機能があるが，感度も悪いし（コツが有る？）トラックポイントさえあれば使うことはない&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;僕は購入してすぐに無効にしており，ほとんど使っていないのだがタッチパッドもある。タッチパッドの一番手前側には物理的に沈み込むクリックボタンが付いている。このあたりはおそらくX250など同世代のThinkPadで共通なのだろうか。&lt;/p&gt;
+&lt;p&gt;このタッチパッドには3本指クリックとかジェスチャーとかいろいろ機能があるのだが，慣れないとうまく動作しなかった。これを目当てに買うぐらいならMacにすべきだろう。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id6"&gt;
+&lt;h2&gt;ディスプレイ&lt;/h2&gt;
+&lt;p&gt;まず，グレア（光沢）ディスプレイなので鏡のようによく映る。ノングレアの画面保護フィルムは必須だ。なのだが，現時点（2015/03/14）ではThinkPad Helix 2nd はマイナーすぎて画面保護フィルムとか，ケースなどのアクセサリーは皆無といっていい。仕方ないので旧機種の保護フィルムを貼っているが，フィルムのサイズが一回り小さくて辛い。&lt;/p&gt;
+&lt;p&gt;昔のThinkPadでは画面にトラックポイントの圧迫痕がつくことがあった。本機種ではトラックポイントの代わりに，キーボードにあるゴム足のあとが残る。拭けば取れるのでいいのだが，カッコ悪い。&lt;/p&gt;
+&lt;p&gt;カッコ悪いといえば，画面の額縁もそうだ。Full HDの解像度は悪く無いが，なんとも額縁が広く感じる。タブレットとして持つには必要な余白なのかもしれないが，そんな使い方しないし不格好。できれば額縁の分だけ筐体を小さくするか，ディスプレイを大きくしてほしかった。Windowsキーとかいらないので，額縁の分だけ縦にもう少しピクセルが欲しい。&lt;/p&gt;
+&lt;p&gt;なお，Retinaディスプレイとかではもっと高解像度な液晶もあるが，現状のWindowsと僕の視力ではFull HDが限界に近い。&lt;/p&gt;
+&lt;p&gt;あと，本機種は画面上部のカメラ横に照度センサーがついていて自動的に輝度を調整してくれるのだが，室内でも頻繁に輝度が変化するので鬱陶しい。これは真っ先にOFFににした。&lt;/p&gt;
+&lt;p&gt;ディスプレイ周りで一番問題なのは再起動，スリープからの復帰時にDisplayPortの画面出力が復帰しないことだ。アダプターを抜き差ししないと映らない。これは僕の使っているアダプター  &lt;a class="reference external" href="http://www.amazon.co.jp/gp/product/B007J75TV"&gt;Amazon.co.jp： Cable Matters 金メッキコネクタ搭載 Mini DisplayPort | Thunderbolt オス → VGA メス 変換アダプタ（ホワイト）&lt;/a&gt; の問題かもしれない。ついでに書いておくと，Sleepからの復帰で無線LANも手動で繋ぎ直さないといけなくなることがある。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id7"&gt;
+&lt;h2&gt;発熱&lt;/h2&gt;
+&lt;p&gt;Core M採用でファンレス，ゼロスピンドルで静音なのは非常に快適。ファンレスとなると気になるのは発熱だが，Helixの場合はキーボード側にCPUがないので，昔のX61のように膝や手のひらが低音やけどすることはない。細かいことだがこれは意外と重要で，X60系ユーザーの悲願あるいはディスプレイ着脱式ギミックの唯一の利点といっていいだろう。&lt;/p&gt;
+&lt;p&gt;キーボード側に熱源がないということは，別に毛布の上に置いてもなにも問題ないということだ(何かあっても責任はとれないが)。この時期は寒いので布団の中で操作したくなることも多いのだが，Helixならば気軽に寝落ちできる。一方，X61なら火事を覚悟しなくてはならない。&lt;/p&gt;
+&lt;p&gt;ちなみに，よほどCPUを酷使しない限りディスプレイ側もほとんど発熱することはない。というか(ファンレスなので)音もしないし，触らないので発熱を意識することがないと言ったほうがいいかもしれない。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id8"&gt;
+&lt;h2&gt;着脱式のギミック&lt;/h2&gt;
+&lt;p&gt;正直，1.7kgはノートPCとしても重量級だ。タブレットとしては言わずもがなである。キーボードをパージしても795gであり，11インチ/800gのタブレットは大きくて重すぎる。持ち運んで使いたいとは思わない。（着脱して軽量化できるHelixですら辛いのに，Yogaみたいなやつをタブレットとして使える人はかなりのマッチョ）&lt;/p&gt;
+&lt;p&gt;しかし，Proキーボードはバッテリーと簡単な基盤ぐらいしか入っていないだろうに，なぜ本体よりも重いのか。バッテリーだって本体のほうが1.4倍大きいのを積んでいるはずなんだが...&lt;/p&gt;
+&lt;p&gt;ちなみにHelix 2nd Genは115度までぐらいしか開かないが，前後逆にドッキングすればYogaみたいなタブレットモードとかテントモードにもできる。 (テントモードの参考画像： &lt;a class="reference external" href="http://weekly.ascii.jp/elem/000/000/253/253993/"&gt;Core M搭載2-in-1PC レノボ『ThinkPad Helix』をじっくり触りました：IFA2014 - 週アスPLUS&lt;/a&gt; ) やってみたところ，テントモードでは律儀にキーボードが無効になる。&lt;/p&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="躊躇なく横置きできるのは便利かも" src="http://blog.calcurio.com/images/yokooki.jpg" /&gt;
+&lt;p class="caption"&gt;発熱とか故障を気にしないで横置きできるのはちょっと便利かも。&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;最初に述べたように，物珍しさ以外では着脱することはほとんどない。だが，タブレットとして使えるように考慮されているということは，1080x1920の縦長ディスプレイとして使うために横置きしても何も問題ないということだ。外付けのキーボードやらディスプレイをつなげてデスクトップ的に使うときに便利。写真ではラップトップモードだが，タブレットモードにしたほうが収まりがいいだろう。着脱式のメリットはこういう方向性にあるのかもしれない。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id10"&gt;
+&lt;h2&gt;バッテリーと電源まわり&lt;/h2&gt;
+&lt;p&gt;Helix 2ndのバッテリーは本体側に36WhとProキーボード側に26Whのバッテリーが積まれている。で，キーボード側のバッテリーから使用されていき，5％まで減少したら本体側のバッテリーが使用されるようになる。常にキーボード側のバッテリーが酷使されるので劣化が心配になる。このあたりの設定はどこかでいじれるのだろうか。&lt;/p&gt;
+&lt;p&gt;実際に使ってみるとバッテリーは無駄に長持ち，という印象。日常的に使用していてバッテリーが切れるということはまず無い。僕の使い方（トリプルディスプレイでWebブラウジングしながらVimでコーディング，頻繁にコンパイル）でモリモリバッテリーを消費しながら3時間ぐらい経つとキーボード側のバッテリーがなくなるくらい。本体のバッテリーも合わせれば更に長く使える。&lt;/p&gt;
+&lt;p&gt;また，ACアダプターの穴は本体側とキーボード側の両方にある。キーボードを接続したまま，ACアダプターを本体側に挿すとAC駆動はするがキーボード側に充電されることはない。一度に2つのACアダプターを差すとどうなるのかは怖いので試していない。2倍速で充電！にはならないと思うがどうなのだろうか。&lt;/p&gt;
+&lt;p&gt;なお，HelixのACアダプターはThinkPad 10などと共通の 12V x 3A = 36W なので旧機種の丸型ACアダプターを変換アダプタ経由で流用とか，そういうことはできない。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id11"&gt;
+&lt;h2&gt;拡張性&lt;/h2&gt;
+&lt;p&gt;どこかのMacBookのようにUSB端子1つではないが，ThinkPadとして豊富な拡張性とは決していえない。それでも，最低限 &lt;a class="reference external" href="http://www.amazon.co.jp/gp/product/B00BT4KEIY"&gt;Amazon.co.jp： Logitec 有線LANアダプタ USB3.0 USB HUB付 LAN-GTJU3H3&lt;/a&gt; のような有線LAN付きのUSBハブとVGAへの変換アダプタさえあれば不満はない。&lt;/p&gt;
+&lt;p&gt;IEEE 802.11acなら速度的に有線LANと遜色ないし，プロジェクタやレガシーなディスプレイにつなぐことを考えなければVGAもいらない。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id12"&gt;
+&lt;h2&gt;まとめ&lt;/h2&gt;
+&lt;p&gt;購入直後は失敗かと思ったが，Windows8.1の設定を粘り強くいじれば快適になる。ディスプレイの額縁は慣れる。Windows 8.1な上にハードウェアもなかなか尖っているだけに，最初はダメだが我慢して使っているうちに良さがわかってくるという印象だ。タブレットとして使えること自体に価値はないが，それに付随する価値（キーボード側に熱源がない，ファンレス）は捨てがたい。値段相応の価値があるかと言われると微妙だが，待ちに待った理想のPCに一番近いとはいえる。&lt;/p&gt;
+&lt;p&gt;その点では新しいMacBookに近いものがある。 &lt;a class="reference external" href="http://www.itmedia.co.jp/pcuser/articles/1503/12/news130.html"&gt;林信行の実機リポート：「新しいMacBook」を選ぶ本当の意味 (1/5) - ITmedia PC USER&lt;/a&gt; のように，Helixも良さを語るのにやたら言い訳が必要になるがハマる人はハマるPCだ。&lt;/p&gt;
+&lt;p&gt;Pros&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;トラックポイントがある&lt;/li&gt;
+&lt;li&gt;無駄にバッテリーが長持ち&lt;/li&gt;
+&lt;li&gt;実用的な高解像度&lt;/li&gt;
+&lt;li&gt;OfficeとかFirefoxが快適に動作する程度にパワフルなCPU&lt;/li&gt;
+&lt;li&gt;ゼロスピンドルで静音&lt;/li&gt;
+&lt;li&gt;キーボード側は熱くならない (熱源に触れることがない)&lt;/li&gt;
+&lt;li&gt;トリプルディスプレイ可能&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Cons&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;キーボードの劣化&lt;ul&gt;
+&lt;li&gt;ファンクションロックするとEndキーがInsertになる&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;再起動，スリープからの復帰時にDisplayPortの画面出力が復帰しない&lt;ul&gt;
+&lt;li&gt;アダプターを抜き差ししないと映らない&lt;/li&gt;
+&lt;li&gt;アダプターの問題かも&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+</content><category term="Hardware"></category><category term="ThinkPad"></category><category term="ThinkPad Helix"></category></entry><entry><title>ThinkPad Helix 2ndのベンチマークをとってみたらX220とかSurface Pro 2と同じぐらいだった</title><link href="http://blog.calcurio.com/helix-benchmark.html" rel="alternate"></link><published>2015-03-14T15:00:17+09:00</published><updated>2016-06-06T22:54:42+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2015-03-14:/helix-benchmark.html</id><summary type="html">&lt;!-- tags: bash, bash, screen, cygwin, bash, zsh, cygwin, Firefox, keyboard, math, pelican, Pelican, percol, python, python, reStructuredText, Vimperator, TODO, Vim, Vimperator, yoga_tablet2, zsh --&gt;
+&lt;!-- category: blog, PC, Software, Software/Blog, Software/CUI --&gt;
+&lt;p&gt;2月にThinkpad Helix 2nd genを購入してからしばらく経つ。なんだか，私以外にほとんど誰も買っていなさそうなのでベンチマーク結果を書いておこう。ちなみに，ベンチマークはトリプルディスプレイで，FirefoxとかThunderBirdみたいなプログラムを起動したまま測定しているので，普段使いの環境で最低でもこれぐらいの性能はでるよという意味だと思ってほしい。&lt;/p&gt;
+&lt;p&gt;一番気になっているのはCore M 5Y71の性能なのだが，いろいろ比べてみるとSurface Pro 2やThinkPad X220と大体同じ程度のようだ。&lt;/p&gt;
+</summary><content type="html">&lt;!-- tags: bash, bash, screen, cygwin, bash, zsh, cygwin, Firefox, keyboard, math, pelican, Pelican, percol, python, python, reStructuredText, Vimperator, TODO, Vim, Vimperator, yoga_tablet2, zsh --&gt;
+&lt;!-- category: blog, PC, Software, Software/Blog, Software/CUI --&gt;
+&lt;p&gt;2月にThinkpad Helix 2nd genを購入してからしばらく経つ。なんだか，私以外にほとんど誰も買っていなさそうなのでベンチマーク結果を書いておこう。ちなみに，ベンチマークはトリプルディスプレイで，FirefoxとかThunderBirdみたいなプログラムを起動したまま測定しているので，普段使いの環境で最低でもこれぐらいの性能はでるよという意味だと思ってほしい。&lt;/p&gt;
+&lt;p&gt;一番気になっているのはCore M 5Y71の性能なのだが，いろいろ比べてみるとSurface Pro 2やThinkPad X220と大体同じ程度のようだ。&lt;/p&gt;
+&lt;!-- PELICAN_END_SUMMARY --&gt;
+&lt;div class="section" id="id1"&gt;
+&lt;h2&gt;環境&lt;/h2&gt;
+&lt;p&gt;まずは環境について。私が購入したのは&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;Intel Core M-5Y71 CPU &amp;#64; 1.20GHz&lt;/li&gt;
+&lt;li&gt;SSDが128GB&lt;/li&gt;
+&lt;li&gt;デジタイザー付き&lt;/li&gt;
+&lt;li&gt;キーボードはバッテリー＆トラックポイント内蔵の Ultrabook Pro Keyboard&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;な個体。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="crystalddiskinfo"&gt;
+&lt;h2&gt;CrystaldDiskInfo&lt;/h2&gt;
+&lt;p&gt;Crystaldiskinfo を見てみると，SSDはSAMSUNGのMZNTE128HMGR-000L1とわかる。&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+----------------------------------------------------------------------------
+CrystalDiskInfo 6.3.0 (C) 2008-2015 hiyohiyo
+                                Crystal Dew World : http://crystalmark.info/
+----------------------------------------------------------------------------
+
+    OS : Windows 8.1  [6.3 Build 9600] (x64)
+  Date : 2015/03/14 14:34:50
+
+-- Controller Map ----------------------------------------------------------
+ + Intel(R) 9 Series Chipset Family SATA AHCI Controller [ATA]
+   - SAMSUNG MZNTE128HMGR-000L1
+
+----------------------------------------------------------------------------
+           Model : SAMSUNG MZNTE128HMGR-000L1
+        Firmware : EXT26L0Q
+   Serial Number : **************
+       Disk Size : 128.0 GB (8.4/128.0/128.0/128.0)
+     Buffer Size : 不明
+     Queue Depth : 32
+    # of Sectors : 250069680
+   Rotation Rate : ---- (SSD)
+       Interface : Serial ATA
+   Major Version : ACS-2
+   Minor Version : ATA8-ACS version 4c
+   Transfer Mode : SATA/600 | SATA/600
+  Power On Hours : 106 時間
+  Power On Count : 138 回
+Wear Level Count : 7
+     Temperature : 33 C (91 F)
+   Health Status : 正常 (100 %)
+        Features : S.M.A.R.T., 48bit LBA, NCQ, TRIM, DevSleep
+       APM Level : ----
+       AAM Level : ----
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div class="section" id="crystaldiskmark"&gt;
+&lt;h2&gt;CrystalDiskMark&lt;/h2&gt;
+&lt;p&gt;SSDはSAMSUNG製とわかったので，ベンチマークをとってみる。まあまあというところか。&lt;/p&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Helix 2nd GenのCrystalDiskMark" src="http://blog.calcurio.com/images/Helix_CrystalDiskMark.png" /&gt;
+&lt;p class="caption"&gt;Helix 2nd GenのCrystalDiskMark&lt;/p&gt;
+&lt;/div&gt;
+&lt;pre class="code literal-block"&gt;
+-----------------------------------------------------------------------
+CrystalDiskMark 3.0.3 x64 (C) 2007-2013 hiyohiyo
+                           Crystal Dew World : http://crystalmark.info/
+-----------------------------------------------------------------------
+* MB/s = 1,000,000 byte/s [SATA/300 = 300,000,000 byte/s]
+
+           Sequential Read :   432.759 MB/s
+          Sequential Write :   125.128 MB/s
+         Random Read 512KB :   375.921 MB/s
+        Random Write 512KB :   118.326 MB/s
+    Random Read 4KB (QD=1) :    30.766 MB/s [  7511.2 IOPS]
+   Random Write 4KB (QD=1) :    54.359 MB/s [ 13271.2 IOPS]
+   Random Read 4KB (QD=32) :   227.219 MB/s [ 55473.5 IOPS]
+  Random Write 4KB (QD=32) :   115.257 MB/s [ 28139.0 IOPS]
+
+  Test : 1000 MB [C: 51.6% (54.7/106.0 GB)] (x3)
+  Date : 2015/03/14 14:57:34
+    OS : Windows 8.1  [6.3 Build 9600] (x64)
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div class="section" id="super-pi"&gt;
+&lt;h2&gt;Super PI&lt;/h2&gt;
+&lt;p&gt;CPUの速度もみておこう。シングルスレッドの速度しか見れないが，伝統的に重要なSuper PIの実行結果は以下のとおり。&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+ThinkPad Helix 2nd Gen Core M 5Y71 &amp;#64; 1.2GHz
+
+Super PI
+00分 06秒 52万桁
+00分 13秒 104万桁
+00分 34秒 209万桁
+01分 52秒 419万桁
+05分 17秒 838万桁
+&lt;/pre&gt;
+&lt;p&gt;比較のために104万桁の結果をぐぐってみた。一見するとだいたいX201以上X220以下に思えるが，実は最近のThinkPadのCPUではシングルスレッドの性能は頭打ちでCore Mの13秒ってのは十分に早いとわかる。むしろ，最大1.4GHzのくせに13秒ってのはかなりすごかったりするのではないだろうか。特に設定をいじってはいなのだが，自動的に2.9GHzまでTurbo Boostが効いているのかもしれない。&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+Super PI 104万桁
+ThinkPad X60   Core2 Duo T5600 &amp;#64; 1.83GHz     32秒
+ThinkPad X61   Core2 Duo T7300 &amp;#64; 2.0GHz      26秒
+ThinkPad X200  Core2 Duo P8400 &amp;#64; 2.66GHz     22秒
+ThinkPad X201s Core i7 840LM                 18秒
+ThinkPad X201  Core i7 620M    &amp;#64; 2.66GHz     14秒
+ThinkPad X220i Core i3 2310M   &amp;#64; 2.10GHz     19秒
+ThinkPad X220  Core i7 2640M   &amp;#64; 2.8GHz      11秒
+Thinkpad X230  Core i3 3110M                 16秒
+ThinkPad X230  Core i5 3360M                 11秒
+ThinkPad X240s Core i7 4500U                 12秒
+ThinkPad X240  Core i3 4030U   &amp;#64; 1.90GHz     19秒
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div class="section" id="windows-8-1"&gt;
+&lt;h2&gt;Windows 8.1 のエクスペリエンスインデックス&lt;/h2&gt;
+&lt;p&gt;Windows 8.1 のエクスペリエンスインデックス(WinSat)の値は以下のとおり。これは大した比較対象がないので良くわからない。&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+プロセッサ：                 7.1
+メモリ（RAM）：              7.5
+グラフィックス：             5.7
+ゲーム用グラフィックス：     5
+プライマリ ハードディスク：  7.95
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div class="section" id="crystalmark-2004r3"&gt;
+&lt;h2&gt;CrystalMark 2004R3&lt;/h2&gt;
+&lt;p&gt;CrystalMark 2004R3の結果は以下のとおり。&lt;/p&gt;
+&lt;div class="figure"&gt;
+&lt;img alt="Helix 2nd GenのCrystalMark 2004R3" src="http://blog.calcurio.com/images/crystalmark_3.png" /&gt;
+&lt;p class="caption"&gt;Helix 2nd GenのCrystalMark 2004R3&lt;/p&gt;
+&lt;/div&gt;
+&lt;pre class="code literal-block"&gt;
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+CrystalMark 2004R3 [0.9.126.452] (C) 2001-2008 hiyohiyo
+                                  Crystal Dew World [http://crystalmark.info/]
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+------------------------------------------------------------------------------
+CrystalMark Result
+------------------------------------------------------------------------------
+
+    CrystalMark :  171695
+
+[ ALU ]             37303
+      Fibonacci :   13657
+      Napierian :   11115
+   Eratosthenes :    5209
+      QuickSort :    7300
+[ FPU ]             33333
+        MikoFPU :    5032
+     RandMeanSS :   16780
+            FFT :    6359
+     Mandelbrot :    5140
+[ MEM ]             40970
+           Read : 17394.68 MB/s ( 17394)
+          Write : 8895.32 MB/s (  8895)
+     Read/Write : 8183.10 MB/s (  8183)
+          Cache : 64768.35 MB/s (  6476)
+[ HDD ]             32830
+           Read :  382.79 MB/s (  7413)
+          Write :  121.90 MB/s (  4438)
+ RandomRead512K :  294.87 MB/s (  6948)
+RandomWrite512K :  122.75 MB/s (  4455)
+ RandomRead 64K :  164.29 MB/s (  5285)
+RandomWrite 64K :  114.58 MB/s (  4291)
+[ GDI ]             14228
+           Text :    6490
+         Square :    1231
+         Circle :    3278
+         BitBlt :    3229
+[ D2D ]              4437
+   Sprite    10 :  332.40 FPS  (    33)
+   Sprite   100 :  219.51 FPS  (   219)
+   Sprite   500 :  123.92 FPS  (   619)
+   Sprite  1000 :   85.14 FPS  (   851)
+   Sprite  5000 :   26.12 FPS  (  1306)
+   Sprite 10000 :   14.09 FPS  (  1409)
+[ OGL ]              8594
+  Scene 1 Score :    5566
+  Lines (x1000) : ( 939318)
+  Scene 1  CPUs : (    128)
+  Scene 2 Score :    3028
+Polygons(x1000) : ( 149190)
+  Scene 2  CPUs : (     64)
+
+------------------------------------------------------------------------------
+System Information
+------------------------------------------------------------------------------
+             OS : Windows NT6.2 Home Premium  [6.2 Build 9200]
+   Display Mode : 1920 x 1080 32bit 60Hz
+         Memory : 8091 MB
+        DirectX : 11.0
+------------------------------------------------------------------------------
+CPU
+------------------------------------------------------------------------------
+       CPU Name : Intel
+  Vendor String : GenuineIntel
+    Name String : Intel(R) Core(TM) M-5Y71 CPU &amp;#64; 1.20GHz
+       CPU Type : Original OEM processor
+Number(Logical) : 4
+         Family : 6
+          Model : D
+       Stepping : 4
+        Feature : MMX SSE SSE2 SSE3 SSSE3 SSE4.1 SSE4.2 XD VT Intel 64
+          Clock : 1396.76 MHz
+      Data Rate :    QDR
+&lt;/pre&gt;
+&lt;p&gt;比較のために他機種のスコアをググって，一覧表にまとめると以下のようになる。なお，Helix 2ndの2.9GHzの値は &lt;a class="reference external" href="http://surface.viva-m-tablet.info/entry/2014/08/31/010157"&gt;Surface Pro 3の発熱抑制法を探る：「Turbo Boost無効化」と「クロック上限の設定」を試す - Surface Pro 3 ビジネス活用日記&lt;/a&gt; にあるやり方にしたがって Turbo Boostを有効化したときの値である。&lt;/p&gt;
+&lt;p&gt;こうして値を比較してみると，やはり Helix 2nd GenのCore M 5Y71は大体X220相当のCPU性能とわかる。一方，CPU内蔵のグラフィック機能は大きく向上している。&lt;/p&gt;
+&lt;table border="1" class="docutils"&gt;
+&lt;caption&gt;CrystalMark 2004R3のスコア一覧&lt;/caption&gt;
+&lt;colgroup&gt;
+&lt;col width="11%" /&gt;
+&lt;col width="11%" /&gt;
+&lt;col width="11%" /&gt;
+&lt;col width="11%" /&gt;
+&lt;col width="11%" /&gt;
+&lt;col width="11%" /&gt;
+&lt;col width="11%" /&gt;
+&lt;col width="11%" /&gt;
+&lt;col width="11%" /&gt;
+&lt;/colgroup&gt;
+&lt;thead valign="bottom"&gt;
+&lt;tr&gt;&lt;th class="head"&gt;&amp;nbsp;&lt;/th&gt;
+&lt;th class="head"&gt;Helix 2nd&lt;/th&gt;
+&lt;th class="head"&gt;Helix 2nd&lt;/th&gt;
+&lt;th class="head"&gt;X61&lt;/th&gt;
+&lt;th class="head"&gt;X201&lt;/th&gt;
+&lt;th class="head"&gt;X220i&lt;/th&gt;
+&lt;th class="head"&gt;X220&lt;/th&gt;
+&lt;th class="head"&gt;X230&lt;/th&gt;
+&lt;th class="head"&gt;X230&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td&gt;CPU&lt;/td&gt;
+&lt;td&gt;Core M 5Y71&lt;/td&gt;
+&lt;td&gt;Core M5Y71&lt;/td&gt;
+&lt;td&gt;Core2Duo T8100&lt;/td&gt;
+&lt;td&gt;Core i5 540M&lt;/td&gt;
+&lt;td&gt;Core i3 330M&lt;/td&gt;
+&lt;td&gt;Core i5 2520M&lt;/td&gt;
+&lt;td&gt;Core i5 3210M&lt;/td&gt;
+&lt;td&gt;Core i7 3520M&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Freq&lt;/td&gt;
+&lt;td&gt;1.2GHz&lt;/td&gt;
+&lt;td&gt;2.9GHz&lt;/td&gt;
+&lt;td&gt;2.10GHz&lt;/td&gt;
+&lt;td&gt;&amp;nbsp;&lt;/td&gt;
+&lt;td&gt;2.13GHz&lt;/td&gt;
+&lt;td&gt;2.50GHz&lt;/td&gt;
+&lt;td&gt;&amp;nbsp;&lt;/td&gt;
+&lt;td&gt;&amp;nbsp;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mark&lt;/td&gt;
+&lt;td&gt;123201&lt;/td&gt;
+&lt;td&gt;171695&lt;/td&gt;
+&lt;td&gt;90308&lt;/td&gt;
+&lt;td&gt;108364&lt;/td&gt;
+&lt;td&gt;89793&lt;/td&gt;
+&lt;td&gt;167737&lt;/td&gt;
+&lt;td&gt;154895&lt;/td&gt;
+&lt;td&gt;224930&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;ALU&lt;/td&gt;
+&lt;td&gt;21582&lt;/td&gt;
+&lt;td&gt;37303&lt;/td&gt;
+&lt;td&gt;20741&lt;/td&gt;
+&lt;td&gt;33927&lt;/td&gt;
+&lt;td&gt;26277&lt;/td&gt;
+&lt;td&gt;35549&lt;/td&gt;
+&lt;td&gt;44238&lt;/td&gt;
+&lt;td&gt;54111&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;FPU&lt;/td&gt;
+&lt;td&gt;21044&lt;/td&gt;
+&lt;td&gt;33333&lt;/td&gt;
+&lt;td&gt;18990&lt;/td&gt;
+&lt;td&gt;34884&lt;/td&gt;
+&lt;td&gt;26464&lt;/td&gt;
+&lt;td&gt;36948&lt;/td&gt;
+&lt;td&gt;44797&lt;/td&gt;
+&lt;td&gt;52647&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;MEM&lt;/td&gt;
+&lt;td&gt;27659&lt;/td&gt;
+&lt;td&gt;40970&lt;/td&gt;
+&lt;td&gt;11282&lt;/td&gt;
+&lt;td&gt;19402&lt;/td&gt;
+&lt;td&gt;17454&lt;/td&gt;
+&lt;td&gt;34609&lt;/td&gt;
+&lt;td&gt;28567&lt;/td&gt;
+&lt;td&gt;49300&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;HDD&lt;/td&gt;
+&lt;td&gt;33204&lt;/td&gt;
+&lt;td&gt;32830&lt;/td&gt;
+&lt;td&gt;29406&lt;/td&gt;
+&lt;td&gt;7702&lt;/td&gt;
+&lt;td&gt;9142&lt;/td&gt;
+&lt;td&gt;43195&lt;/td&gt;
+&lt;td&gt;12655&lt;/td&gt;
+&lt;td&gt;37676&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;GDI&lt;/td&gt;
+&lt;td&gt;8534&lt;/td&gt;
+&lt;td&gt;14228&lt;/td&gt;
+&lt;td&gt;6413&lt;/td&gt;
+&lt;td&gt;8315&lt;/td&gt;
+&lt;td&gt;7223&lt;/td&gt;
+&lt;td&gt;11930&lt;/td&gt;
+&lt;td&gt;14839&lt;/td&gt;
+&lt;td&gt;19092&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D2D&lt;/td&gt;
+&lt;td&gt;4505&lt;/td&gt;
+&lt;td&gt;4437&lt;/td&gt;
+&lt;td&gt;1640&lt;/td&gt;
+&lt;td&gt;1823&lt;/td&gt;
+&lt;td&gt;1442&lt;/td&gt;
+&lt;td&gt;1962&lt;/td&gt;
+&lt;td&gt;2374&lt;/td&gt;
+&lt;td&gt;2963&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;OGL&lt;/td&gt;
+&lt;td&gt;6673&lt;/td&gt;
+&lt;td&gt;8594&lt;/td&gt;
+&lt;td&gt;1836&lt;/td&gt;
+&lt;td&gt;2311&lt;/td&gt;
+&lt;td&gt;1791&lt;/td&gt;
+&lt;td&gt;3544&lt;/td&gt;
+&lt;td&gt;7425&lt;/td&gt;
+&lt;td&gt;9141&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;ちなみにSurfaceシリーズのスコアと比較すると以下のとおり。ちゃんとTurbo Boostを効かせれば，Helix 2ndはSurface ProやSurface Pro 2並の性能といえる。&lt;/p&gt;
+&lt;table border="1" class="docutils"&gt;
+&lt;caption&gt;CrystalMark 2004R3のスコア一覧&lt;/caption&gt;
+&lt;colgroup&gt;
+&lt;col width="17%" /&gt;
+&lt;col width="17%" /&gt;
+&lt;col width="17%" /&gt;
+&lt;col width="17%" /&gt;
+&lt;col width="17%" /&gt;
+&lt;col width="17%" /&gt;
+&lt;/colgroup&gt;
+&lt;thead valign="bottom"&gt;
+&lt;tr&gt;&lt;th class="head"&gt;&amp;nbsp;&lt;/th&gt;
+&lt;th class="head"&gt;Helix 2nd&lt;/th&gt;
+&lt;th class="head"&gt;Helix 2nd&lt;/th&gt;
+&lt;th class="head"&gt;&lt;a class="reference external" href="http://unwire.hk/2013/03/18/microsoft-surface-pro-trial-few-days-comment/notebook/"&gt;Surface Pro&lt;/a&gt;&lt;/th&gt;
+&lt;th class="head"&gt;&lt;a class="reference external" href="http://pc.watch.impress.co.jp/docs/column/nishikawa/20131028_621158.html"&gt;Surface Pro 2&lt;/a&gt;&lt;/th&gt;
+&lt;th class="head"&gt;&lt;a class="reference external" href="http://d.hatena.ne.jp/baba-p/20140724/p2"&gt;Surface Pro 3&lt;/a&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td&gt;CPU&lt;/td&gt;
+&lt;td&gt;Core M 5Y71&lt;/td&gt;
+&lt;td&gt;Core M5Y71&lt;/td&gt;
+&lt;td&gt;Core i5 3317U&lt;/td&gt;
+&lt;td&gt;Core i5 4200U&lt;/td&gt;
+&lt;td&gt;Core i7 4650U&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Freq&lt;/td&gt;
+&lt;td&gt;1.2GHz&lt;/td&gt;
+&lt;td&gt;2.9GHz&lt;/td&gt;
+&lt;td&gt;1.7GHz-2.6GHz&lt;/td&gt;
+&lt;td&gt;1.6GHz-2.6GHz&lt;/td&gt;
+&lt;td&gt;1.7GHz-3.3GHz&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;Mark&lt;/td&gt;
+&lt;td&gt;123201&lt;/td&gt;
+&lt;td&gt;171695&lt;/td&gt;
+&lt;td&gt;168121&lt;/td&gt;
+&lt;td&gt;188945&lt;/td&gt;
+&lt;td&gt;200396&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;ALU&lt;/td&gt;
+&lt;td&gt;21582&lt;/td&gt;
+&lt;td&gt;37303&lt;/td&gt;
+&lt;td&gt;38276&lt;/td&gt;
+&lt;td&gt;37568&lt;/td&gt;
+&lt;td&gt;45765&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;FPU&lt;/td&gt;
+&lt;td&gt;21044&lt;/td&gt;
+&lt;td&gt;33333&lt;/td&gt;
+&lt;td&gt;36208&lt;/td&gt;
+&lt;td&gt;36385&lt;/td&gt;
+&lt;td&gt;42511&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;MEM&lt;/td&gt;
+&lt;td&gt;27659&lt;/td&gt;
+&lt;td&gt;40970&lt;/td&gt;
+&lt;td&gt;39592&lt;/td&gt;
+&lt;td&gt;41894&lt;/td&gt;
+&lt;td&gt;45835&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;HDD&lt;/td&gt;
+&lt;td&gt;33204&lt;/td&gt;
+&lt;td&gt;32830&lt;/td&gt;
+&lt;td&gt;32554&lt;/td&gt;
+&lt;td&gt;39513&lt;/td&gt;
+&lt;td&gt;35499&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;GDI&lt;/td&gt;
+&lt;td&gt;8534&lt;/td&gt;
+&lt;td&gt;14228&lt;/td&gt;
+&lt;td&gt;14202&lt;/td&gt;
+&lt;td&gt;15074&lt;/td&gt;
+&lt;td&gt;15815&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;D2D&lt;/td&gt;
+&lt;td&gt;4505&lt;/td&gt;
+&lt;td&gt;4437&lt;/td&gt;
+&lt;td&gt;1917&lt;/td&gt;
+&lt;td&gt;7373&lt;/td&gt;
+&lt;td&gt;4524&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;OGL&lt;/td&gt;
+&lt;td&gt;6673&lt;/td&gt;
+&lt;td&gt;8594&lt;/td&gt;
+&lt;td&gt;5372&lt;/td&gt;
+&lt;td&gt;11138&lt;/td&gt;
+&lt;td&gt;10477&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;div class="section" id="cpu-z"&gt;
+&lt;h2&gt;CPU-Z&lt;/h2&gt;
+&lt;p&gt;もうちょっと詳細なハードウェア情報を知りたい場合のために，CPU-Zの出力する情報も置いておこう。&lt;/p&gt;
+&lt;pre class="code literal-block"&gt;
+CPU-Z TXT Report
+-------------------------------------------------------------------------
+
+Binaries
+-------------------------------------------------------------------------
+CPU-Z version                       1.72.0.x64
+
+Processors
+-------------------------------------------------------------------------
+Number of processors                1
+Number of threads           4
+
+APICs
+-------------------------------------------------------------------------
+Processor 0
+    -- Core 0
+        -- Thread 0 0
+        -- Thread 1 1
+    -- Core 1
+        -- Thread 0 2
+        -- Thread 1 3
+
+Timers
+-------------------------------------------------------------------------
+    ACPI timer              3.580 MHz
+    HPET timer              14.318 MHz
+    Perf timer              1.364 MHz
+    Sys timer               1.000 KHz
+
+Processors Information
+-------------------------------------------------------------------------
+Processor 1                 ID = 0
+    Number of cores         2 (max 8)
+    Number of threads       4 (max 16)
+    Name                    Intel Core M
+    Codename                Broadwell-Y
+    Specification           Intel(R) Core(TM) M-5Y71 CPU &amp;#64; 1.20GHz
+    Package (platform ID)   Socket 1234 FCBGA (0x7)
+    CPUID                   6.D.4
+    Extended CPUID          6.3D
+    Core Stepping           E0/F0
+    Technology              14 nm
+    TDP Limit               4.5 Watts
+    Tjmax                   95.0 ｰC
+    Core Speed              1396.7 MHz
+    Multiplier x Bus Speed  14.0 x 99.8 MHz
+    Stock frequency         1400 MHz
+    Instructions sets       MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1, SSE4.2, EM64T, VT-x, AES, AVX, AVX2, FMA3, TSX
+    L1 Data cache           2 x 32 KBytes, 8-way set associative, 64-byte line size
+    L1 Instruction cache    2 x 32 KBytes, 8-way set associative, 64-byte line size
+    L2 cache                2 x 256 KBytes, 8-way set associative, 64-byte line size
+    L3 cache                4 MBytes, 16-way set associative, 64-byte line size
+    FID/VID Control         yes
+
+    Turbo Mode              supported, enabled
+    Max non-turbo ratio     14x
+    Max turbo ratio         29x
+    Max efficiency ratio    5x
+    O/C bins                none
+    Ratio 1 core            29x
+    Ratio 2 cores           26x
+    Ratio 3 cores           26x
+    Ratio 4 cores           26x
+    Ratio 5 cores           26x
+    Ratio 6 cores           26x
+    TSC                     1397.3 MHz
+    TSC_24                  24.0 MHz
+    APERF                   2442.0 MHz
+    MPERF                   1369.4 MHz
+    IA Voltage Mode         PCU adaptive
+    IA Voltage Offset       0 mV
+    GT Voltage Mode         PCU adaptive
+    GT Voltage Offset       0 mV
+    LLC/Ring Voltage Mode   PCU adaptive
+    LLC/Ring Voltage Offset 0 mV
+    Agent Voltage Mode      PCU adaptive
+    Agent Voltage Offset    0 mV
+
+Thread dumps
+-------------------------------------------------------------------------
+CPU Thread 0
+    APIC ID                 0
+    Topology                Processor ID 0, Core ID 0, Thread ID 0
+    Type                    01020209h
+    Max CPUID level         00000014h
+    Max CPUID ext. level    80000008h
+    Cache descriptor        Level 1, D, 32 KB, 2 thread(s)
+    Cache descriptor        Level 1, I, 32 KB, 2 thread(s)
+    Cache descriptor        Level 2, U, 256 KB, 2 thread(s)
+    Cache descriptor        Level 3, U, 4 MB, 16 thread(s)
+
+CPU Thread 1
+    APIC ID                 1
+    Topology                Processor ID 0, Core ID 0, Thread ID 1
+    Type                    01020209h
+    Max CPUID level         00000014h
+    Max CPUID ext. level    80000008h
+    Cache descriptor        Level 1, D, 32 KB, 2 thread(s)
+    Cache descriptor        Level 1, I, 32 KB, 2 thread(s)
+    Cache descriptor        Level 2, U, 256 KB, 2 thread(s)
+    Cache descriptor        Level 3, U, 4 MB, 16 thread(s)
+
+CPU Thread 2
+    APIC ID                 2
+    Topology                Processor ID 0, Core ID 1, Thread ID 0
+    Type                    01020209h
+    Max CPUID level         00000014h
+    Max CPUID ext. level    80000008h
+    Cache descriptor        Level 1, D, 32 KB, 2 thread(s)
+    Cache descriptor        Level 1, I, 32 KB, 2 thread(s)
+    Cache descriptor        Level 2, U, 256 KB, 2 thread(s)
+    Cache descriptor        Level 3, U, 4 MB, 16 thread(s)
+
+CPU Thread 3
+    APIC ID                 3
+    Topology                Processor ID 0, Core ID 1, Thread ID 1
+    Type                    01020209h
+    Max CPUID level         00000014h
+    Max CPUID ext. level    80000008h
+    Cache descriptor        Level 1, D, 32 KB, 2 thread(s)
+    Cache descriptor        Level 1, I, 32 KB, 2 thread(s)
+    Cache descriptor        Level 2, U, 256 KB, 2 thread(s)
+    Cache descriptor        Level 3, U, 4 MB, 16 thread(s)
+
+Chipset
+-------------------------------------------------------------------------
+Northbridge                 Intel Broadwell-U rev. 09
+Southbridge                 Intel Broadwell-Y PCH rev. 03
+Memory Type                 DDR3
+Memory Size                 8092 MBytes
+Channels                    Dual
+Memory Frequency            798.1 MHz (1:6)
+CAS# latency (CL)           12.0
+RAS# to CAS# delay (tRCD)   15
+RAS# Precharge (tRP)                15
+Cycle Time (tRAS)           34
+Row Refresh Cycle Time (tRFC)       104
+Command Rate (CR)           1T
+Uncore Frequency            1596.8 MHz
+MCHBAR I/O Base address             0x0FED10000
+MCHBAR I/O Size                     19456
+MCHBAR registers
+
+Memory SPD
+-------------------------------------------------------------------------
+
+Monitoring
+-------------------------------------------------------------------------
+Mainboard Model             20CGCTO1WW (0x000002B1 - 0x11B04D98)
+
+LPCIO
+-------------------------------------------------------------------------
+LPCIO Vendor                SMSC
+LPCIO Vendor ID             0x55
+LPCIO Chip ID               0x19
+Config Mode I/O address     0x4E
+Config Mode LDN             0xC
+Register space              class = 0x8, base address = 0x01610
+
+Hardware Monitors
+-------------------------------------------------------------------------
+Hardware monitor    ACPI
+    Temperature 0   49ｰC (120ｰF) [0xC96] (THM0)
+
+Hardware monitor    Battery
+    Voltage 0       8.35 Volts [0x20A1] (Current Voltage)
+    Capacity 0      35170 mWh [0x8962] (Designed Capacity)
+    Capacity 1      35030 mWh [0x88D6] (Full Charge Capacity)
+    Capacity 2      34960 mWh [0x8890] (Current Capacity)
+    Level 0         1 pc [0x63] (Wear Level)
+    Level 1         100 pc [0x63] (Charge Level)
+
+Hardware monitor    Battery
+    Voltage 0       8.33 Volts [0x2088] (Current Voltage)
+    Capacity 0      26170 mWh [0x663A] (Designed Capacity)
+    Capacity 1      26540 mWh [0x67AC] (Full Charge Capacity)
+    Capacity 2      26540 mWh [0x67AC] (Current Capacity)
+    Level 0         n.a. [0x64] (Wear Level)
+    Level 1         100 pc [0x64] (Charge Level)
+
+PCI Devices
+-------------------------------------------------------------------------
+Description                 Host Bridge
+Location                    bus 0 (0x00), device 0 (0x00), function 0 (0x00)
+Common header
+    Vendor ID               0x8086
+    Model ID                0x1604
+    Revision ID             0x09
+    PI                      0x00
+    SubClass                0x00
+    BaseClass               0x06
+    Cache Line              0x00
+    Latency                 0x00
+    Header                  0x00
+PCI header
+    Subvendor ID            0x17AA
+    Subsystem ID            0x222B
+    Int. Line               0x00
+    Int. Pin                0x00
+PCI capability
+    Caps class              Vendor Dependant
+    Caps offset             0xE0
+
+Description                 VGA Controller
+Location                    bus 0 (0x00), device 2 (0x02), function 0 (0x00)
+Common header
+    Vendor ID               0x8086
+    Model ID                0x161E
+    Revision ID             0x09
+    PI                      0x00
+    SubClass                0x00
+    BaseClass               0x03
+    Cache Line              0x00
+    Latency                 0x00
+    Header                  0x00
+PCI header
+    Address 0 (memory)      0xF0000000
+    Address 2 (memory)      0xE0000000
+    Address 4 (port)        0x0000FFC0
+    Subvendor ID            0x17AA
+    Subsystem ID            0x222B
+    Int. Line               0x00
+    Int. Pin                0x01
+PCI capability
+    Caps class              Message Signalled Interrupts
+    Caps offset             0x90
+PCI capability
+    Caps class              Power Management
+    Caps offset             0xD0
+    Caps version            1.1
+PCI capability
+    Caps class              0x13
+    Caps offset             0xA4
+
+Description                 Multimedia device
+Location                    bus 0 (0x00), device 3 (0x03), function 0 (0x00)
+Common header
+    Vendor ID               0x8086
+    Model ID                0x160C
+    Revision ID             0x09
+    PI                      0x00
+    SubClass                0x03
+    BaseClass               0x04
+    Cache Line              0x10
+    Latency                 0x00
+    Header                  0x00
+PCI header
+    Address 0 (memory)      0xF1118000
+    Subvendor ID            0x17AA
+    Subsystem ID            0x222B
+    Int. Line               0x10
+    Int. Pin                0x01
+PCI capability
+    Caps class              Power Management
+    Caps offset             0x50
+    Caps version            1.1
+PCI capability
+    Caps class              Message Signalled Interrupts
+    Caps offset             0x60
+PCI capability
+    Caps class              PCI Express
+    Caps offset             0x70
+    Device type             Root Complex Integrated Endpoint Device
+    Port                    0
+    Version                 1.0
+    Link width              0x (max 0x)
+
+Description                 Data Aquisition and Signal Processing Device
+Location                    bus 0 (0x00), device 4 (0x04), function 0 (0x00)
+Common header
+    Vendor ID               0x8086
+    Model ID                0x1603
+    Revision ID             0x09
+    PI                      0x00
+    SubClass                0x80
+    BaseClass               0x11
+    Cache Line              0x00
+    Latency                 0x00
+    Header                  0x00
+PCI header
+    Address 0 (memory)      0xF1110000
+    Subvendor ID            0x17AA
+    Subsystem ID            0x222B
+    Int. Line               0x10
+    Int. Pin                0x01
+PCI capability
+    Caps class              Message Signalled Interrupts
+    Caps offset             0x90
+PCI capability
+    Caps class              Power Management
+    Caps offset             0xD0
+    Caps version            1.2
+PCI capability
+    Caps class              Vendor Dependant
+    Caps offset             0xE0
+
+Description                 USB Controller
+Location                    bus 0 (0x00), device 20 (0x14), function 0 (0x00)
+Common header
+    Vendor ID               0x8086
+    Model ID                0x9CB1
+    Revision ID             0x03
+    PI                      0x30
+    SubClass                0x03
+    BaseClass               0x0C
+    Cache Line              0x00
+    Latency                 0x00
+    Header                  0x00
+PCI header
+    Address 0 (memory)      0xF1100000
+    Subvendor ID            0x17AA
+    Subsystem ID            0x222B
+    Int. Line               0x00
+    Int. Pin                0x01
+PCI capability
+    Caps class              Power Management
+    Caps offset             0x70
+    Caps version            1.1
+PCI capability
+    Caps class              Message Signalled Interrupts
+    Caps offset             0x80
+
+Description                 Communication Device
+Location                    bus 0 (0x00), device 22 (0x16), function 0 (0x00)
+Common header
+    Vendor ID               0x8086
+    Model ID                0x9CBA
+    Revision ID             0x03
+    PI                      0x00
+    SubClass                0x80
+    BaseClass               0x07
+    Cache Line              0x00
+    Latency                 0x00
+    Header                  0x80
+PCI header
+    Address 0 (memory)      0xF111D000
+    Subvendor ID            0x17AA
+    Subsystem ID            0x222B
+    Int. Line               0x00
+    Int. Pin                0x01
+PCI capability
+    Caps class              Power Management
+    Caps offset             0x50
+    Caps version            1.2
+PCI capability
+    Caps class              Message Signalled Interrupts
+    Caps offset             0x8C
+
+Description                 PCI to PCI Bridge
+Location                    bus 0 (0x00), device 28 (0x1C), function 0 (0x00)
+Common header
+    Vendor ID               0x8086
+    Model ID                0x9C90
+    Revision ID             0xE3
+    PI                      0x00
+    SubClass                0x04
+    BaseClass               0x06
+    Cache Line              0x10
+    Latency                 0x00
+    Header                  0x81
+PCI header
+    Primary bus             0x00
+    Secondary bus           0x02
+    Int. Line               0x00
+    Int. Pin                0x01
+PCI capability
+    Caps class              PCI Express
+    Caps offset             0x40
+    Device type             Root Port of PCI-E Root Complex
+    Port                    1
+    Version                 2.0
+    Physical slot           Integrated device
+    Link width              0x (max 1x)
+PCI capability
+    Caps class              Message Signalled Interrupts
+    Caps offset             0x80
+PCI capability
+    Caps class              Subsystem Vendor
+    Caps offset             0x90
+    SubVendor ID            0x17AA
+    SubSystem ID            0x222B
+PCI capability
+    Caps class              Power Management
+    Caps offset             0xA0
+    Caps version            1.2
+
+Description                 PCI to PCI Bridge
+Location                    bus 0 (0x00), device 28 (0x1C), function 1 (0x01)
+Common header
+    Vendor ID               0x8086
+    Model ID                0x9C94
+    Revision ID             0xE3
+    PI                      0x00
+    SubClass                0x04
+    BaseClass               0x06
+    Cache Line              0x10
+    Latency                 0x00
+    Header                  0x81
+PCI header
+    Primary bus             0x00
+    Secondary bus           0x06
+    Int. Line               0x00
+    Int. Pin                0x03
+PCI capability
+    Caps class              PCI Express
+    Caps offset             0x40
+    Device type             Root Port of PCI-E Root Complex
+    Port                    3
+    Version                 2.0
+    Physical slot           #0
+    Presence detect         yes
+    Link width              1x (max 1x)
+PCI capability
+    Caps class              Message Signalled Interrupts
+    Caps offset             0x80
+PCI capability
+    Caps class              Subsystem Vendor
+    Caps offset             0x90
+    SubVendor ID            0x17AA
+    SubSystem ID            0x222B
+PCI capability
+    Caps class              Power Management
+    Caps offset             0xA0
+    Caps version            1.2
+
+Description                 PCI to ISA Bridge
+Location                    bus 0 (0x00), device 31 (0x1F), function 0 (0x00)
+Common header
+    Vendor ID               0x8086
+    Model ID                0x9CC7
+    Revision ID             0x03
+    PI                      0x00
+    SubClass                0x01
+    BaseClass               0x06
+    Cache Line              0x00
+    Latency                 0x00
+    Header                  0x80
+PCI header
+    Subvendor ID            0x17AA
+    Subsystem ID            0x222B
+    Int. Line               0x00
+    Int. Pin                0x00
+PCI capability
+    Caps class              Vendor Dependant
+    Caps offset             0xE0
+
+Description                 Serial ATA Controller
+Location                    bus 0 (0x00), device 31 (0x1F), function 2 (0x02)
+Common header
+    Vendor ID               0x8086
+    Model ID                0x9C83
+    Revision ID             0x03
+    PI                      0x01
+    SubClass                0x06
+    BaseClass               0x01
+    Cache Line              0x00
+    Latency                 0x00
+    Header                  0x00
+PCI header
+    Address 0 (port)        0x00003088
+    Address 1 (port)        0x0000309C
+    Address 2 (port)        0x00003080
+    Address 3 (port)        0x00003098
+    Address 4 (port)        0x00003060
+    Address 5 (memory)      0xF1120000
+    Subvendor ID            0x17AA
+    Subsystem ID            0x222B
+    Int. Line               0x00
+    Int. Pin                0x02
+PCI capability
+    Caps class              Message Signalled Interrupts
+    Caps offset             0x80
+PCI capability
+    Caps class              Power Management
+    Caps offset             0x70
+    Caps version            1.2
+PCI capability
+    Caps class              0x12
+    Caps offset             0xA8
+
+Description                 SMBus Controller
+Location                    bus 0 (0x00), device 31 (0x1F), function 3 (0x03)
+Common header
+    Vendor ID               0x8086
+    Model ID                0x9CA2
+    Revision ID             0x03
+    PI                      0x00
+    SubClass                0x05
+    BaseClass               0x0C
+    Cache Line              0x00
+    Latency                 0x00
+    Header                  0x00
+PCI header
+    Address 0 (memory)      0xF111C000
+    Address 4 (port)        0x0000EFA0
+    Subvendor ID            0x17AA
+    Subsystem ID            0x222B
+    Int. Line               0x12
+    Int. Pin                0x03
+
+Description                 Data Aquisition and Signal Processing Device
+Location                    bus 0 (0x00), device 31 (0x1F), function 6 (0x06)
+Common header
+    Vendor ID               0x8086
+    Model ID                0x9CA4
+    Revision ID             0x03
+    PI                      0x00
+    SubClass                0x80
+    BaseClass               0x11
+    Cache Line              0x00
+    Latency                 0x00
+    Header                  0x00
+PCI header
+    Address 0 (memory)      0xF111F000
+    Subvendor ID            0x17AA
+    Subsystem ID            0x222B
+    Int. Line               0x12
+    Int. Pin                0x03
+PCI capability
+    Caps class              Power Management
+    Caps offset             0x50
+    Caps version            1.2
+PCI capability
+    Caps class              Message Signalled Interrupts
+    Caps offset             0x80
+
+Description                 Network Controller
+Location                    bus 6 (0x06), device 0 (0x00), function 0 (0x00)
+Common header
+    Vendor ID               0x8086
+    Model ID                0x095A
+    Revision ID             0x59
+    PI                      0x00
+    SubClass                0x80
+    BaseClass               0x02
+    Cache Line              0x10
+    Latency                 0x00
+    Header                  0x00
+PCI header
+    Address 0 (memory)      0xF1000000
+    Subvendor ID            0x8086
+    Subsystem ID            0x9010
+    Int. Line               0x00
+    Int. Pin                0x01
+PCI capability
+    Caps class              Power Management
+    Caps offset             0xC8
+    Caps version            1.2
+PCI capability
+    Caps class              Message Signalled Interrupts
+    Caps offset             0xD0
+PCI capability
+    Caps class              PCI Express
+    Caps offset             0x40
+    Device type             PCI-E Endpoint Device
+    Port                    0
+    Version                 2.0
+    Link width              1x (max 1x)
+Extended capabilities
+    Caps class              Advanced Error Reporting
+    Caps offset             0x100
+    Caps class              Device Serial Number
+    Caps offset             0x140
+    Caps class              0x18
+    Caps offset             0x14C
+    Caps class              0x1E
+    Caps offset             0x154
+
+DMI
+-------------------------------------------------------------------------
+DMI Processor
+    manufacturer            Intel(R) Corporation
+    model                   Intel(R) Core(TM) M-5Y71 CPU &amp;#64; 1.20GHz
+    clock speed             1200.0 MHz
+    FSB speed               100.0 MHz
+    multiplier              12.0x
+
+DMI Physical Memory Array
+    location                Motherboard
+    usage                   System Memory
+    correction              None
+    max capacity            16384 MBytes
+    max# of devices         2
+
+DMI Memory Device
+    designation             ChannelA
+    format                  Chip
+    type                    unknown
+    total width             64 bits
+    data width              64 bits
+    size                    4096 MBytes
+
+DMI Memory Device
+    designation             ChannelB
+    format                  Chip
+    type                    unknown
+    total width             64 bits
+    data width              64 bits
+    size                    4096 MBytes
+
+DMI System Information
+    manufacturer            LENOVO
+    product                 20CGCTO1WW
+    version                 ThinkPad Helix 2nd
+    serial                  R90F7WAP
+    SKU                     LENOVO_MT_20CG_BU_Think_FM_ThinkPad Helix 2nd
+    family                  ThinkPad Helix 2nd
+
+DMI Baseboard
+    vendor                  LENOVO
+    model                   20CGCTO1WW
+    revision                SDK0E50512 STD
+    serial                  W1KS52311AM
+
+DMI System Enclosure
+    manufacturer            LENOVO
+    chassis type            HandHeld
+    chassis serial          R90F7WAP
+
+DMI Port Connector
+    designation             Not Available (internal)
+    designation             USB 1 (external)
+    port type               USB
+    connector               Access Bus (USB)
+
+DMI Port Connector
+    designation             Not Available (internal)
+    designation             USB 2 (external)
+    port type               USB
+    connector               Access Bus (USB)
+
+DMI Port Connector
+    designation             Not Available (internal)
+    designation             USB 3 (external)
+    port type               USB
+    connector               Access Bus (USB)
+
+DMI Port Connector
+    designation             Not Available (internal)
+    designation             USB 4 (external)
+    port type               USB
+    connector               Access Bus (USB)
+
+DMI Port Connector
+    designation             Not Available (internal)
+    designation             USB 5 (external)
+    port type               USB
+    connector               Access Bus (USB)
+
+DMI Port Connector
+    designation             Not Available (internal)
+    designation             USB 6 (external)
+    port type               USB
+    connector               Access Bus (USB)
+
+DMI Port Connector
+    designation             Not Available (internal)
+    designation             USB 7 (external)
+    port type               USB
+    connector               Access Bus (USB)
+
+DMI Port Connector
+    designation             Not Available (internal)
+    designation             USB 8 (external)
+    port type               USB
+    connector               Access Bus (USB)
+
+DMI Port Connector
+    designation             Not Available (internal)
+    designation             Ethernet (external)
+    port type               Network Port
+    connector               RJ-45
+
+DMI Port Connector
+    designation             Not Available (internal)
+    designation             External Monitor (external)
+    port type               Video Port
+    connector               DB-15 female
+
+DMI Port Connector
+    designation             Not Available (internal)
+    designation             Mini DisplayPort (external)
+    port type               Video Port
+
+DMI Port Connector
+    designation             Not Available (internal)
+    designation             DisplayPort/DVI-D (external)
+    port type               Video Port
+
+DMI Port Connector
+    designation             Not Available (internal)
+    designation             DisplayPort/HDMI (external)
+    port type               Video Port
+
+DMI Port Connector
+    designation             Not Available (internal)
+    designation             Headphone/Microphone Combo Jack1 (external)
+    port type               Audio Port
+    connector               Mini Jack (headphones)
+
+DMI Port Connector
+    designation             Not Available (internal)
+    designation             Headphone/Microphone Combo Jack2 (external)
+    port type               Audio Port
+    connector               Mini Jack (headphones)
+
+DMI Extension Slot
+    designation             Media Card Slot
+    type                    1
+    populated               no
+
+DMI Extension Slot
+    designation             SimCard Slot
+    type                    1
+    populated               no
+
+DMI BIOS
+    vendor                  LENOVO
+    version                 N17ET70W (1.70 )
+    date                    12/26/2014
+    ROM size                16384 KB
+
+Storage
+-------------------------------------------------------------------------
+Drive       0
+    Device Path             \\?\scsi#disk&amp;amp;ven_samsung&amp;amp;prod_mznte128hmgr-000#4&amp;amp;20ae874c&amp;amp;0&amp;amp;030000
+    Type                    Fixed
+    Name                    SAMSUNG MZNTE128HMGR-000L1
+    Capacity                119.2 GB
+    SMART Support           Yes
+
+Graphics
+-------------------------------------------------------------------------
+Number of adapters          1
+
+Graphic APIs
+-------------------------------------------------------------------------
+API                         Intel I/O
+
+Display Adapters
+-------------------------------------------------------------------------
+Display adapter 0
+    Display name            \\.\DISPLAY1
+    Name                    Intel(R) HD Graphics 5300
+    Board Manufacturer      Lenovo
+    Memory size             1024 MB
+    PCI device              bus 0 (0x0), device 2 (0x2), function 0 (0x0)
+    Vendor ID               0x8086 (0x17AA)
+    Model ID                0x161E (0x222B)
+    Performance Level       0
+
+Win32_VideoController               AdapterRAM = 0x40000000 (1073741824)
+Win32_VideoController               DriverVersion = 10.18.10.3977
+Win32_VideoController               DriverDate = 10/09/2014
+
+Monitor 0
+    Model                    ()
+    ID                      LEN40D3
+    Serial
+    Manufacturing Date      Week 0, Year 2014
+    Size                    11.6 inches
+    Max Resolution          1920 x 1080 &amp;#64; 59 Hz
+    Horizontal Freq. Range  0-0 kHz
+    Vertical Freq. Range    0-0 Hz
+    Max Pixel Clock         0 MHz
+    Gamma Factor            2.2
+
+Software
+-------------------------------------------------------------------------
+Windows Version                     Microsoft Windows 8.1 (6.3) 64-bit   (Build 9600)
+DirectX Version                     11.0
+&lt;/pre&gt;
+&lt;/div&gt;
+</content><category term="Hardware"></category><category term="ThinkPad Helix"></category></entry><entry><title>yoga tablet2 8 inchのセットアップ録</title><link href="http://blog.calcurio.com/yoga_tablet2_setup.html" rel="alternate"></link><published>2015-02-09T10:50:06+09:00</published><updated>2016-06-06T22:55:15+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2015-02-09:/yoga_tablet2_setup.html</id><summary type="html">&lt;p&gt;Lenovoのyoga tablet2 8インチ版を購入した。セットアップ時の記録をここに記しておく。&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;Lenovoのyoga tablet2 8インチ版を購入した。セットアップ時の記録をここに記しておく。&lt;/p&gt;
+&lt;!-- PELICAN_END_SUMMARY --&gt;
+&lt;div class="section" id="us"&gt;
+&lt;h2&gt;US配列として認識させる&lt;/h2&gt;
+&lt;p&gt;この機種は付属のJIS(日本語)配列BluetoothキーボードをUS(英字)配列として認識してしまうトラブルが頻出しているらしい。僕の場合は逆に，BluetoothのUS配列トラックポイントキーボードがJIS配列として認識されてしまっている。どういうことじゃ。&lt;/p&gt;
+&lt;p&gt;さて，これを修正するためにはレジストリの:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+HKEY_LOCAL_MACHINE¥SYSTEM¥CurrentControlSet¥Services¥i8042prt¥Parameters
+&lt;/pre&gt;
+&lt;p&gt;にある &lt;tt class="docutils literal"&gt;LayerDriver JPN&lt;/tt&gt; を &lt;tt class="docutils literal"&gt;kbd106.dll&lt;/tt&gt; -&amp;gt; &lt;tt class="docutils literal"&gt;kbd101.dll&lt;/tt&gt; に変更するだけ。んで再起動する。&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="id1"&gt;
+&lt;h2&gt;リカバリはどうやる？&lt;/h2&gt;
+&lt;p&gt;昔のPCなら購入時にリカバリディスクがついてきたし，ちょっと前ならHDDのリカバリ領域から自分でDVDに焼いたりしてた。今のPCはどうやらUSBメモリに回復ドライブを作るものらしい。&lt;/p&gt;
+&lt;/div&gt;
+</content><category term="Hardware"></category><category term="yoga_tablet2"></category><category term="keyboard"></category></entry></feed>

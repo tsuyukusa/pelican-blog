@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+        <link rel="canonical" href="http://blog.calcurio.com/tag/jia xiang hua.html" />
+        <meta charset="utf-8" />
+        <title>仮想化 | 電脳手帳</title>
+        <link rel="apple-touch-icon" sizes="57x57" href="theme/favicon/apple-touch-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="theme/favicon/apple-touch-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="theme/favicon/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="theme/favicon/apple-touch-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="theme/favicon/apple-touch-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="theme/favicon/apple-touch-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="theme/favicon/apple-touch-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="theme/favicon/apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="theme/favicon/apple-touch-icon-180x180.png">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="theme/favicon/android-chrome-192x192.png" sizes="192x192">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-96x96.png" sizes="96x96">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="theme/favicon/manifest.json">
+        <meta name="msapplication-TileColor" content="#000000">
+        <meta name="msapplication-TileImage" content="theme/favicon/mstile-144x144.png">
+        <meta name="theme-color" content="#ffffff">        <link rel="stylesheet" href="../theme/css/main.css" />
+        <link href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="電脳手帳 Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+        <h1><a href="../">電脳手帳 </a></h1> <div id="subtitle">計算機環境やコーディング，機械学習まわりの話題を書き留めます</div>        </header><!-- /#banner -->
+<h1 id="above_content">タグ: 仮想化 の記事一覧</h1>         <div id="basecontent">
+
+<p class="paginator">
+    Page 1 / 1
+            <span class="block">&laquo; 最初</span>
+            <span class="block">&lt; 前</span>
+            <span class="current_page">1</span>
+            <span class="block">次 &gt;</span>
+            <span class="block">最後 &raquo;</span>
+</p>
+            <section id="contents" class="body">
+                <ol id="posts-list" class="hfeed">
+                    <li><article class="hentry">
+                        <header>
+                            <h1><a href="../vagrant-console.html" rel="bookmark"
+                                   title="Permalink to vagrantとpakcerでシリアルコンソールを有効化したイメージを作成する">vagrantとpakcerでシリアルコンソールを有効化したイメージを作成する</a></h1>
+                        </header>
+
+                        <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2017/04/22 22:31</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2017/06/14 05:53</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/software.html">Software</a>
+<span>| tags: <a href="../tag/jia xiang hua.html" class="tag">仮想化</a><a href="../tag/vagrant.html" class="tag">vagrant</a><a href="../tag/ubuntu.html" class="tag">ubuntu</a></span>
+
+</footer><!-- /.post-info -->                        <p>いちいちvirshでKVMの仮想マシンを管理したくない。
+だからvagrantで楽をしたい。</p>
+<p>でも，仮想マシンのネットワークが壊れたときのために， <cite>virsh console</cite> でシリアルコンソールの操作はしたい。
+vagrant-libvirtのイメージでシリアルコンソール対応のイメージはなさそう。</p>
+<p>自分で作るにしても，vagrantのイメージ作成はめんどくさい。
+だからpackerで楽をしたい。</p>
+<p>ということで，packerを使ってシリアルコンソール対応のUbuntuイメージを作成したのでやり方をメモしておく。</p>
+<p>作成したpakcerスクリプトは <a class="reference external" href="https://github.com/tsuyukusa/libvirt-packer-scripts">tsuyukusa/libvirt-packer-scripts</a> として公開したので，単に使うだけならば，次のように <tt class="docutils literal">git clone</tt> して <tt class="docutils literal">pakcer build</tt> すればよい。</p>
+git clone https://github.com/tsuyukusa/libvirt-packer-scripts.git
+<span class="nb">cd</span> libvirt-packer-scripts/ubuntu-16.04
+packer build ubuntu-16.04-minimal.json
+</pre>
+
+                        <a class="readmore" href="../vagrant-console.html">&raquo; read more</a>
+<p><a href="../vagrant-console.html#disqus_thread">comments</a></p>                        </div><!-- /.entry-content -->
+                    </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="../libvirt-qemu-hook.html" rel="bookmark"
+                           title="Permalink to libvirtのqemu hookを利用してインスタンス作成・削除時に通知する">libvirtのqemu hookを利用してインスタンス作成・削除時に通知する</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2017/02/05 14:26</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2017/04/09 22:25</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/software.html">Software</a>
+<span>| tags: <a href="../tag/jia xiang hua.html" class="tag">仮想化</a></span>
+
+</footer><!-- /.post-info -->                <p>共有サーバ上でQEMU/KVMのインスタンスが作成・削除されたことを通知したい。
+これはlibvirtのhookスクリプトを利用して実現できる。</p>
+
+                <a class="readmore" href="../libvirt-qemu-hook.html">&raquo; read more</a>
+<p><a href="../libvirt-qemu-hook.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+
+
+
+<div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>            <li><article class="hentry">
+                <header>
+                    <h1><a href="../libvmi.html" rel="bookmark"
+                           title="Permalink to libvmiで仮想マシン内部のプロセス一覧を取得...できなかった">libvmiで仮想マシン内部のプロセス一覧を取得...できなかった</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2017/01/31 20:46</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2017/02/01 19:50</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/software.html">Software</a>
+<span>| tags: <a href="../tag/jia xiang hua.html" class="tag">仮想化</a></span>
+
+</footer><!-- /.post-info -->                <p>目的: 物理マシンからqemu-kvmで動作する仮想マシンの中で動作するプロセスの一覧を取得する。
+VMI (Vritual Machine Introspection) でググると沢山情報がでてくる。</p>
+
+                <a class="readmore" href="../libvmi.html">&raquo; read more</a>
+<p><a href="../libvmi.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
+            </ol><!-- /#posts-list -->
+            </section><!-- /#content -->
+<div id="sidebar">
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* スクエア */
+        google_ad_slot = "7175743105";
+        google_ad_width = 200;
+        google_ad_height = 200;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">検索</h3>
+      <form action="https://www.google.co.jp/search" target="_blank" class="google-search">
+          <input type="hidden" name="q" value="site:http://blog.calcurio.com">
+        <input type="text" name="q">
+      </form>
+    </div>
+    <div class="sidebar_child">
+        Author: M. Tsuyuki
+<p><a href="/pages/about.html">詳しく</a></p>    </div>
+    <div class="sidebar_child">
+        <h3 class="sidebar_title"></h3>
+<h3 class="sidebar_title">カテゴリ</h3>        <ul>            <li><a href="../category/hardware.html">Hardware</a> (11)</li>
+            <li><a href="../category/lun wen.html">論文</a> (2)</li>
+            <li><a href="../category/software.html">Software</a> (79)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">タグ</h3>        <ul>            <li><a href="../tag/aws.html" class="tag">AWS</a> (3)</li>
+            <li><a href="../tag/bash.html" class="tag">bash</a> (6)</li>
+            <li><a href="../tag/blog.html" class="tag">Blog</a> (4)</li>
+            <li><a href="../tag/bot.html" class="tag">bot</a> (1)</li>
+            <li><a href="../tag/cli.html" class="tag">CLI</a> (4)</li>
+            <li><a href="../tag/cui.html" class="tag">CUI</a> (18)</li>
+            <li><a href="../tag/cygwin.html" class="tag">Cygwin</a> (17)</li>
+            <li><a href="../tag/docker.html" class="tag">Docker</a> (11)</li>
+            <li><a href="../tag/dvc.html" class="tag">dvc</a> (1)</li>
+            <li><a href="../tag/ec2.html" class="tag">EC2</a> (2)</li>
+            <li><a href="../tag/firefox.html" class="tag">Firefox</a> (4)</li>
+            <li><a href="../tag/fluentd.html" class="tag">fluentd</a> (1)</li>
+            <li><a href="../tag/git.html" class="tag">Git</a> (3)</li>
+            <li><a href="../tag/github.html" class="tag">Github</a> (1)</li>
+            <li><a href="../tag/hardware.html" class="tag">Hardware</a> (1)</li>
+            <li><a href="../tag/html.html" class="tag">HTML</a> (1)</li>
+            <li><a href="../tag/ji jie xue xi.html" class="tag">機械学習</a> (6)</li>
+            <li><a href="../tag/jia xiang hua.html" class="tag">仮想化</a> (3)</li>
+            <li><a href="../tag/jupyter.html" class="tag">Jupyter</a> (1)</li>
+            <li><a href="../tag/keyboard.html" class="tag">keyboard</a> (1)</li>
+            <li><a href="../tag/linux.html" class="tag">Linux</a> (21)</li>
+            <li><a href="../tag/makefile.html" class="tag">Makefile</a> (1)</li>
+            <li><a href="../tag/math.html" class="tag">math</a> (2)</li>
+            <li><a href="../tag/networking.html" class="tag">Networking</a> (4)</li>
+            <li><a href="../tag/openstack.html" class="tag">OpenStack</a> (2)</li>
+            <li><a href="../tag/pczi zuo.html" class="tag">PC自作</a> (4)</li>
+            <li><a href="../tag/pelican.html" class="tag">Pelican</a> (9)</li>
+            <li><a href="../tag/percol.html" class="tag">percol</a> (2)</li>
+            <li><a href="../tag/preseed.html" class="tag">Preseed</a> (1)</li>
+            <li><a href="../tag/python.html" class="tag">Python</a> (12)</li>
+            <li><a href="../tag/rally.html" class="tag">Rally</a> (1)</li>
+            <li><a href="../tag/raspi.html" class="tag">RasPi</a> (1)</li>
+            <li><a href="../tag/restructuredtext.html" class="tag">reStructuredText</a> (1)</li>
+            <li><a href="../tag/screen.html" class="tag">screen</a> (2)</li>
+            <li><a href="../tag/tesuto.html" class="tag">テスト</a> (1)</li>
+            <li><a href="../tag/thinkpad.html" class="tag">ThinkPad</a> (4)</li>
+            <li><a href="../tag/thinkpad helix.html" class="tag">ThinkPad Helix</a> (2)</li>
+            <li><a href="../tag/tmux.html" class="tag">Tmux</a> (1)</li>
+            <li><a href="../tag/ubuntu.html" class="tag">Ubuntu</a> (27)</li>
+            <li><a href="../tag/vagrant.html" class="tag">vagrant</a> (2)</li>
+            <li><a href="../tag/vim.html" class="tag">Vim</a> (5)</li>
+            <li><a href="../tag/vimperator.html" class="tag">Vimperator</a> (3)</li>
+            <li><a href="../tag/virtualbox.html" class="tag">Virtualbox</a> (1)</li>
+            <li><a href="../tag/windows.html" class="tag">Windows</a> (6)</li>
+            <li><a href="../tag/yoga_tablet2.html" class="tag">yoga_tablet2</a> (1)</li>
+            <li><a href="../tag/zabbix.html" class="tag">zabbix</a> (1)</li>
+            <li><a href="../tag/ziyobusukeziyura.html" class="tag">ジョブスケジューラ</a> (1)</li>
+            <li><a href="../tag/zsh.html" class="tag">zsh</a> (7)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* リンクユニット */
+        google_ad_slot = "1129209509";
+        google_ad_width = 200;
+        google_ad_height = 90;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">最近の投稿</h3>        <ul id="recent-article">
+        <li>
+            <a href="vagrant-console.html">vagrantとpakcerでシリアルコンソールを有効化したイメージを作成する</a>
+            2017/04/22
+        </li>
+        <li>
+            <a href="libvirt-qemu-hook.html">libvirtのqemu hookを利用してインスタンス作成・削除時に通知する</a>
+            2017/02/05
+        </li>
+        <li>
+            <a href="libvmi.html">libvmiで仮想マシン内部のプロセス一覧を取得...できなかった</a>
+            2017/01/31
+        </li>
+        </ul>
+    </div>
+</div><p class="paginator">
+    Page 1 / 1
+            <span class="block">&laquo; 最初</span>
+            <span class="block">&lt; 前</span>
+            <span class="current_page">1</span>
+            <span class="block">次 &gt;</span>
+            <span class="block">最後 &raquo;</span>
+</p>
+        </div>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme baseed on <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>.</p>
+        </footer><!-- /#contentinfo -->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+   ga('create', 'UA-42775386-2', 'auto');
+    ga('send', 'pageview');
+</script>
+</body>
+</html>

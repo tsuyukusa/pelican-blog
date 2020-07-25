@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+        <link rel="canonical" href="http://blog.calcurio.com/pelican-github-pages.html" />
+        <meta charset="utf-8" />
+        <title>ブログをgithub pagesに移行した | 電脳手帳</title>
+        <link rel="apple-touch-icon" sizes="57x57" href="theme/favicon/apple-touch-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="theme/favicon/apple-touch-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="theme/favicon/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="theme/favicon/apple-touch-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="theme/favicon/apple-touch-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="theme/favicon/apple-touch-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="theme/favicon/apple-touch-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="theme/favicon/apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="theme/favicon/apple-touch-icon-180x180.png">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="theme/favicon/android-chrome-192x192.png" sizes="192x192">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-96x96.png" sizes="96x96">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="theme/favicon/manifest.json">
+        <meta name="msapplication-TileColor" content="#000000">
+        <meta name="msapplication-TileImage" content="theme/favicon/mstile-144x144.png">
+        <meta name="theme-color" content="#ffffff">        <link rel="stylesheet" href="./theme/css/main.css" />
+        <link href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="電脳手帳 Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+        <h1><a href="./">電脳手帳 </a></h1> <div id="subtitle">計算機環境やコーディング，機械学習まわりの話題を書き留めます</div>        </header><!-- /#banner -->
+        <div id="basecontent">
+    <nav id="nav-above">
+    <div class="top-prev"><a href="pelican-robots.html" >&larr; pelicanにrobots.txtを追加する</a></div>
+    <div class="top-next"><a href="ubuntu-preseed.html" >UbuntuをシリアルコンソールからPreseedで自動インストールする &rarr;</a></div>
+    </nav>
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="./pelican-github-pages.html" rel="bookmark"
+           title="Permalink to ブログをgithub pagesに移行した">ブログをgithub pagesに移行した</a></h1>
+    </header>
+    <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/05/11 19:15</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/05/28 09:21</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/software.html">Software</a>
+        <span class="article_category_separator"> &raquo; </span>
+        <a class=article_subcategory_name href="./subcategory/software/blog.html">Blog</a>
+<span>| tags: <a href="./tag/blog.html" class="tag">blog</a><a href="./tag/pelican.html" class="tag">Pelican</a><a href="./tag/git.html" class="tag">git</a></span>
+
+</footer><!-- /.post-info --><div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>      <!-- tags: bash, bash, screen, cygwin, bash, zsh, cygwin, Firefox, keyboard, math, PC自宅, pelican, Pelican, percol, python, python, reStructuredText, Vimperator, thinkpad, ThinkPad, thinkpadhelix, TODO, Vim, Vimperator, yoga_tablet2, zsh -->
+<!-- category: blog, PC, Software, Software/Blog, Software/CUI -->
+<p>このブログはpython製の静的ブログエンジン <tt class="docutils literal">pelican</tt> でhtmlを作成している。
+今までは自宅サーバのapache2でサイトを公開していたが，このたびgithub pagesでホスティングする
+ようにした。その手順をメモする。</p>
+<p>背景は以下の通り。</p>
+<ul class="simple">
+<li>自宅サーバ廃止にむけて，Webサイトを外部サービスへ移行したい<ul>
+<li>Wordpressの動的サイトもある</li>
+<li>まずはpelicanのブログだけ移行する</li>
+</ul>
+</li>
+<li>github pages使ってみたい<ul>
+<li>もともとpelicanのテーマやconfファイルはgitで管理してた</li>
+<li>htmlのデプロイ先もgitにしたい</li>
+<li>でもreSTファイルは非公開にしたい</li>
+</ul>
+</li>
+</ul>
+
+<div class="section" id="github-pageshtml">
+<h2>github pagesにhtmlを置く</h2>
+<p>github pagesは使いたい。でもhtmlの生成元になるreSTファイルは公開したくない。
+以下の特徴を鑑み，masterブランチはBitbuketに，gh-pagesブランチはGithubにpushすることにした。</p>
+<ul class="simple">
+<li>Github<ul>
+<li>プライベードリポジトリは有料</li>
+<li>Github Pagesはリポジトリごとに作れる</li>
+</ul>
+</li>
+<li>Bitbuket<ul>
+<li>プライベードリポジトリは無料</li>
+<li>Bitbucket Pagesは1ユーザに1つしか作れない</li>
+</ul>
+</li>
+</ul>
+<div class="section" id="gh-pagesgithub-masterbitbuket">
+<h3>gh-pagesブランチはGithub，masterブランチはBitbuketに</h3>
+<p>まず，リモートリポジトリを追加</p>
+<div class="highlight"><pre><span></span>$ git remote add origin git@bitbucket.org:user/project.git
+$ git remote add github git@github.com:user/project.git
+</pre></div>
+<p>これでmasterブランチをoriginへpushするときはBitbucketにuploadされる。</p>
+<div class="highlight"><pre><span></span>$ git add -A
+$ git commit -m <span class="s1">&#39;hoge&#39;</span>
+$ git push origin master
+</pre></div>
+<p>gh-pagesブランチへpushすれば，githubへアップロードされる。
+pelicanの生成したHTMLだけpushしたいということもあるし，ブランチの切り替えがめんどくさい。
+そこで，gh-pagesブランチへのpushはPelicanの <tt class="docutils literal">Makefile</tt> に以下のターゲットを作成しておこなう。</p>
+<div class="highlight"><pre><span></span><span class="nf">github</span><span class="o">:</span> <span class="n">publish</span>
+    ghp-import -m <span class="s2">&quot;Generate Pelican site&quot;</span> -b <span class="k">$(</span>GITHUB_PAGES_BRANCH<span class="k">)</span> <span class="k">$(</span>OUTPUTDIR<span class="k">)</span>
+    git push -f github <span class="k">$(</span>GITHUB_PAGES_BRANCH<span class="k">)</span>
+</pre></div>
+<div class="highlight"><pre><span></span>$ make github
+</pre></div>
+<p>どうせgh-pagesをpullすることはないので <tt class="docutils literal">Makefile</tt> では <tt class="docutils literal">git push <span class="pre">-f</span></tt> として強制上書きする。
+むしろ <tt class="docutils literal">git push <span class="pre">-f</span></tt> にしておかないと内容の不一致によりエラーになる。</p>
+<div class="highlight"><pre><span></span>git push github gh-pages
+To git@github.com:user/project.git
+ ! <span class="o">[</span>rejected<span class="o">]</span>        gh-pages -&gt; gh-pages <span class="o">(</span>fetch first<span class="o">)</span>
+error: failed to push some refs to <span class="s1">&#39;git@github.com:user/project.git&#39;</span>
+hint: Updates were rejected because the remote contains work that you <span class="k">do</span>
+hint: not have locally. This is usually caused by another repository pushing
+hint: to the same ref. You may want to first integrate the remote changes
+hint: <span class="o">(</span>e.g., <span class="s1">&#39;git pull ...&#39;</span><span class="o">)</span> before pushing again.
+hint: See the <span class="s1">&#39;Note about fast-forwards&#39;</span> in <span class="s1">&#39;git push --help&#39;</span> <span class="k">for</span> details.
+Makefile:154: ターゲット <span class="s1">&#39;github&#39;</span> のレシピで失敗しました
+make: *** <span class="o">[</span>github<span class="o">]</span> エラー <span class="m">1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="url">
+<h2>URLを独自ドメインサイトの一部にする</h2>
+<p>Github pagesのURL <tt class="docutils literal"><span class="pre">http://user.github.io/project</span></tt> に
+独自ドメインのURL <tt class="docutils literal"><span class="pre">http://caucrio.com/blog</span></tt> でアクセスできるようにする。</p>
+<p>apacheのProxyPass設定を利用する。httpd.confに</p>
+<div class="highlight"><pre><span></span>ProxyPass /blog https://user.github.io/project
+</pre></div>
+<p>とすれば良い。なお，</p>
+<div class="highlight"><pre><span></span>ProxyPass /blog/ https://user.github.io/project/
+</pre></div>
+<p>では <tt class="docutils literal"><span class="pre">http://calcurio.com/blog</span></tt> にアクセスするとローカルのファイル <tt class="docutils literal">&lt;document <span class="pre">root&gt;/blog</span></tt> が返されることになる。よろしくない。</p>
+<div class="section" id="relative-url-true">
+<h3>RELATIVE_URL = True でリンクの相対指定</h3>
+<p><tt class="docutils literal"><span class="pre">http://user.github.io/project</span></tt> と <tt class="docutils literal"><span class="pre">http://calcurio.com/blog</span></tt> に同時に
+アクセスできるようにするには，pelicanの生成するhtmlは相対ディレクトリで
+リンクが記述されていなくてはならない。 <tt class="docutils literal">pelicanconf.py</tt> あるいは
+<tt class="docutils literal">publishconf.py</tt> に以下を設定する。</p>
+<div class="highlight"><pre><span></span><span class="nv">RELATIVE_URL</span> <span class="o">=</span> True
+</pre></div>
+</div>
+<div class="section" id="rel-canonical-url">
+<h3>rel=&quot;canonical&quot; でカノニカルなURLを設定する</h3>
+<p>このままでは，2つのURLで同じ内容のWebサイトが存在することになる。
+SEO的に良くないので, rel=&quot;canonical&quot;要素でGoogleにどちらかをcanonicalなURLとして通知する。</p>
+<p><tt class="docutils literal">pelicanconf.py</tt> に</p>
+<div class="highlight"><pre><span></span><span class="n">CANONICALURL</span> <span class="o">=</span> <span class="s1">&#39;http://calcurio.com&#39;</span>
+</pre></div>
+<p>としてから，Pelicanのthemeファイルに以下の行を挿入する。
+ただし，以下の指定では， <tt class="docutils literal">tags2.html</tt> のcanonicalなURLは <tt class="docutils literal">tags.html</tt> になることに注意。</p>
+<div class="highlight"><pre><span></span>base.html:         <span class="p">&lt;</span><span class="nt">link</span> <span class="na">rel</span><span class="o">=</span><span class="s">&quot;canonical&quot;</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;{% block canonicalurl %}{{ CANONICALURL }}{%endblock%}&quot;</span> <span class="p">/&gt;</span>
+</pre></div>
+<div class="highlight"><pre><span></span>$ grep canonical *.html
+
+archives.html:     {% block canonicalurl %}{{ CANONICALURL }}/archives.html{%endblock%}
+article.html:      {% block canonicalurl %}{{ CANONICALURL }}/{{ article.url}}{%endblock%}
+author.html:       {% block canonicalurl %}{{ CANONICALURL }}/{{ author.url }}{%endblock%}
+authors.html:      {% block canonicalurl %}{{ CANONICALURL }}/authors.html{%endblock%}
+categories.html:   {% block canonicalurl %}{{ CANONICALURL }}/categories.html{%endblock%}
+category.html:     {% block canonicalurl %}{{ CANONICALURL }}/{{ category.url }}{%endblock%}
+index.html:        {% block canonicalurl %}{{ CANONICALURL }}{%endblock%}
+page.html:         {% block canonicalurl %}{{ CANONICALURL }}/{{ page.url }}{%endblock%}
+subcategory.html:  {% block canonicalurl %}{{ CANONICALURL }}/{{ subcategory.url }}{%endblock%}
+tag.html:          {% block canonicalurl %}{{ CANONICALURL }}/{{ tag.url }}{%endblock%}
+tags.html:         {% block canonicalurl %}{{ CANONICALURL }}/tags.html{%endblock%}
+</pre></div>
+</div>
+</div>
+
+    </div><!-- /.entry-content -->
+<div class="gad">
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* レクタングル大 */
+    google_ad_slot = "2582152705";
+    google_ad_width = 336;
+    google_ad_height = 280;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* テキスト:大 */
+    google_ad_slot = "8524391909";
+    google_ad_width = 728;
+    google_ad_height = 15;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+</div>    <h2 class="related-posts">関連する記事</h2>
+        <ul>
+            <li><a href="./pelican-robots.html">pelicanにrobots.txtを追加する</a></li>
+            <li><a href="./gist-embed-code.html">Githubで管理されているコードをブログへ埋め込む</a></li>
+            <li><a href="./letsencrypt.html">let's encryptでNginxを常時HTTPS接続にする</a></li>
+            <li><a href="./using-mathjax-md.html">render_mathのMarkdownにおけるレンダリング結果</a></li>
+            <li><a href="./pelican_multisite.html">Pelicanで複数のサイトを生成・管理する</a></li>
+            <li><a href="./qfixhowm-pelican.html">QFixHowmでPelicanのブログ記事を書く</a></li>
+            <li><a href="./using-mathjax.html">PelicanでMathJaxを使って数式を表示する</a></li>
+            <li><a href="./github-pages-subdomain.html">Github Pagesを独自のサブドメインで公開する</a></li>
+            <li><a href="./pelican_make.html">PelicanのMakefileを書き換えて便利機能を追加する</a></li>
+            <li><a href="./pelican-vim.html">Pelicanの記事をVimで楽々編集する</a></li>
+        </ul>
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_config = function () {
+            var disqus_identifier = "pelican-github-pages.html";
+            var disqus_url = "./pelican-github-pages.html";
+        };
+        var disqus_shortname = 'calcurio';
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+    </div>
+  </article>
+    <nav id="nav-bottom">
+    <div class="top-prev"><a href="pelican-robots.html" >&larr; pelicanにrobots.txtを追加する</a></div>
+    <div class="top-next"><a href="ubuntu-preseed.html" >UbuntuをシリアルコンソールからPreseedで自動インストールする &rarr;</a></div>
+    </nav>
+</section>
+<div id="sidebar">
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* スクエア */
+        google_ad_slot = "7175743105";
+        google_ad_width = 200;
+        google_ad_height = 200;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">検索</h3>      <form action="https://www.google.co.jp/search" target="_blank" class="google-search">
+          <input type="hidden" name="q" value="site:http://blog.calcurio.com">
+        <input type="text" name="q">
+      </form>
+    </div>
+    <div class="sidebar_child">
+        Author: M. Tsuyuki
+<p><a href="/pages/about.html">詳しく</a></p>    </div>
+    <div class="sidebar_child">
+        <h3 class="sidebar_title"></h3>
+<h3 class="sidebar_title">カテゴリ</h3>        <ul>            <li><a href="./category/hardware.html">Hardware</a> (11)</li>
+            <li><a href="./category/lun wen.html">論文</a> (2)</li>
+            <li><a href="./category/software.html">Software</a> (79)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">タグ</h3>        <ul>            <li><a href="./tag/aws.html" class="tag">AWS</a> (3)</li>
+            <li><a href="./tag/bash.html" class="tag">bash</a> (6)</li>
+            <li><a href="./tag/blog.html" class="tag">Blog</a> (4)</li>
+            <li><a href="./tag/bot.html" class="tag">bot</a> (1)</li>
+            <li><a href="./tag/cli.html" class="tag">CLI</a> (4)</li>
+            <li><a href="./tag/cui.html" class="tag">CUI</a> (18)</li>
+            <li><a href="./tag/cygwin.html" class="tag">Cygwin</a> (17)</li>
+            <li><a href="./tag/docker.html" class="tag">Docker</a> (11)</li>
+            <li><a href="./tag/dvc.html" class="tag">dvc</a> (1)</li>
+            <li><a href="./tag/ec2.html" class="tag">EC2</a> (2)</li>
+            <li><a href="./tag/firefox.html" class="tag">Firefox</a> (4)</li>
+            <li><a href="./tag/fluentd.html" class="tag">fluentd</a> (1)</li>
+            <li><a href="./tag/git.html" class="tag">Git</a> (3)</li>
+            <li><a href="./tag/github.html" class="tag">Github</a> (1)</li>
+            <li><a href="./tag/hardware.html" class="tag">Hardware</a> (1)</li>
+            <li><a href="./tag/html.html" class="tag">HTML</a> (1)</li>
+            <li><a href="./tag/ji jie xue xi.html" class="tag">機械学習</a> (6)</li>
+            <li><a href="./tag/jia xiang hua.html" class="tag">仮想化</a> (3)</li>
+            <li><a href="./tag/jupyter.html" class="tag">Jupyter</a> (1)</li>
+            <li><a href="./tag/keyboard.html" class="tag">keyboard</a> (1)</li>
+            <li><a href="./tag/linux.html" class="tag">Linux</a> (21)</li>
+            <li><a href="./tag/makefile.html" class="tag">Makefile</a> (1)</li>
+            <li><a href="./tag/math.html" class="tag">math</a> (2)</li>
+            <li><a href="./tag/networking.html" class="tag">Networking</a> (4)</li>
+            <li><a href="./tag/openstack.html" class="tag">OpenStack</a> (2)</li>
+            <li><a href="./tag/pczi zuo.html" class="tag">PC自作</a> (4)</li>
+            <li><a href="./tag/pelican.html" class="tag">Pelican</a> (9)</li>
+            <li><a href="./tag/percol.html" class="tag">percol</a> (2)</li>
+            <li><a href="./tag/preseed.html" class="tag">Preseed</a> (1)</li>
+            <li><a href="./tag/python.html" class="tag">Python</a> (12)</li>
+            <li><a href="./tag/rally.html" class="tag">Rally</a> (1)</li>
+            <li><a href="./tag/raspi.html" class="tag">RasPi</a> (1)</li>
+            <li><a href="./tag/restructuredtext.html" class="tag">reStructuredText</a> (1)</li>
+            <li><a href="./tag/screen.html" class="tag">screen</a> (2)</li>
+            <li><a href="./tag/tesuto.html" class="tag">テスト</a> (1)</li>
+            <li><a href="./tag/thinkpad.html" class="tag">ThinkPad</a> (4)</li>
+            <li><a href="./tag/thinkpad helix.html" class="tag">ThinkPad Helix</a> (2)</li>
+            <li><a href="./tag/tmux.html" class="tag">Tmux</a> (1)</li>
+            <li><a href="./tag/ubuntu.html" class="tag">Ubuntu</a> (27)</li>
+            <li><a href="./tag/vagrant.html" class="tag">vagrant</a> (2)</li>
+            <li><a href="./tag/vim.html" class="tag">Vim</a> (5)</li>
+            <li><a href="./tag/vimperator.html" class="tag">Vimperator</a> (3)</li>
+            <li><a href="./tag/virtualbox.html" class="tag">Virtualbox</a> (1)</li>
+            <li><a href="./tag/windows.html" class="tag">Windows</a> (6)</li>
+            <li><a href="./tag/yoga_tablet2.html" class="tag">yoga_tablet2</a> (1)</li>
+            <li><a href="./tag/zabbix.html" class="tag">zabbix</a> (1)</li>
+            <li><a href="./tag/ziyobusukeziyura.html" class="tag">ジョブスケジューラ</a> (1)</li>
+            <li><a href="./tag/zsh.html" class="tag">zsh</a> (7)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* リンクユニット */
+        google_ad_slot = "1129209509";
+        google_ad_width = 200;
+        google_ad_height = 90;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">最近の投稿</h3>        <ul id="recent-article">
+        <li>
+            <a href="update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a>
+            2020/07/25
+        </li>
+        <li>
+            <a href="vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a>
+            2020/07/24
+        </li>
+        <li>
+            <a href="raspi-wifi.html">Raspberry Pi3 Bで802.11ACな安物無線LANアダプタを使う</a>
+            2019/05/01
+        </li>
+        <li>
+            <a href="PALM_Machine_Learning_Explanations_for_Iterative_Debugging.html">PALM_Machine_Learning_Explanations_for_Iterative_Debugging</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="A_Survey_of_Methods_For_Explaining_Bloack_Box_Models.html">A Survey of Methods For Explaining Bloack Box Modelsを読んだ</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a>
+            2018/04/08
+        </li>
+        <li>
+            <a href="dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a>
+            2018/04/07
+        </li>
+        <li>
+            <a href="transparent-proxy-by-squid.html">Docker buildを高速化するためにsquidで透過型プロキシを立ててみた</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="detect-apt-cacher-in-dockerfile.html">Dockerfile内部でapt-cacher-ngを自動検出する</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="slurm.html">slurmをインストール...したい</a>
+            2017/08/16
+        </li>
+        <li>
+            <a href="install-nvenc-on-ubunu.html">UbuntuにNVENCをインストールしてエンコードしてみる</a>
+            2017/06/26
+        </li>
+        <li>
+            <a href="install_dropbox_for_linux.html">UbuntuにLinux用Dropboxをインストールする</a>
+            2017/06/25
+        </li>
+        <li>
+            <a href="ssh-tunneling-for-samba.html">SSHトンネル経由でWindowsからリモートのSambaサーバへ接続する方法</a>
+            2017/06/19
+        </li>
+        <li>
+            <a href="h270-unixbench.html">Core i7-7700な自作PCを作ったのでUnixBenchを取ってみた</a>
+            2017/06/18
+        </li>
+        <li>
+            <a href="enable-wake-on-lan.html">Ubuntuでwake-on-lanを有効化する</a>
+            2017/06/16
+        </li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+    <h3 class="sidebar_title">関連する記事</h3>
+        <ul id="sidebar_related_article">
+            <li><a href="./pelican-robots.html">pelicanにrobots.txtを追加する</a></li>
+            <li><a href="./gist-embed-code.html">Githubで管理されているコードをブログへ埋め込む</a></li>
+            <li><a href="./letsencrypt.html">let's encryptでNginxを常時HTTPS接続にする</a></li>
+            <li><a href="./using-mathjax-md.html">render_mathのMarkdownにおけるレンダリング結果</a></li>
+            <li><a href="./pelican_multisite.html">Pelicanで複数のサイトを生成・管理する</a></li>
+            <li><a href="./qfixhowm-pelican.html">QFixHowmでPelicanのブログ記事を書く</a></li>
+            <li><a href="./using-mathjax.html">PelicanでMathJaxを使って数式を表示する</a></li>
+            <li><a href="./github-pages-subdomain.html">Github Pagesを独自のサブドメインで公開する</a></li>
+            <li><a href="./pelican_make.html">PelicanのMakefileを書き換えて便利機能を追加する</a></li>
+            <li><a href="./pelican-vim.html">Pelicanの記事をVimで楽々編集する</a></li>
+        </ul>
+    </div>
+</div>        </div>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme baseed on <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>.</p>
+        </footer><!-- /#contentinfo -->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+   ga('create', 'UA-42775386-2', 'auto');
+    ga('send', 'pageview');
+</script>
+</body>
+</html>

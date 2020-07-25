@@ -1,0 +1,5 @@
+User-agent: *
+Disallow:
+
+Sitemap: http://blog.calcurio.com/sitemap.xml
+

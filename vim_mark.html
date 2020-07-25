@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+        <link rel="canonical" href="http://blog.calcurio.com/vim_mark.html" />
+        <meta charset="utf-8" />
+        <title>vimのmark機能を使いやすくする | 電脳手帳</title>
+        <link rel="apple-touch-icon" sizes="57x57" href="theme/favicon/apple-touch-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="theme/favicon/apple-touch-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="theme/favicon/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="theme/favicon/apple-touch-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="theme/favicon/apple-touch-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="theme/favicon/apple-touch-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="theme/favicon/apple-touch-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="theme/favicon/apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="theme/favicon/apple-touch-icon-180x180.png">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="theme/favicon/android-chrome-192x192.png" sizes="192x192">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-96x96.png" sizes="96x96">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="theme/favicon/manifest.json">
+        <meta name="msapplication-TileColor" content="#000000">
+        <meta name="msapplication-TileImage" content="theme/favicon/mstile-144x144.png">
+        <meta name="theme-color" content="#ffffff">        <link rel="stylesheet" href="./theme/css/main.css" />
+        <link href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="電脳手帳 Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+        <h1><a href="./">電脳手帳 </a></h1> <div id="subtitle">計算機環境やコーディング，機械学習まわりの話題を書き留めます</div>        </header><!-- /#banner -->
+        <div id="basecontent">
+    <nav id="nav-above">
+    <div class="top-prev"><a href="pelican_make.html" >&larr; PelicanのMakefileを書き換えて便利機能を追加する</a></div>
+    <div class="top-next"><a href="rst_link.html" >reStructuredTextで同じ名前で複数のリンクを張る &rarr;</a></div>
+    </nav>
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="./vim_mark.html" rel="bookmark"
+           title="Permalink to vimのmark機能を使いやすくする">vimのmark機能を使いやすくする</a></h1>
+    </header>
+    <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2015/02/14 18:10</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2015/02/14 21:02</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/software.html">Software</a>
+<span>| tags: <a href="./tag/vim.html" class="tag">Vim</a></span>
+
+</footer><!-- /.post-info --><div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>      <!-- tags: Firefox, keyboard, math, pelican, Pelican, percol, python, python, reStructuredText, TODO, Vim, yoga_tablet2, zsh -->
+<!-- category: blog, PC, Software, Software/Blog -->
+<p>vimのマークってあんまり活用してなかったなぁ。ということで使いやすいように <tt class="docutils literal">.vimrc</tt> を改造したのでメモ。今回は</p>
+<ul class="simple">
+<li>showmarksプラグインでマークを可視化</li>
+<li>マークするアルファベットを自動的に決める</li>
+<li>マークを一覧表示する</li>
+<li>次のマーク，前のマークに移動する</li>
+<li>マークを一括削除する</li>
+</ul>
+<p>ことが楽にできるようになった。さて，お膳立てはしたので後は習慣になるかどうか。</p>
+
+<div class="section" id="vim-showmarks">
+<h2>プラグインvim-showmarksの導入</h2>
+<p>マークがなんで使いづらいかって，どこに何をマークしたのかいちいち覚えていられないから。そこでわかりやすいように常にマーク位置と記号を表示してくれるプラグイン <tt class="docutils literal"><span class="pre">vim-showmarks</span></tt> を導入した。</p>
+<p>ちなみに，vimには <a class="reference external" href="http://www.vim.org/scripts/script.php?script_id=152">ShowMarks</a> と <a class="reference external" href="http://www.vim.org/scripts/script.php?script_id=2142">showmarks</a> の2つのプラグインがあって非常に紛らわしい。今回導入したのは全部小文字でマイナーな <a class="reference external" href="http://www.vim.org/scripts/script.php?script_id=2142">showmarks</a> の方。 <a class="reference external" href="http://www.vim.org/scripts/script.php?script_id=152">ShowMarks</a> では他のプラグインとの相性のせいか，マークの位置を正しく認識できなかった 。</p>
+<ol class="arabic simple">
+<li><a class="reference external" href="http://www.vim.org/scripts/script.php?script_id=152">ShowMarks - Visually shows the location of marks. : vim online</a> : いろんなところで解説されてる有名なやつ</li>
+<li><a class="reference external" href="http://www.vim.org/scripts/script.php?script_id=2142">showmarks - Display marks as signs (needs +sign feat ) : vim online</a>  : 今回扱う超マイナーなやつ</li>
+</ol>
+<p>インストールは例によってNeoBundleを使う。</p>
+<div class="highlight"><pre><span></span>Neobundle <span class="s1">&#39;jacquesbh/vim-showmarks&#39;</span>
+</pre></div>
+<p>使えるようになるEXコマンドは次のとおり。マークの変更はCursorholdイベント発生時に反映されるようだ。 <tt class="docutils literal">updatetime</tt> は短めに設定しておこう。</p>
+<dl class="docutils">
+<dt>:DoShowMarks</dt>
+<dd>現在のバッファでマークを表示する</dd>
+<dt>:DoShowMarks!</dt>
+<dd>全てのバッファでマークを表示する</dd>
+<dt>:NoShowMarks</dt>
+<dd>現在のバッファでマークを表示しない</dd>
+<dt>:NoShowMarks!</dt>
+<dd>全てのバッファでマークを表示しない</dd>
+<dt>:[count]ShowMarksOnce</dt>
+<dd>[count]回のCursorholdイベントの間だけマークを表示する。(Cursorholdはautocomdのイベント。例えば， set updatetime=5000 でCursorholdは5000ミリ秒おきに発生するようになる)</dd>
+<dt>:[count]PreviewMarks</dt>
+<dd>[count]回のCursorholdイベントの間だけ，画面上部に:marks のように別ウィンドウで一覧表示する。</dd>
+</dl>
+<p>デフォルトでは起動時にマークを表示しないので，.vimrcにautocmdを書いて対応する。</p>
+<div class="highlight"><pre><span></span><span class="c">&quot; 起動時にマーク表示</span>
+aug show<span class="p">-</span><span class="k">marks</span><span class="p">-</span><span class="k">sync</span>
+        <span class="k">au</span><span class="p">!</span>
+        <span class="k">au</span> <span class="nb">BufReadPost</span> * <span class="k">sil</span><span class="p">!</span> DoShowMarks
+aug END
+</pre></div>
+<p>また， <tt class="docutils literal">let g:showmarks_marks = &quot;abcdef&quot;</tt> で表示されるマークを限定できる。ココらへんは <a class="reference external" href="http://www.vim.org/scripts/script.php?script_id=152">ShowMarks</a> と一緒かな。</p>
+</div>
+<div class="section" id="id1">
+<h2>自動的にマークする文字を決定する関数をつくる</h2>
+<p><a class="reference external" href="http://saihoooooooo.hatenablog.com/entry/2013/04/30/001908">vimのマーク機能をできるだけ活用してみる - Make 鮫 noise</a> では， <tt class="docutils literal">a~z</tt> のマークを順番に使ってくれる関数 <tt class="docutils literal">AutoMarkrement()</tt> を制作してくれている。これは便利なのでそのまま使わせていただくことにする。ただし，マッピングだけは <tt class="docutils literal">nnoremap <span class="pre">&lt;silent&gt;[Mark]m</span> <span class="pre">:&lt;C-u&gt;call</span> <span class="pre">&lt;SID&gt;AutoMarkrement()&lt;CR&gt;:DoShowMarks&lt;CR&gt;</span></tt> として， <tt class="docutils literal"><span class="pre">vim-showmarks</span></tt> を呼び出して瞬時に反映させるようにした。</p>
+<p>これにより， <tt class="docutils literal">mm</tt> のキー入力で自動的にマークできるようになった。</p>
+<div class="highlight"><pre><span></span><span class="c">&quot;----------------------------------------------</span>
+<span class="c">&quot; vimのマーク機能をできるだけ活用してみる - Make 鮫 noise</span>
+<span class="c">&quot; http://saihoooooooo.hatenablog.com/entry/2013/04/30/001908</span>
+<span class="c">&quot; mを押すことで現在位置に対して自動的にアルファベットを割り振る</span>
+<span class="c">&quot;----------------------------------------------</span>
+<span class="c">&quot; マーク設定 : {{{</span>
+<span class="c">&quot; 基本マップ</span>
+<span class="nb">nnoremap</span> [Mark] <span class="p">&lt;</span>Nop<span class="p">&gt;</span>
+nmap <span class="k">m</span> [Mark]
+<span class="c">&quot; 現在位置をマーク</span>
+<span class="k">if</span> <span class="p">!</span>exists<span class="p">(</span><span class="s1">&#39;g:markrement_char&#39;</span><span class="p">)</span>
+    <span class="k">let</span> <span class="k">g</span>:markrement_char <span class="p">=</span> [
+    \     <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="s1">&#39;j&#39;</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="s1">&#39;l&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
+    \     <span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span>
+    \ ]
+<span class="k">endif</span>
+<span class="nb">nnoremap</span> <span class="p">&lt;</span><span class="k">silent</span><span class="p">&gt;</span>[Mark]<span class="k">m</span> :<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="k">function</span><span class="p">!</span> s:AutoMarkrement<span class="p">()</span>
+    <span class="k">if</span> <span class="p">!</span>exists<span class="p">(</span><span class="s1">&#39;b:markrement_pos&#39;</span><span class="p">)</span>
+        <span class="k">let</span> <span class="k">b</span>:markrement_pos <span class="p">=</span> <span class="m">0</span>
+    <span class="k">else</span>
+        <span class="k">let</span> <span class="k">b</span>:markrement_pos <span class="p">=</span> <span class="p">(</span><span class="k">b</span>:markrement_pos <span class="p">+</span> <span class="m">1</span><span class="p">)</span> % len<span class="p">(</span><span class="k">g</span>:markrement_char<span class="p">)</span>
+    <span class="k">endif</span>
+    execute <span class="s1">&#39;mark&#39;</span> <span class="k">g</span>:markrement_char[<span class="k">b</span>:markrement_pos]
+    echo <span class="s1">&#39;marked&#39;</span> <span class="k">g</span>:markrement_char[<span class="k">b</span>:markrement_pos]
+<span class="k">endfunction</span>
+</pre></div>
+<p>これだけではアレなので便利そうな機能を幾つか追加してみる。<tt class="docutils literal">AutoMarkrement()</tt> は愚直にaから順番にマークしていくだけ。以下で定義する <tt class="docutils literal">:SetNextMarkChar</tt> を使えば， <tt class="docutils literal">:SetNextMarkChar s</tt> で次にセットするアルファベットをsに変更できる。</p>
+<div class="highlight"><pre><span></span><span class="c">&quot; 次にマークする文字を設定するExコマンドを定義</span>
+command<span class="p">!</span> <span class="p">-</span>nargs<span class="p">=</span>? SetNextMarkChar <span class="k">call</span> s:set_next_mark_char<span class="p">(&lt;</span><span class="k">f</span><span class="p">-</span>args<span class="p">&gt;)</span>
+<span class="k">function</span><span class="p">!</span> s:set_next_mark_char<span class="p">(</span>...<span class="p">)</span>
+  <span class="k">if</span> <span class="k">a</span>:<span class="m">0</span> <span class="p">&gt;=</span> <span class="m">1</span>
+    <span class="k">let</span> <span class="k">b</span>:markrement_pos<span class="p">=</span>index<span class="p">(</span><span class="k">g</span>:markrement_char<span class="p">,</span><span class="k">a</span>:<span class="m">1</span><span class="p">)</span><span class="m">-1</span>
+  <span class="k">else</span>
+    echo <span class="s2">&quot;Next:&quot;</span>.<span class="k">g</span>:markrement_char[<span class="k">b</span>:markrement_pos<span class="p">+</span><span class="m">1</span>]
+  <span class="k">end</span>
+<span class="k">endfunction</span>
+</pre></div>
+<p>毎回 <tt class="docutils literal">:SetNextMarkChar</tt> と入力するのも面倒なので，キーマッピングで対処する。ここらへんベタ書きじゃなくてなんとかスマートな感じにできると嬉しいのだが...</p>
+<div class="highlight"><pre><span></span><span class="c">&quot; 次にマークする文字を設定する</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sa</span> :SetNextMarkChar <span class="k">a</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sb</span> :SetNextMarkChar <span class="k">b</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">sc</span> :SetNextMarkChar <span class="k">c</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]sd :SetNextMarkChar <span class="k">d</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">se</span> :SetNextMarkChar <span class="k">e</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sf</span> :SetNextMarkChar <span class="k">f</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]sg :SetNextMarkChar <span class="k">g</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sh</span> :SetNextMarkChar <span class="k">h</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">si</span> :SetNextMarkChar <span class="k">i</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">sj</span> :SetNextMarkChar <span class="k">j</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]sk :SetNextMarkChar <span class="k">k</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sl</span> :SetNextMarkChar <span class="k">l</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sm</span> :SetNextMarkChar <span class="k">m</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sn</span> :SetNextMarkChar <span class="k">n</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">so</span> :SetNextMarkChar <span class="k">o</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sp</span> :SetNextMarkChar <span class="k">p</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]sq :SetNextMarkChar <span class="k">q</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">sr</span> :SetNextMarkChar <span class="k">r</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">ss</span> :SetNextMarkChar s<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">st</span> :SetNextMarkChar <span class="k">t</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">su</span> :SetNextMarkChar <span class="k">u</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sv</span> :SetNextMarkChar <span class="k">v</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sw</span> :SetNextMarkChar <span class="k">w</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]sx :SetNextMarkChar <span class="k">x</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sy</span> :SetNextMarkChar <span class="k">y</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]sz :SetNextMarkChar z<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+</pre></div>
+<p>同様に， <tt class="docutils literal">AutoMarkrement()</tt> を通して任意のアルファベットでマークしつつ <tt class="docutils literal"><span class="pre">vim-showmarks</span></tt> に反映させるショートカットキーを定義する。これで素のvimで <tt class="docutils literal">ma</tt> の動作は <tt class="docutils literal">mfa</tt> で再現できるようになった。</p>
+<div class="highlight"><pre><span></span><span class="c">&quot; 次にマークする文字を設定して，同時にマークする</span>
+<span class="nb">nnoremap</span> [Mark]fa :SetNextMarkChar <span class="k">a</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fb :SetNextMarkChar <span class="k">b</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fc :SetNextMarkChar <span class="k">c</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fd :SetNextMarkChar <span class="k">d</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fe :SetNextMarkChar <span class="k">e</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">ff</span> :SetNextMarkChar <span class="k">f</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fg :SetNextMarkChar <span class="k">g</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fh :SetNextMarkChar <span class="k">h</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">fi</span> :SetNextMarkChar <span class="k">i</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fj :SetNextMarkChar <span class="k">j</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">fk</span> :SetNextMarkChar <span class="k">k</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fl :SetNextMarkChar <span class="k">l</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fm :SetNextMarkChar <span class="k">m</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fn :SetNextMarkChar <span class="k">n</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">fo</span> :SetNextMarkChar <span class="k">o</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">fp</span> :SetNextMarkChar <span class="k">p</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fq :SetNextMarkChar <span class="k">q</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fr :SetNextMarkChar <span class="k">r</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">fs</span> :SetNextMarkChar s<span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">ft</span> :SetNextMarkChar <span class="k">t</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">fu</span> :SetNextMarkChar <span class="k">u</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fv :SetNextMarkChar <span class="k">v</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fw :SetNextMarkChar <span class="k">w</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fx :SetNextMarkChar <span class="k">x</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fy :SetNextMarkChar <span class="k">y</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fz :SetNextMarkChar z<span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+</pre></div>
+<p>マークを操作するプレフィックスは <tt class="docutils literal">m</tt> と決めたので，マーク間の移動も <tt class="docutils literal">m</tt> を使うことにしよう。</p>
+<div class="highlight"><pre><span></span><span class="c">&quot; 次/前のマーク</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">n</span> ]`
+<span class="nb">nnoremap</span> [Mark]<span class="k">p</span> [`
+</pre></div>
+<p>一覧表示ももちろん <tt class="docutils literal">m</tt> から呼び出す。</p>
+<div class="highlight"><pre><span></span><span class="c">&quot; vim-showmarksでマークを一覧表示</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">l</span> :<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span>Previewmarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+</pre></div>
+<p>こちらは <a class="reference external" href="http://syui.github.io/blog/2014/12/10/vim/">Vimのマークについて - MBA-HACK2</a> からいただいてきたマッピング。マークをすべて削除して vim-showmarks に反映させる。</p>
+<div class="highlight"><pre><span></span><span class="c">&quot; マークの全削除を行うコマンドを設定する</span>
+<span class="k">com</span><span class="p">!</span> <span class="p">-</span>bar MarksDelete <span class="k">sil</span> :<span class="k">delm</span><span class="p">!</span> <span class="p">|</span> :<span class="k">delm</span> <span class="m">0-9</span>A<span class="p">-</span>Z <span class="p">|</span> :<span class="k">wv</span><span class="p">!</span> <span class="p">|</span> :DoShowMarks
+nn <span class="p">&lt;</span><span class="k">silent</span><span class="p">&gt;</span>[Mark]<span class="k">d</span> :MarksDelete<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="c">&quot; }}}</span>
+</pre></div>
+</div>
+<div class="section" id="id2">
+<h2>まとめ</h2>
+<p>今回の改造をまとめとくと以下のようになる。</p>
+<div class="highlight"><pre><span></span><span class="c">&quot;==============================================</span>
+<span class="c">&quot; マーク周りの改善</span>
+<span class="c">&quot;==============================================</span>
+<span class="c">&quot;----------------------------------------------</span>
+<span class="c">&quot; jacquesbh/vim-showmarks</span>
+<span class="c">&quot;----------------------------------------------</span>
+Neobundle <span class="s1">&#39;jacquesbh/vim-showmarks&#39;</span>
+<span class="c">&quot; 最初からマークを表示する</span>
+aug show<span class="p">-</span><span class="k">marks</span><span class="p">-</span><span class="k">sync</span>
+        <span class="k">au</span><span class="p">!</span>
+        <span class="k">au</span> <span class="nb">BufReadPost</span> * <span class="k">sil</span><span class="p">!</span> DoShowMarks
+aug END
+<span class="c">&quot;----------------------------------------------</span>
+<span class="c">&quot; vimのマーク機能をできるだけ活用してみる - Make 鮫 noise</span>
+<span class="c">&quot; http://saihoooooooo.hatenablog.com/entry/2013/04/30/001908</span>
+<span class="c">&quot; mを押すことで現在位置に対して自動的にアルファベットを割り振る</span>
+<span class="c">&quot;----------------------------------------------</span>
+<span class="c">&quot; マーク設定 : {{{</span>
+<span class="c">&quot; 基本マップ</span>
+<span class="nb">nnoremap</span> [Mark] <span class="p">&lt;</span>Nop<span class="p">&gt;</span>
+nmap <span class="k">m</span> [Mark]
+<span class="c">&quot; 現在位置をマーク</span>
+<span class="k">if</span> <span class="p">!</span>exists<span class="p">(</span><span class="s1">&#39;g:markrement_char&#39;</span><span class="p">)</span>
+    <span class="k">let</span> <span class="k">g</span>:markrement_char <span class="p">=</span> [
+    \     <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="s1">&#39;j&#39;</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="s1">&#39;l&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
+    \     <span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span>
+    \ ]
+<span class="k">endif</span>
+<span class="nb">nnoremap</span> <span class="p">&lt;</span><span class="k">silent</span><span class="p">&gt;</span>[Mark]<span class="k">m</span> :<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="k">function</span><span class="p">!</span> s:AutoMarkrement<span class="p">()</span>
+    <span class="k">if</span> <span class="p">!</span>exists<span class="p">(</span><span class="s1">&#39;b:markrement_pos&#39;</span><span class="p">)</span>
+        <span class="k">let</span> <span class="k">b</span>:markrement_pos <span class="p">=</span> <span class="m">0</span>
+    <span class="k">else</span>
+        <span class="k">let</span> <span class="k">b</span>:markrement_pos <span class="p">=</span> <span class="p">(</span><span class="k">b</span>:markrement_pos <span class="p">+</span> <span class="m">1</span><span class="p">)</span> % len<span class="p">(</span><span class="k">g</span>:markrement_char<span class="p">)</span>
+    <span class="k">endif</span>
+    execute <span class="s1">&#39;mark&#39;</span> <span class="k">g</span>:markrement_char[<span class="k">b</span>:markrement_pos]
+    echo <span class="s1">&#39;marked&#39;</span> <span class="k">g</span>:markrement_char[<span class="k">b</span>:markrement_pos]
+<span class="k">endfunction</span>
+<span class="c">&quot; 次にマークする文字を設定するExコマンドを定義</span>
+command<span class="p">!</span> <span class="p">-</span>nargs<span class="p">=</span>? SetNextMarkChar <span class="k">call</span> s:set_next_mark_char<span class="p">(&lt;</span><span class="k">f</span><span class="p">-</span>args<span class="p">&gt;)</span>
+<span class="k">function</span><span class="p">!</span> s:set_next_mark_char<span class="p">(</span>...<span class="p">)</span>
+  <span class="k">if</span> <span class="k">a</span>:<span class="m">0</span> <span class="p">&gt;=</span> <span class="m">1</span>
+    <span class="k">let</span> <span class="k">b</span>:markrement_pos<span class="p">=</span>index<span class="p">(</span><span class="k">g</span>:markrement_char<span class="p">,</span><span class="k">a</span>:<span class="m">1</span><span class="p">)</span><span class="m">-1</span>
+  <span class="k">else</span>
+    echo <span class="s2">&quot;Next:&quot;</span>.<span class="k">g</span>:markrement_char[<span class="k">b</span>:markrement_pos<span class="p">+</span><span class="m">1</span>]
+  <span class="k">end</span>
+<span class="k">endfunction</span>
+<span class="c">&quot; 次にマークする文字を設定する</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sa</span> :SetNextMarkChar <span class="k">a</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sb</span> :SetNextMarkChar <span class="k">b</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">sc</span> :SetNextMarkChar <span class="k">c</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]sd :SetNextMarkChar <span class="k">d</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">se</span> :SetNextMarkChar <span class="k">e</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sf</span> :SetNextMarkChar <span class="k">f</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]sg :SetNextMarkChar <span class="k">g</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sh</span> :SetNextMarkChar <span class="k">h</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">si</span> :SetNextMarkChar <span class="k">i</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">sj</span> :SetNextMarkChar <span class="k">j</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]sk :SetNextMarkChar <span class="k">k</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sl</span> :SetNextMarkChar <span class="k">l</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sm</span> :SetNextMarkChar <span class="k">m</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sn</span> :SetNextMarkChar <span class="k">n</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">so</span> :SetNextMarkChar <span class="k">o</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sp</span> :SetNextMarkChar <span class="k">p</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]sq :SetNextMarkChar <span class="k">q</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">sr</span> :SetNextMarkChar <span class="k">r</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">ss</span> :SetNextMarkChar s<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">st</span> :SetNextMarkChar <span class="k">t</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">su</span> :SetNextMarkChar <span class="k">u</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sv</span> :SetNextMarkChar <span class="k">v</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sw</span> :SetNextMarkChar <span class="k">w</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]sx :SetNextMarkChar <span class="k">x</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">sy</span> :SetNextMarkChar <span class="k">y</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]sz :SetNextMarkChar z<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="c">&quot; 次にマークする文字を設定して，同時にマークする</span>
+<span class="nb">nnoremap</span> [Mark]fa :SetNextMarkChar <span class="k">a</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fb :SetNextMarkChar <span class="k">b</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fc :SetNextMarkChar <span class="k">c</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fd :SetNextMarkChar <span class="k">d</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fe :SetNextMarkChar <span class="k">e</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">ff</span> :SetNextMarkChar <span class="k">f</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fg :SetNextMarkChar <span class="k">g</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fh :SetNextMarkChar <span class="k">h</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">fi</span> :SetNextMarkChar <span class="k">i</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fj :SetNextMarkChar <span class="k">j</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">fk</span> :SetNextMarkChar <span class="k">k</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fl :SetNextMarkChar <span class="k">l</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fm :SetNextMarkChar <span class="k">m</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fn :SetNextMarkChar <span class="k">n</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">fo</span> :SetNextMarkChar <span class="k">o</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">fp</span> :SetNextMarkChar <span class="k">p</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fq :SetNextMarkChar <span class="k">q</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fr :SetNextMarkChar <span class="k">r</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">fs</span> :SetNextMarkChar s<span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="nb">ft</span> :SetNextMarkChar <span class="k">t</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">fu</span> :SetNextMarkChar <span class="k">u</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fv :SetNextMarkChar <span class="k">v</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fw :SetNextMarkChar <span class="k">w</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fx :SetNextMarkChar <span class="k">x</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fy :SetNextMarkChar <span class="k">y</span><span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> [Mark]fz :SetNextMarkChar z<span class="p">&lt;</span>CR<span class="p">&gt;</span>:<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span><span class="k">call</span> <span class="p">&lt;</span>SID<span class="p">&gt;</span>AutoMarkrement<span class="p">()&lt;</span>CR<span class="p">&gt;</span>:DoShowMarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="c">&quot; 次/前のマーク</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">n</span> ]`
+<span class="nb">nnoremap</span> [Mark]<span class="k">p</span> [`
+<span class="c">&quot; 一覧表示</span>
+<span class="nb">nnoremap</span> [Mark]<span class="k">l</span> :<span class="p">&lt;</span>C<span class="p">-</span><span class="k">u</span><span class="p">&gt;</span>Previewmarks<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="c">&quot; マークの全削除を行うコマンドを設定する</span>
+<span class="k">com</span><span class="p">!</span> <span class="p">-</span>bar MarksDelete <span class="k">sil</span> :<span class="k">delm</span><span class="p">!</span> <span class="p">|</span> :<span class="k">delm</span> <span class="m">0-9</span>A<span class="p">-</span>Z <span class="p">|</span> :<span class="k">wv</span><span class="p">!</span> <span class="p">|</span> :DoShowMarks
+nn <span class="p">&lt;</span><span class="k">silent</span><span class="p">&gt;</span>[Mark]<span class="k">d</span> :MarksDelete<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="c">&quot; }}}</span>
+</pre></div>
+</div>
+
+    </div><!-- /.entry-content -->
+<div class="gad">
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* レクタングル大 */
+    google_ad_slot = "2582152705";
+    google_ad_width = 336;
+    google_ad_height = 280;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* テキスト:大 */
+    google_ad_slot = "8524391909";
+    google_ad_width = 728;
+    google_ad_height = 15;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+</div>    <h2 class="related-posts">関連する記事</h2>
+        <ul>
+            <li><a href="./slurm.html">slurmをインストール...したい</a></li>
+            <li><a href="./vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a></li>
+            <li><a href="./dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a></li>
+            <li><a href="./install-nvenc-on-ubunu.html">UbuntuにNVENCをインストールしてエンコードしてみる</a></li>
+            <li><a href="./transparent-proxy-by-squid.html">Docker buildを高速化するためにsquidで透過型プロキシを立ててみた</a></li>
+            <li><a href="./pelican-vim.html">Pelicanの記事をVimで楽々編集する</a></li>
+            <li><a href="./detect-apt-cacher-in-dockerfile.html">Dockerfile内部でapt-cacher-ngを自動検出する</a></li>
+            <li><a href="./qfixhowm-pelican.html">QFixHowmでPelicanのブログ記事を書く</a></li>
+            <li><a href="./update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a></li>
+            <li><a href="./sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a></li>
+        </ul>
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_config = function () {
+            var disqus_identifier = "vim_mark.html";
+            var disqus_url = "./vim_mark.html";
+        };
+        var disqus_shortname = 'calcurio';
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+    </div>
+  </article>
+    <nav id="nav-bottom">
+    <div class="top-prev"><a href="pelican_make.html" >&larr; PelicanのMakefileを書き換えて便利機能を追加する</a></div>
+    <div class="top-next"><a href="rst_link.html" >reStructuredTextで同じ名前で複数のリンクを張る &rarr;</a></div>
+    </nav>
+</section>
+<div id="sidebar">
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* スクエア */
+        google_ad_slot = "7175743105";
+        google_ad_width = 200;
+        google_ad_height = 200;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">検索</h3>      <form action="https://www.google.co.jp/search" target="_blank" class="google-search">
+          <input type="hidden" name="q" value="site:http://blog.calcurio.com">
+        <input type="text" name="q">
+      </form>
+    </div>
+    <div class="sidebar_child">
+        Author: M. Tsuyuki
+<p><a href="/pages/about.html">詳しく</a></p>    </div>
+    <div class="sidebar_child">
+        <h3 class="sidebar_title"></h3>
+<h3 class="sidebar_title">カテゴリ</h3>        <ul>            <li><a href="./category/hardware.html">Hardware</a> (11)</li>
+            <li><a href="./category/lun wen.html">論文</a> (2)</li>
+            <li><a href="./category/software.html">Software</a> (79)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">タグ</h3>        <ul>            <li><a href="./tag/aws.html" class="tag">AWS</a> (3)</li>
+            <li><a href="./tag/bash.html" class="tag">bash</a> (6)</li>
+            <li><a href="./tag/blog.html" class="tag">Blog</a> (4)</li>
+            <li><a href="./tag/bot.html" class="tag">bot</a> (1)</li>
+            <li><a href="./tag/cli.html" class="tag">CLI</a> (4)</li>
+            <li><a href="./tag/cui.html" class="tag">CUI</a> (18)</li>
+            <li><a href="./tag/cygwin.html" class="tag">Cygwin</a> (17)</li>
+            <li><a href="./tag/docker.html" class="tag">Docker</a> (11)</li>
+            <li><a href="./tag/dvc.html" class="tag">dvc</a> (1)</li>
+            <li><a href="./tag/ec2.html" class="tag">EC2</a> (2)</li>
+            <li><a href="./tag/firefox.html" class="tag">Firefox</a> (4)</li>
+            <li><a href="./tag/fluentd.html" class="tag">fluentd</a> (1)</li>
+            <li><a href="./tag/git.html" class="tag">Git</a> (3)</li>
+            <li><a href="./tag/github.html" class="tag">Github</a> (1)</li>
+            <li><a href="./tag/hardware.html" class="tag">Hardware</a> (1)</li>
+            <li><a href="./tag/html.html" class="tag">HTML</a> (1)</li>
+            <li><a href="./tag/ji jie xue xi.html" class="tag">機械学習</a> (6)</li>
+            <li><a href="./tag/jia xiang hua.html" class="tag">仮想化</a> (3)</li>
+            <li><a href="./tag/jupyter.html" class="tag">Jupyter</a> (1)</li>
+            <li><a href="./tag/keyboard.html" class="tag">keyboard</a> (1)</li>
+            <li><a href="./tag/linux.html" class="tag">Linux</a> (21)</li>
+            <li><a href="./tag/makefile.html" class="tag">Makefile</a> (1)</li>
+            <li><a href="./tag/math.html" class="tag">math</a> (2)</li>
+            <li><a href="./tag/networking.html" class="tag">Networking</a> (4)</li>
+            <li><a href="./tag/openstack.html" class="tag">OpenStack</a> (2)</li>
+            <li><a href="./tag/pczi zuo.html" class="tag">PC自作</a> (4)</li>
+            <li><a href="./tag/pelican.html" class="tag">Pelican</a> (9)</li>
+            <li><a href="./tag/percol.html" class="tag">percol</a> (2)</li>
+            <li><a href="./tag/preseed.html" class="tag">Preseed</a> (1)</li>
+            <li><a href="./tag/python.html" class="tag">Python</a> (12)</li>
+            <li><a href="./tag/rally.html" class="tag">Rally</a> (1)</li>
+            <li><a href="./tag/raspi.html" class="tag">RasPi</a> (1)</li>
+            <li><a href="./tag/restructuredtext.html" class="tag">reStructuredText</a> (1)</li>
+            <li><a href="./tag/screen.html" class="tag">screen</a> (2)</li>
+            <li><a href="./tag/tesuto.html" class="tag">テスト</a> (1)</li>
+            <li><a href="./tag/thinkpad.html" class="tag">ThinkPad</a> (4)</li>
+            <li><a href="./tag/thinkpad helix.html" class="tag">ThinkPad Helix</a> (2)</li>
+            <li><a href="./tag/tmux.html" class="tag">Tmux</a> (1)</li>
+            <li><a href="./tag/ubuntu.html" class="tag">Ubuntu</a> (27)</li>
+            <li><a href="./tag/vagrant.html" class="tag">vagrant</a> (2)</li>
+            <li><a href="./tag/vim.html" class="tag">Vim</a> (5)</li>
+            <li><a href="./tag/vimperator.html" class="tag">Vimperator</a> (3)</li>
+            <li><a href="./tag/virtualbox.html" class="tag">Virtualbox</a> (1)</li>
+            <li><a href="./tag/windows.html" class="tag">Windows</a> (6)</li>
+            <li><a href="./tag/yoga_tablet2.html" class="tag">yoga_tablet2</a> (1)</li>
+            <li><a href="./tag/zabbix.html" class="tag">zabbix</a> (1)</li>
+            <li><a href="./tag/ziyobusukeziyura.html" class="tag">ジョブスケジューラ</a> (1)</li>
+            <li><a href="./tag/zsh.html" class="tag">zsh</a> (7)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* リンクユニット */
+        google_ad_slot = "1129209509";
+        google_ad_width = 200;
+        google_ad_height = 90;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">最近の投稿</h3>        <ul id="recent-article">
+        <li>
+            <a href="update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a>
+            2020/07/25
+        </li>
+        <li>
+            <a href="vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a>
+            2020/07/24
+        </li>
+        <li>
+            <a href="raspi-wifi.html">Raspberry Pi3 Bで802.11ACな安物無線LANアダプタを使う</a>
+            2019/05/01
+        </li>
+        <li>
+            <a href="PALM_Machine_Learning_Explanations_for_Iterative_Debugging.html">PALM_Machine_Learning_Explanations_for_Iterative_Debugging</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="A_Survey_of_Methods_For_Explaining_Bloack_Box_Models.html">A Survey of Methods For Explaining Bloack Box Modelsを読んだ</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a>
+            2018/04/08
+        </li>
+        <li>
+            <a href="dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a>
+            2018/04/07
+        </li>
+        <li>
+            <a href="transparent-proxy-by-squid.html">Docker buildを高速化するためにsquidで透過型プロキシを立ててみた</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="detect-apt-cacher-in-dockerfile.html">Dockerfile内部でapt-cacher-ngを自動検出する</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="slurm.html">slurmをインストール...したい</a>
+            2017/08/16
+        </li>
+        <li>
+            <a href="install-nvenc-on-ubunu.html">UbuntuにNVENCをインストールしてエンコードしてみる</a>
+            2017/06/26
+        </li>
+        <li>
+            <a href="install_dropbox_for_linux.html">UbuntuにLinux用Dropboxをインストールする</a>
+            2017/06/25
+        </li>
+        <li>
+            <a href="ssh-tunneling-for-samba.html">SSHトンネル経由でWindowsからリモートのSambaサーバへ接続する方法</a>
+            2017/06/19
+        </li>
+        <li>
+            <a href="h270-unixbench.html">Core i7-7700な自作PCを作ったのでUnixBenchを取ってみた</a>
+            2017/06/18
+        </li>
+        <li>
+            <a href="enable-wake-on-lan.html">Ubuntuでwake-on-lanを有効化する</a>
+            2017/06/16
+        </li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+    <h3 class="sidebar_title">関連する記事</h3>
+        <ul id="sidebar_related_article">
+            <li><a href="./slurm.html">slurmをインストール...したい</a></li>
+            <li><a href="./vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a></li>
+            <li><a href="./dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a></li>
+            <li><a href="./install-nvenc-on-ubunu.html">UbuntuにNVENCをインストールしてエンコードしてみる</a></li>
+            <li><a href="./transparent-proxy-by-squid.html">Docker buildを高速化するためにsquidで透過型プロキシを立ててみた</a></li>
+            <li><a href="./pelican-vim.html">Pelicanの記事をVimで楽々編集する</a></li>
+            <li><a href="./detect-apt-cacher-in-dockerfile.html">Dockerfile内部でapt-cacher-ngを自動検出する</a></li>
+            <li><a href="./qfixhowm-pelican.html">QFixHowmでPelicanのブログ記事を書く</a></li>
+            <li><a href="./update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a></li>
+            <li><a href="./sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a></li>
+        </ul>
+    </div>
+</div>        </div>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme baseed on <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>.</p>
+        </footer><!-- /#contentinfo -->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+   ga('create', 'UA-42775386-2', 'auto');
+    ga('send', 'pageview');
+</script>
+</body>
+</html>

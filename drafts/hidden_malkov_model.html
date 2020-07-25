@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+        <link rel="canonical" href="http://blog.calcurio.com/drafts/hidden_malkov_model.html" />
+        <meta charset="utf-8" />
+        <title>隠れマルコフモデル | 電脳手帳</title>
+        <link rel="apple-touch-icon" sizes="57x57" href="theme/favicon/apple-touch-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="theme/favicon/apple-touch-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="theme/favicon/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="theme/favicon/apple-touch-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="theme/favicon/apple-touch-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="theme/favicon/apple-touch-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="theme/favicon/apple-touch-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="theme/favicon/apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="theme/favicon/apple-touch-icon-180x180.png">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="theme/favicon/android-chrome-192x192.png" sizes="192x192">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-96x96.png" sizes="96x96">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="theme/favicon/manifest.json">
+        <meta name="msapplication-TileColor" content="#000000">
+        <meta name="msapplication-TileImage" content="theme/favicon/mstile-144x144.png">
+        <meta name="theme-color" content="#ffffff">        <link rel="stylesheet" href="../theme/css/main.css" />
+        <link href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="電脳手帳 Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+        <h1><a href="../">電脳手帳 </a></h1> <div id="subtitle">計算機環境やコーディング，機械学習まわりの話題を書き留めます</div>        </header><!-- /#banner -->
+        <div id="basecontent">
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="../drafts/hidden_malkov_model.html" rel="bookmark"
+           title="Permalink to 隠れマルコフモデル">隠れマルコフモデル</a></h1>
+    </header>
+    <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/10/01 14:32</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/10/06 01:36</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/theory.html">theory</a>
+<span>| tags: <a href="../tag/ji jie xue xi.html" class="tag">機械学習</a><a href="../tag/tong ji.html" class="tag">統計</a></span>
+
+</footer><!-- /.post-info --><div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>      <!-- tags: AWS, bash, blog, Blog, bot, CLI, CUI, Cygwin, Docker, EC2, Firefox, fluentd, git, Git, Github, Hardware, HTML, job, keyboard, Linux, Makefile, math, Networking, OpenStack, PC自作, pelican, Pelican, percol, Preseed, python, Python, Rally, reStructuredText, screen, ThinkPad, ThinkPadHelix, Tmux, TODO, Ubuntu, Vagrant, Vim, Vimperator, Virtualbox, Windows, yoga_tablet2, zabbix, zsh, テスト, 機械学習, 原稿 -->
+<!-- category: blog, Hardware/ノートPC, IDEA, software, Software, Software/Blog, Software/CUI, Software/Linux, 原稿, 日報, 未分類 -->
+<p>ほぼコピペだから，公開不可能！！！</p>
+<div class="section" id="id2">
+<h2>理論</h2>
+<p>隠れマルコフモデル (HMM, Hidden Markov Model) とはある系における
+観測できない「隠れ状態」が，マルコフ過程に従って遷移することを仮定して
+構築するモデルである。</p>
+<!-- PELICAN_END_SUMMARY -->
+<p>観測量は，隠れ状態におけるデータ生成モデルに従うとし，
+確率的状態遷移モデルと，データ生成モデルの2つのモデルを構築する。</p>
+<p>時刻tの観測値 <span class="math">\(x_t\)</span> は，K個の隠れ状態 <span class="math">\(z_t &lt;- {1,2,\cdots , K}\)</span>
+について定義された確率分布 <span class="math">\(\p(x_t|z_t;\phi)\)</span> に従って生成される。</p>
+<p>なお， <span class="math">\(\phi\)</span> は生成モデルのパラメータベクトルで， <span class="math">\(t\)</span> に
+非依存と仮定する。隠れ状態の <span class="math">\(z_t\)</span> は直前の状態 <span class="math">\(z_{t-1}\)</span> のみに依存し，
+確率分布 <span class="math">\(p(z_t|z_{t-1};A)\)</span> で表現される。</p>
+<p><span class="math">\(A = {a_{i,j}|i,j=1,2, \cdots ,K}\)</span> は状態iから状態jへの
+遷移確率表で，時間tに非依存であるとする。</p>
+<p>ただし， <span class="math">\(\sum_j{a_i,j} = 1.0\)</span> で，あり， # 状態iから遷移できるすべての状態への遷移確率の総和は1
+初期状態 <span class="math">\(z_1\)</span> は確率ベクトル <span class="math">\(\pi\)</span> に従うものする。</p>
+<p>以上より，観測データ系列 <span class="math">\(X = x_i,x_2,\cdots ,x_N\)</span> および状態系列
+<span class="math">\(Z = z_i,z_2,\cdots ,z_N\)</span> の同時確率は次式で与えられる。</p>
+<div class="math">
+\begin{equation*}
+p(X,Z; \pi, A, \phi) = p(z_1;\pi) \left[ \prod^N_{i=2} p(z_i|z_i-1;A) \right]  \left[ \prod^N_{i=2} p(x_i|z_i-1;\phi) \right]
+\end{equation*}
+</div>
+<p><span class="math">\(\pi, A, \phi\)</span> を与えたうえで，観測値 <span class="math">\(X\)</span> のときの同時確率を計算する。
+これを最大化する状態 <span class="math">\(Z^*\)</span> が <span class="math">\(X\)</span> のときに推定される隠れ状態となる。</p>
+</div>
+<div class="section" id="id3">
+<h2>応用</h2>
+<div class="section" id="api">
+<h3>1. APIコールグラフの推定</h3>
+<p>-&gt; どのような隠れ状態があるかがわからない。これを明確にするのが目的なので，使えない。
+-&gt; APIを特徴値とみなして，教師なしの分類器学習アルゴリズムを使う</p>
+<p>pi :  隠れマルコフ過程の初期状態の確率ベクトル              -&gt; イベントの実行される確率？
+A :    隠れマルコフ過程の遷移確率表(時間に非依存)            -&gt; イベントを
+phi : 隠れ状態からの可観測データの生成モデル(時間に非依存)  -&gt; イベントs状態におけるログiの実行される確率（イベントs1回あたりのログiの出現回数/イベントs1回あたりのログ行数）。これは教師有り信号で学習する？測定する？</p>
+<p>上記の3つを1行ごとに正規化されたログ列X={x_i}から算出する。
+ログとしてマルコフ連鎖を仮定する。ログx_t = x_i である</p>
+<p>--&gt; i</p>
+<p>ログにはノイズがあるものの，イベント内容にしたがって順番にAPIが記録されている。
+統計的に有意なレベルまでノイズを除いて，イベントに分割したい</p>
+<p>x_t : 時間tに実行されるAPI
+z_t : 時間tに実行中のイベント(一連のAPI実行の流れ)
+.. z_t ; 時間tに実行中のイベント(一連のAPI実行の流れ)</p>
+<p>あるログiの次にログjが出現する確率を計算する。
+ランダムでログが重なる確率よりも有意に高ければ，それは関連するログとしてみなしてよい。</p>
+<p>ランダムで重なる確率とは，ログjの出現回数が均等に全時間に分散しているとした場合の確率密度である。</p>
+<p>縦軸を出現数，横軸を時間として，確率密度 <span class="math">\(p_{i,t} = N_{i,t}/\Sum_t{N_i,t}\)</span> を計算する。
+異なるログについて，確率密度を計算する。形が近ければ，関連するログとみなせる。つまり，</p>
+<div class="math">
+\begin{equation*}
+p_{i,j} = \int_{t=T_{min}}^{t=T_{max}} \left[  p_{i,t} \cross p_{j,t} \right]
+\end{equation*}
+</div>
+<p>の値 <span class="math">\(p_{i,j}\)</span> を関連度という指標として計算する。</p>
+<!-- マルコフ過程：1つ前の状態に依存して発生する確率過程 -->
+<!-- ポアソン過程：ランダムに発生する確率過程 -->
+<p>ログをマルコフ連鎖と仮定する。
+マルコフ連鎖とは，離散的状態間を遷移するマルコフ性を持つ確率過程(マルコフ過程)である。
+マルコフ過程は，</p>
+<p>-&gt; あるログiの前後に出現する確率の事前分布として正規分布，</p>
+</div>
+<div class="section" id="id4">
+<h3>2. API重要度の計算</h3>
+<p>仮定：次に呼ばれると推定される時間が短いAPIほど重要なAPI（障害が発覚しやすいため）
+ただし，状態は目まぐるしく変化するため平均化して「呼び出し時間間隔が短いAPIほど重要」とする。</p>
+<ul class="simple">
+<li>変数定義</li>
+</ul>
+<p><span class="math">\(x^i_t\)</span> : API(i)の前回呼ばれた時刻からの経過時間
+API(i)の重要度 = <span class="math">\(avg(x^i_t)\)</span></p>
+<p>平均である必然性はないが，中央値，最頻値等で十分であって推定する必要はない。</p>
+</div>
+<div class="section" id="id5">
+<h3>3. 遊休仮想マシンの判定</h3>
+<p>1次の隠れマルコフ連鎖として遊休状態か判定する。</p>
+<p>隠れ状態：z0=使用中，z1=遊休中の2値
+観測変数：x0=CPU使用率，x1=ネットワーク使用率，x2=ディスク使用率，x3=メモリ使用率</p>
+<p>pi  : 隠れマルコフ過程の初期状態の確率ベクトル             -&gt; 使用中とみなす。 pi = (1,0)
+A    : 隠れマルコフ過程の遷移確率表(時間に非依存)           -&gt; a_00 = a_11 = 0.9, a_01 = a_10 = 0.1 程度として使用中なら次の時刻も高確率で使用中とする
+phi : 隠れ状態からの可観測データの生成モデル(時間に非依存) -&gt; 正規分布を仮定。遊休仮想マシンの正規分布を用意(平均が0，分散もほぼ0?)する。平均が使用中であるとする正規分布も全仮想マシンのデータから生成する。</p>
+<p>現在からT時間前まで（ex.1週間前まで)の遊休中であった時間 <span class="math">\(S_T = N1_T/N_T\)</span> を仮想マシンの遊休確率とする。
+ただし， N_T はzの全データ数であり，N1_Tは遊休中(z1状態)のデータ数である。
+遊休確率に従い，スコアsをつける(0&gt;= s &gt;=1)。</p>
+<p>-&gt; virt-topの値をこれに使う。</p>
+<dl class="docutils">
+<dt>アルゴリズム</dt>
+<dd><ol class="first arabic simple">
+<li>全データから，1つ1つの仮想マシンと観測変数について正規分布を計算する -&gt; 時系列データとしてelasticsearchへ入力</li>
+<li>1の正規分布パラメータの正規分布を作成する(パラメータ16個) -&gt; 時系列データとしてelasticsearchへ入力</li>
+<li><dl class="first docutils">
+<dt>2の値，すなわち分散の平均，平均の平均を使用中仮想マシンの正規分布とする (平均的な仮想マシンは使用中であるとする仮定に基づく)</dt>
+<dd><ul class="first last">
+<li>何％の仮想マシンを遊休状態とみなしたいか（何％のリソースを回収したいか）に応じて下位y%以下の仮想マシンが含まれるように選択しても良い</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li>1次の隠れマルコフ連鎖として隠れ状態をT時間まえまで判定する(ビタビアルゴリズムを利用) -&gt; 状態判定結果をelasticsearchへ入力</li>
+<li>遊休確率を計算する</li>
+</ol>
+<p>1-3まではelasticsearchのextended stats aggregationで可能である。4は実装しないといけない。
+適当にデータ間隔をまびいて4を計算することになるだろう。</p>
+<p class="last">遊休仮想マシン判定の研究報告ではどうやっていた？</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="id6">
+<h3>4. 教師なし学習でAPIとイベントを関連付ける</h3>
+<p>どのイベント（隠れ状態）に紐づくか，APIの時系列ログ（観測変数）から推測したい</p>
+</div>
+<div class="section" id="id7">
+<h3>5. リソース消費状況のクラスタわけ</h3>
+<p>観測変数：x0=CPU使用率，x1=ネットワーク使用率，x2=ディスク使用率，x3=メモリ使用率</p>
+<ol class="arabic simple">
+<li>観測変数について正規分布を仮定し，中心と分散を変数ごとに計算する。</li>
+<li>変数ごとに中心と分散をプロットし，クラスタにわける</li>
+<li>インスタンス名称からおおよその役割を推定し，クラスタの妥当性を評価する
+- L4なら用途を聞き出すことができる。よりよい評価ができる</li>
+</ol>
+<p>利点
+- リソース情報から，用途がわかる。インスタンスと，それに紐づくユーザのプロファイリングができる
+- リソース計画の参考になる
+- 同じユーザがクラスタA，B，Cのインスタンス利用確率が高いと判明すれば，インスタンス利用のベストプラクティスがわかる</p>
+</div>
+</div>
+<div class="section" id="id8">
+<h2>参考文献</h2>
+<ul class="simple">
+<li><a class="reference external" href="http://www.nysol.jp/">NYSOL</a></li>
+</ul>
+</div>
+<script type='text/javascript'>if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        fonts: [['STIX', 'TeX']]," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+    </div><!-- /.entry-content -->
+<div class="gad">
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* レクタングル大 */
+    google_ad_slot = "2582152705";
+    google_ad_width = 336;
+    google_ad_height = 280;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* テキスト:大 */
+    google_ad_slot = "8524391909";
+    google_ad_width = 728;
+    google_ad_height = 15;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+</div>  </article>
+</section>
+<div id="sidebar">
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* スクエア */
+        google_ad_slot = "7175743105";
+        google_ad_width = 200;
+        google_ad_height = 200;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">検索</h3>      <form action="https://www.google.co.jp/search" target="_blank" class="google-search">
+          <input type="hidden" name="q" value="site:http://blog.calcurio.com">
+        <input type="text" name="q">
+      </form>
+    </div>
+    <div class="sidebar_child">
+        Author: M. Tsuyuki
+<p><a href="/pages/about.html">詳しく</a></p>    </div>
+    <div class="sidebar_child">
+        <h3 class="sidebar_title"></h3>
+<h3 class="sidebar_title">カテゴリ</h3>        <ul>            <li><a href="../category/hardware.html">Hardware</a> (11)</li>
+            <li><a href="../category/lun wen.html">論文</a> (2)</li>
+            <li><a href="../category/software.html">Software</a> (79)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">タグ</h3>        <ul>            <li><a href="../tag/aws.html" class="tag">AWS</a> (3)</li>
+            <li><a href="../tag/bash.html" class="tag">bash</a> (6)</li>
+            <li><a href="../tag/blog.html" class="tag">Blog</a> (4)</li>
+            <li><a href="../tag/bot.html" class="tag">bot</a> (1)</li>
+            <li><a href="../tag/cli.html" class="tag">CLI</a> (4)</li>
+            <li><a href="../tag/cui.html" class="tag">CUI</a> (18)</li>
+            <li><a href="../tag/cygwin.html" class="tag">Cygwin</a> (17)</li>
+            <li><a href="../tag/docker.html" class="tag">Docker</a> (11)</li>
+            <li><a href="../tag/dvc.html" class="tag">dvc</a> (1)</li>
+            <li><a href="../tag/ec2.html" class="tag">EC2</a> (2)</li>
+            <li><a href="../tag/firefox.html" class="tag">Firefox</a> (4)</li>
+            <li><a href="../tag/fluentd.html" class="tag">fluentd</a> (1)</li>
+            <li><a href="../tag/git.html" class="tag">Git</a> (3)</li>
+            <li><a href="../tag/github.html" class="tag">Github</a> (1)</li>
+            <li><a href="../tag/hardware.html" class="tag">Hardware</a> (1)</li>
+            <li><a href="../tag/html.html" class="tag">HTML</a> (1)</li>
+            <li><a href="../tag/ji jie xue xi.html" class="tag">機械学習</a> (6)</li>
+            <li><a href="../tag/jia xiang hua.html" class="tag">仮想化</a> (3)</li>
+            <li><a href="../tag/jupyter.html" class="tag">Jupyter</a> (1)</li>
+            <li><a href="../tag/keyboard.html" class="tag">keyboard</a> (1)</li>
+            <li><a href="../tag/linux.html" class="tag">Linux</a> (21)</li>
+            <li><a href="../tag/makefile.html" class="tag">Makefile</a> (1)</li>
+            <li><a href="../tag/math.html" class="tag">math</a> (2)</li>
+            <li><a href="../tag/networking.html" class="tag">Networking</a> (4)</li>
+            <li><a href="../tag/openstack.html" class="tag">OpenStack</a> (2)</li>
+            <li><a href="../tag/pczi zuo.html" class="tag">PC自作</a> (4)</li>
+            <li><a href="../tag/pelican.html" class="tag">Pelican</a> (9)</li>
+            <li><a href="../tag/percol.html" class="tag">percol</a> (2)</li>
+            <li><a href="../tag/preseed.html" class="tag">Preseed</a> (1)</li>
+            <li><a href="../tag/python.html" class="tag">Python</a> (12)</li>
+            <li><a href="../tag/rally.html" class="tag">Rally</a> (1)</li>
+            <li><a href="../tag/raspi.html" class="tag">RasPi</a> (1)</li>
+            <li><a href="../tag/restructuredtext.html" class="tag">reStructuredText</a> (1)</li>
+            <li><a href="../tag/screen.html" class="tag">screen</a> (2)</li>
+            <li><a href="../tag/tesuto.html" class="tag">テスト</a> (1)</li>
+            <li><a href="../tag/thinkpad.html" class="tag">ThinkPad</a> (4)</li>
+            <li><a href="../tag/thinkpad helix.html" class="tag">ThinkPad Helix</a> (2)</li>
+            <li><a href="../tag/tmux.html" class="tag">Tmux</a> (1)</li>
+            <li><a href="../tag/ubuntu.html" class="tag">Ubuntu</a> (27)</li>
+            <li><a href="../tag/vagrant.html" class="tag">vagrant</a> (2)</li>
+            <li><a href="../tag/vim.html" class="tag">Vim</a> (5)</li>
+            <li><a href="../tag/vimperator.html" class="tag">Vimperator</a> (3)</li>
+            <li><a href="../tag/virtualbox.html" class="tag">Virtualbox</a> (1)</li>
+            <li><a href="../tag/windows.html" class="tag">Windows</a> (6)</li>
+            <li><a href="../tag/yoga_tablet2.html" class="tag">yoga_tablet2</a> (1)</li>
+            <li><a href="../tag/zabbix.html" class="tag">zabbix</a> (1)</li>
+            <li><a href="../tag/ziyobusukeziyura.html" class="tag">ジョブスケジューラ</a> (1)</li>
+            <li><a href="../tag/zsh.html" class="tag">zsh</a> (7)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* リンクユニット */
+        google_ad_slot = "1129209509";
+        google_ad_width = 200;
+        google_ad_height = 90;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">最近の投稿</h3>        <ul id="recent-article">
+        <li>
+            <a href="update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a>
+            2020/07/25
+        </li>
+        <li>
+            <a href="vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a>
+            2020/07/24
+        </li>
+        <li>
+            <a href="raspi-wifi.html">Raspberry Pi3 Bで802.11ACな安物無線LANアダプタを使う</a>
+            2019/05/01
+        </li>
+        <li>
+            <a href="PALM_Machine_Learning_Explanations_for_Iterative_Debugging.html">PALM_Machine_Learning_Explanations_for_Iterative_Debugging</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="A_Survey_of_Methods_For_Explaining_Bloack_Box_Models.html">A Survey of Methods For Explaining Bloack Box Modelsを読んだ</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a>
+            2018/04/08
+        </li>
+        <li>
+            <a href="dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a>
+            2018/04/07
+        </li>
+        <li>
+            <a href="transparent-proxy-by-squid.html">Docker buildを高速化するためにsquidで透過型プロキシを立ててみた</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="detect-apt-cacher-in-dockerfile.html">Dockerfile内部でapt-cacher-ngを自動検出する</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="slurm.html">slurmをインストール...したい</a>
+            2017/08/16
+        </li>
+        <li>
+            <a href="install-nvenc-on-ubunu.html">UbuntuにNVENCをインストールしてエンコードしてみる</a>
+            2017/06/26
+        </li>
+        <li>
+            <a href="install_dropbox_for_linux.html">UbuntuにLinux用Dropboxをインストールする</a>
+            2017/06/25
+        </li>
+        <li>
+            <a href="ssh-tunneling-for-samba.html">SSHトンネル経由でWindowsからリモートのSambaサーバへ接続する方法</a>
+            2017/06/19
+        </li>
+        <li>
+            <a href="h270-unixbench.html">Core i7-7700な自作PCを作ったのでUnixBenchを取ってみた</a>
+            2017/06/18
+        </li>
+        <li>
+            <a href="enable-wake-on-lan.html">Ubuntuでwake-on-lanを有効化する</a>
+            2017/06/16
+        </li>
+        </ul>
+    </div>
+</div>        </div>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme baseed on <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>.</p>
+        </footer><!-- /#contentinfo -->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+   ga('create', 'UA-42775386-2', 'auto');
+    ga('send', 'pageview');
+</script>
+</body>
+</html>

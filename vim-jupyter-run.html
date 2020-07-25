@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+        <link rel="canonical" href="http://blog.calcurio.com/vim-jupyter-run.html" />
+        <meta charset="utf-8" />
+        <title>VimをJupyterノートブックの開発環境に仕上げる | 電脳手帳</title>
+        <link rel="apple-touch-icon" sizes="57x57" href="theme/favicon/apple-touch-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="theme/favicon/apple-touch-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="theme/favicon/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="theme/favicon/apple-touch-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="theme/favicon/apple-touch-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="theme/favicon/apple-touch-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="theme/favicon/apple-touch-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="theme/favicon/apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="theme/favicon/apple-touch-icon-180x180.png">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="theme/favicon/android-chrome-192x192.png" sizes="192x192">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-96x96.png" sizes="96x96">
+        <link rel="icon" type="image/png" href="theme/favicon/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="theme/favicon/manifest.json">
+        <meta name="msapplication-TileColor" content="#000000">
+        <meta name="msapplication-TileImage" content="theme/favicon/mstile-144x144.png">
+        <meta name="theme-color" content="#ffffff">        <link rel="stylesheet" href="./theme/css/main.css" />
+        <link href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="電脳手帳 Atom Feed" />
+
+        <!--[if IE]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+        <h1><a href="./">電脳手帳 </a></h1> <div id="subtitle">計算機環境やコーディング，機械学習まわりの話題を書き留めます</div>        </header><!-- /#banner -->
+        <div id="basecontent">
+    <nav id="nav-above">
+    <div class="top-prev"><a href="raspi-wifi.html" >&larr; Raspberry Pi3 Bで802.11ACな安物無線LANアダプタを使う</a></div>
+    <div class="top-next"><a href="update-display.html" >WSL2でVimのクリップボードをWindowsと共有する方法 &rarr;</a></div>
+    </nav>
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="./vim-jupyter-run.html" rel="bookmark"
+           title="Permalink to VimをJupyterノートブックの開発環境に仕上げる">VimをJupyterノートブックの開発環境に仕上げる</a></h1>
+    </header>
+    <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=./theme/images/icons/creation.png title="creation date" alt="creation date"> 2020/07/24 18:02</span>
+<span><img class="date" src=./theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2020/07/26 01:01</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="./category/software.html">Software</a>
+        <span class="article_category_separator"> &raquo; </span>
+        <a class=article_subcategory_name href="./subcategory/software/cui.html">CUI</a>
+<span>| tags: <a href="./tag/vim.html" class="tag">Vim</a><a href="./tag/python.html" class="tag">Python</a><a href="./tag/jupyter.html" class="tag">Jupyter</a></span>
+
+</footer><!-- /.post-info --><div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>      <p><img src=/images/qtconsole.gif></p>
+<p>データサイエンス界隈では何かとJupyterのノートブックを開発する機会がある。そのたびにJupyterを立ち上げてブラウザで接続して...という操作も面倒であるし，JupyterのGUIでは開発効率があまり良くない。やはり，慣れ親しんだVimとターミナルのうえにJupyterと同じような開発環境を整備したいところだ。<a href="https://code.visualstudio.com/docs/python/jupyter-support">VSCodeならノートブックを編集したり，セルごとに実行できる</a>のだから，同じことがVimにできないはずはないだろう。</p>
+<p>ということで，本記事ではVimのプラグインを駆使してノートブックを</p>
+<ol>
+<li>編集可能にする</li>
+<li>セルごとに実行可能にする</li>
+<li>リモートサーバに接続してノートブックを実行可能にする</li>
+</ol>
+<p>ための手順を大きく3つに分けて説明する。ポイントはJupyterのように「セルごとにコード片を実行し，結果を確認できる」ことであり，これは <a href="https://ja.wikipedia.org/wiki/REPL">REPL (Read-Eval-Print Loop)</a> と呼ばれる作業だ。本記事の目的は「VimでノートブックのREPL環境を作る」ことと言える。</p>
+<p>Vimにノートブック開発環境を整える方法は一通りではないので本記事ではそれぞれの方法を示すが，おすすめは <a href="https://github.com/goerz/jupytext.vim">goerz/jupytext.vim</a> と<a href="https://github.com/jupyter-vim/jupyter-vim">jupyter-vim/jupyter-vim</a> を組み合わせて利用する構成だ。</p>
+
+
+<h2>1. [必須] Vimでノートブックを編集可能にする</h2>
+<p>ノートブックの実体はJSONファイルであるため，単にVimでノートブックを開くだけでは編集が難しい。そこで，一時的にPythonやMarkdownの形式に変換することで編集可能にするVimプラグイン <a href="https://github.com/goerz/jupytext.vim">goerz/jupytext.vim</a> を利用する。</p>
+<p><a href="https://github.com/goerz/jupytext.vim">jupytext.vim</a>はバックグラウンドで<a href="https://github.com/mwouts/jupytext">jupytext</a>を実行することで，</p>
+<ol>
+<li>ノートブック <code>.ipynb</code> をVimで開いたら，Pythonスクリプトに変換し，Vimに表示</li>
+<li>変換済みのPythonスクリプトを保存したら，ノートブック <code>.ipynb</code> に復元して保存</li>
+</ol>
+<p>といった処理を自動実行する。これにより，Vimでノートブックをスムーズに編集可能になる。</p>
+<div class="figure">
+    <img src=/images/jupytext.png>
+    <p class="caption">図1. Jupyterノートブックの編集問題</p>
+</div>
+
+<h3>Jupytext.vimのインストール</h3>
+<p>まず，Pythonのパッケージとして <a href="https://github.com/mwouts/jupytext">jupytext</a> をインストールする。jupytextはノートブックをMarkdownやPythonスクリプトの形式に変換するツールだ。一旦，Pythonスクリプト等に変換しても，元のノートブックのセル出力を保持したまま復元できる特徴がある。Vimとの組み合わせ以外にもjupytextの利用シーンは多々あるので <a href="https://jupytext.readthedocs.io/en/latest/">公式マニュアル</a> の内容も合わせて読んでおくと良い。</p>
+<div class="highlight"><pre><span></span><code>pip3 install jupytext
+</code></pre></div>
+
+
+<p>次に，Vimプラグインの <code>jupytext.vim</code> をインストールする。<a href="https://github.com/Shougo/neobundle.vim">NeoBundle</a>を使う場合は以下の1行を <code>.vimrc</code> に記述したうえで <code>:Neobundleinstall</code> コマンドをVimで実行する。</p>
+<div class="highlight"><pre><span></span><code>NeoBundle <span class="s1">&#39;goerz/jupytext.vim&#39;</span>
+</code></pre></div>
+
+
+<p>最後に <code>jupytext.vim</code> 向けの設定を <code>.vimrc</code> に追加する。ここではノートブック <code>.ipynb</code> を Pythonスクリプト <code>.py</code> の形式に変換する設定を加えている。これにより，前述の図1の右下のようなPython形式に自動変換できる。</p>
+<p>ポイントは <code>py:percent</code> の指定でセルの区切り文字を<a href="https://code.visualstudio.com/docs/python/jupyter-support-py">VSCode互換</a> の <code># %%</code> に設定していること。Jupytextのデフォルト設定ではセル内に空行がない場合は区切り文字を省略するため，セルの境界が不明確になる。この点は，ノートブックのセル実行に必要なvim-ipython-cellやjupyter-vimプラグインと組み合わせるときに不都合が生じる。</p>
+<div class="highlight"><pre><span></span><code><span class="c">&quot; セルの区切り文字をVSCode互換の # %% に指定する</span>
+<span class="k">let</span> <span class="k">g</span>:jupytext_fmt <span class="p">=</span> <span class="s1">&#39;py:percent&#39;</span>
+
+<span class="c">&quot; vimのPython向けシンタックスハイライトを有効にする</span>
+<span class="k">let</span> <span class="k">g</span>:jupytext_filetype_map <span class="p">=</span> {<span class="s1">&#39;py&#39;</span>: <span class="s1">&#39;python&#39;</span>}
+</code></pre></div>
+
+
+<p>その他，Jupytextのフォーマット指定の詳細は <a href="https://jupytext.readthedocs.io/en/latest/formats.html">Notebook formats  Jupytext documentation</a> を参照いただきたい。</p>
+<h2>2. Vimでセルごとにノートブックを実行可能にする</h2>
+<p>VimでREPL環境を実現する (セルごとにノートブックを実行可能にする) 方式は大別して2つある。それぞれの利点と欠点を書き下すと以下のようになる。どちらも一長一短ではあるので本記事では双方の方法を明記する。なお，私個人は選択肢2の利点 <code>セル実行中に次のセル実行を指示できる</code> ことや <code>Matplotlibの画像もインライン表示できる</code> ことは捨てがたく，選択肢2を採用した。</p>
+<ul>
+<li>選択肢1. クリップボードを経由してipythonに貼り付ける方式<ul>
+<li>利点:<ul>
+<li>SSH先のターミナルでも特別な設定なしに実行できる</li>
+<li>ipython以外の任意のシェルにも利用可能であり，汎用性が高い</li>
+</ul>
+</li>
+<li>欠点:<ul>
+<li>実行中の処理が終わるまで，次のセルの実行を指示できない</li>
+<li>利用可能なターミナルが限られる</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>選択肢2. tcp接続でipythonのカーネルにセル実行を指示する方式<ul>
+<li>利点:<ul>
+<li>セル実行中に次のセル実行を指示できる</li>
+<li>Matplotlibの画像をインライン表示できる</li>
+</ul>
+</li>
+<li>欠点:<ul>
+<li>SSH先のリモートサーバへ接続する場合，設定が煩雑になる</li>
+<li>リモートとローカルのファイル共有を意識する必要がある</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>[選択肢1] クリップボードを経由してipythonに貼り付ける方法</h3>
+<p>選択肢1を実現するためには，<a href="https://github.com/hanschen/vim-ipython-cell">hanschen/vim-ipython-cell</a> と <a href="https://github.com/jpalardy/vim-slime">jpalardy/vim-slime</a> の2つのプラグインを組み合わせる。vim-ipython-cellはvim-slimeをベースにJupyter向けに機能追加したVimプラグインであり，以下の画像のようなノートブックのセル実行を実現する。</p>
+<div class="figure">
+    <img src=/images/ipython-cell-demo.gif>
+    <p class="caption">図2. vim-ipython-cellによるセル実行。画像は<a href="https://github.com/hanschen/vim-ipython-cell">hanschen/vim-ipython-cell</a>より引用した</p>
+</div>
+
+<h4>vim-ipython-cellのインストール</h4>
+<p>まず，必要なパッケージをインストールする。</p>
+<div class="highlight"><pre><span></span><code>pip3 install ipython  <span class="c1"># Pythonのコードセルを実行するipythonを準備</span>
+sudo apt-get -y install screen  <span class="c1"># コピペの実装に必要。tmuxやX11等でも良い</span>
+sudo apt-get -y install python3-tk  <span class="c1"># [オプション] matplotlibで画像を表示したい場合</span>
+</code></pre></div>
+
+
+<p>次に，Vimプラグインをインストールする。<a href="https://github.com/Shougo/neobundle.vim">NeoBundle</a>を使う場合は以下の2行を <code>.vimrc</code> に記述したうえで <code>:Neobundleinstall</code> コマンドをVimで実行すれば良い。</p>
+<div class="highlight"><pre><span></span><code>NeoBundle <span class="s1">&#39;jpalardy/vim-slime&#39;</span><span class="p">,</span> { <span class="s1">&#39;on_ft&#39;</span>: <span class="s1">&#39;python&#39;</span> }
+NeoBundle <span class="s1">&#39;hanschen/vim-ipython-cell&#39;</span><span class="p">,</span> { <span class="s1">&#39;on_ft&#39;</span>: <span class="s1">&#39;python&#39;</span> }
+</code></pre></div>
+
+
+<h4>vim-ipython-cellの設定</h4>
+<p>最後に<code>.vimrc</code> に設定を加える。以下の設定は Screen と <a href="https://github.com/jpalardy/vim-slime">jpalardy/vim-slime</a> を組み合わせる場合の設定である。この設定では同じScreenのセッションで，ウィンドウ名 <code>ipython3</code> のシェルにセルのコードを送信する。なお，tmuxなどを使いたい場合は <a href="https://github.com/jpalardy/vim-slime">jpalardy/vim-slime</a> を参照して適宜設定を加えること。</p>
+<div class="highlight"><pre><span></span><code><span class="c">&quot; screenを使う</span>
+<span class="k">let</span> <span class="k">g</span>:slime_target <span class="p">=</span> <span class="s2">&quot;screen&quot;</span>
+<span class="c">&quot; ipythonを使う</span>
+<span class="k">let</span> <span class="k">g</span>:slime_python_ipython <span class="p">=</span> <span class="m">1</span>
+<span class="c">&quot; セルの区切り文字を指定</span>
+<span class="k">let</span> <span class="k">g</span>:slime_cell_delimiter <span class="p">=</span> <span class="s2">&quot;# %%&quot;</span>
+
+<span class="c">&quot; 環境変数 $STY から GNU Screen のセッション名を取得する</span>
+<span class="k">let</span> <span class="k">g</span>:slime_default_config <span class="p">=</span> {<span class="s2">&quot;sessionname&quot;</span>: $STY<span class="p">,</span> <span class="s2">&quot;windowname&quot;</span>: <span class="s2">&quot;ipython3&quot;</span>}
+<span class="c">&quot; 接続先情報はユーザ入力させない</span>
+<span class="k">let</span> <span class="k">g</span>:slime_dont_ask_default <span class="p">=</span> <span class="m">1</span>
+
+<span class="c">&quot; mappings</span>
+<span class="c">&quot;&quot; 選択範囲を実行</span>
+xmap <span class="p">&lt;</span>F5<span class="p">&gt;</span> <span class="p">&lt;</span>Plug<span class="p">&gt;</span>SlimeRegionSend
+nmap <span class="p">&lt;</span>F5<span class="p">&gt;</span> <span class="p">&lt;</span>Plug<span class="p">&gt;</span>SlimeParagraphSend
+<span class="c">&quot;&quot; セルを実行</span>
+<span class="nb">nnoremap</span> <span class="p">&lt;</span>F6<span class="p">&gt;</span> :IPythonCellExecuteCellVerbose<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="c">&quot;&quot; セルを実行して次のセルへ移動</span>
+<span class="nb">nnoremap</span> <span class="p">&lt;</span>C<span class="p">-</span>M<span class="p">&gt;</span> :IPythonCellExecuteCellVerboseJump<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+</code></pre></div>
+
+
+<h4>vim-ipython-cellの使い方</h4>
+<p>ここまで設定できたら，以下のような手順でノートブックのセルを実行できる。このときの操作感のイメージは図2を参照のこと。ただし，図2をよく見ると実行したPythonのコードがipythonのログに残っていない。これは <code>:IPythonCellExecuteCell</code> の仕様だが，これでは過去に実行済みのコードがわからなくなる問題があるので，きちんとコードも表示する <code>:IPythonCellExecuteCellVerbose</code> を利用したほうが良い。</p>
+<ol>
+<li>ターミナルでGNU Screenを起動</li>
+<li>Screenのwindowでipython3を実行，window名を <code>ipython3</code> に設定</li>
+<li>Screenの別windowでVimを起動。ノートブックを開く</li>
+<li>Vimのカーソルを実行したいセルに合わせ，<code>:IPythonCellExecuteCellVerbose</code> を実行</li>
+</ol>
+<p>また，vim-ipython-cellの実装は，クリップボードを経由して当該セルの内容をipythonに貼り付けるだけの実装である。ゆえにジョブのキューイングなどはできない。時間のかかる処理をipythonが実行している間は，次のセル実行を指示しても正しくipythonで実行できない。この点は実用上，要注意である。</p>
+<h3>[選択肢2] ipythonのカーネルにtcp接続してセル実行を指示する方法</h3>
+<p>選択肢2を実現するためには <a href="https://github.com/jupyter-vim/jupyter-vim">jupyter-vim/jupyter-vim</a> のVimプラグインと <a href="https://github.com/jupyter/qtconsole">jupyter/qtconsole</a> を組み合わせる。この方式では，jupyter-vimプラグインからJupyterのQtConsoleにtcp接続をして，カーネルに実行したいコードを送付する実装となっている。これによりジョブのキューイングが正しく動作するため，QtConsole側で計算中に新たなセル実行を指示できる利点がある。また，QtConsoleであればMatplotlibのグラフをインラインで表示できる利点もある。</p>
+<p>なお，jupyter qtconsoleはGUIアプリだが，ターミナルで起動する jupyter console と jupyter-vim を組み合わせて利用することもできる。しかし，Vimからセル実行を指示しても，jupyter consoleの側でEnterキーを押下しないと実行されない仕様になっているため，実用性は低い。ターミナルに閉じて利用したい場合は，vim-ipython-cellを使うほうが良いだろう。</p>
+<div class="figure">
+    <img src=/images/qtconsole.gif>
+    <p class="caption">図3. jupyter-vimとQtConsoleによるセル実行</p>
+</div>
+
+<h4>jupyter-vimのインストール</h4>
+<p>まず，Jupyter QtConsoleを利用するために以下のパッケージをインストールする。</p>
+<div class="highlight"><pre><span></span><code>pip3 install jupyter
+pip3 install qtconsole
+pip3 install PyQt5 <span class="c1"># もしエラーになるなら PyQt5==5.12.2 にダウングレードする</span>
+</code></pre></div>
+
+
+<p>PyQt5のインストールは pip ではうまく出来ないことがある。もし，pythonの仮想環境を使わないなら apt でシステム側に PyQt5 とその関連ライブラリをインストールしても良い。</p>
+<div class="highlight"><pre><span></span><code>sudo apt-get install python3-pyqt5 pyqt5-dev-tools qttools5-dev-tools python3-pyqt5.qtsvg
+</code></pre></div>
+
+
+<p>次に，Vimプラグインをインストールする。<a href="https://github.com/Shougo/neobundle.vim">NeoBundle</a>を使う場合は以下の2行を <code>.vimrc</code> に記述したうえで <code>:Neobundleinstall</code> コマンドをVimで実行すれば良い。</p>
+<div class="highlight"><pre><span></span><code>NeoBundle <span class="s1">&#39;jupyter-vim/jupyter-vim&#39;</span>
+</code></pre></div>
+
+
+<h4>jupyter-vimの設定</h4>
+<p>jupyter-vimの動作に必要な設定を加える。まず，Jupyter QtConsoleの設定ファイルを生成する。</p>
+<div class="highlight"><pre><span></span><code><span class="n">jupyter</span> <span class="n">qtconsole</span> <span class="o">--</span><span class="n">generate</span><span class="o">-</span><span class="n">config</span>
+</code></pre></div>
+
+
+<p>生成された設定ファイル <code>~/.jupyter/jupyter_qtconsole_config.py</code> に以下の1行を挿入する。</p>
+<div class="highlight"><pre><span></span><code><span class="n">c</span><span class="o">.</span><span class="n">ConsoleWidget</span><span class="o">.</span><span class="n">include_other_output</span> <span class="o">=</span> <span class="kc">True</span>
+</code></pre></div>
+
+
+<p>jupyter-vimとQtConsoleの組み合わせには<a href="https://github.com/jupyter/qtconsole/issues/386">画像表示に画面スクロールが自動的に追従しない問題</a> がある。少なくとも私の環境 (Jupyter QtConsole 4.7.5) では再現した。例えば，以下のようなコードを実行して自動スクロールしない場合は修正が必要である。</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+
+<p>この問題はQtConsoleのコードに1行を追加するだけで修正できる。具体的には <a href="https://github.com/jupyter/qtconsole/pull/349/commits/49f1d666a03cf67dcf71c5e07ada80b76354fdb1">Scroll down for output from remote command by ajtam  Pull Request #349 jupyter/qtconsole</a> の記載に従って <code>qtconsole/console_widget.py</code> の 970行目付近 <code>_append_custom</code> 関数の末尾に，以下のように <code>self._control.moveCursor(QtGui.QTextCursor.End)</code> の1行を挿入する。</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">def</span> <span class="n">_append_custom</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="k">insert</span><span class="p">,</span> <span class="k">input</span><span class="p">,</span> <span class="n">before_prompt</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="ss">&quot;&quot;&quot; A low-level method for appending content to the end of the buffer.</span>
+
+<span class="ss">        If &#39;before_prompt&#39; is enabled, the content will be inserted before the</span>
+<span class="ss">        current prompt, if there is one.</span>
+<span class="ss">        &quot;&quot;&quot;</span>
+        <span class="o">#</span> <span class="n">Determine</span> <span class="k">where</span> <span class="k">to</span> <span class="k">insert</span> <span class="n">the</span> <span class="n">content</span><span class="p">.</span>
+        <span class="k">cursor</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_control</span><span class="p">.</span><span class="n">textCursor</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">before_prompt</span> <span class="k">and</span> <span class="p">(</span><span class="k">self</span><span class="p">.</span><span class="n">_reading</span> <span class="k">or</span> <span class="k">not</span> <span class="k">self</span><span class="p">.</span><span class="n">_executing</span><span class="p">):</span>
+            <span class="k">self</span><span class="p">.</span><span class="n">_flush_pending_stream</span><span class="p">()</span>
+            <span class="k">cursor</span><span class="p">.</span><span class="n">setPosition</span><span class="p">(</span><span class="k">self</span><span class="p">.</span><span class="n">_append_before_prompt_pos</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="k">insert</span> <span class="o">!=</span> <span class="k">self</span><span class="p">.</span><span class="n">_insert_plain_text</span><span class="p">:</span>
+                <span class="k">self</span><span class="p">.</span><span class="n">_flush_pending_stream</span><span class="p">()</span>
+            <span class="k">cursor</span><span class="p">.</span><span class="n">movePosition</span><span class="p">(</span><span class="n">QtGui</span><span class="p">.</span><span class="n">QTextCursor</span><span class="p">.</span><span class="k">End</span><span class="p">)</span>
+
+        <span class="o">#</span> <span class="n">Perform</span> <span class="n">the</span> <span class="n">insertion</span><span class="p">.</span>
+        <span class="k">result</span> <span class="o">=</span> <span class="k">insert</span><span class="p">(</span><span class="k">cursor</span><span class="p">,</span> <span class="k">input</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">self</span><span class="p">.</span><span class="n">_control</span><span class="p">.</span><span class="n">moveCursor</span><span class="p">(</span><span class="n">QtGui</span><span class="p">.</span><span class="n">QTextCursor</span><span class="p">.</span><span class="k">End</span><span class="p">)</span>  <span class="o">#</span> <span class="err">この行を新規に加える</span>
+        <span class="k">return</span> <span class="k">result</span>
+</code></pre></div>
+
+
+<h4>jupyter-vimの使い方</h4>
+<p>ここまでくれば，jupyter-vimを利用してノートブックのセルを実行できる。まず，コードを実行する画面を準備するため，以下のコマンドでQtConsoleを起動する。</p>
+<div class="highlight"><pre><span></span><code>jupyter qtconsole
+</code></pre></div>
+
+
+<p>次にVimを起動し， <code>:JupyterConnect</code> コマンドでQtConsoleに接続する。後は実行したいセルにカーソルをあわせ，<code>:JupyterSendCell</code> コマンドを実行すれば図3のようにセルを実行できる。</p>
+<h2>3. リモートサーバでJupyterノートブックを実行する</h2>
+<p>Jupyterをリモートのサーバで起動すれば，ローカルのノートPCでは実行できない重たい計算処理をスムーズに実行できる。同様にVimでもリモートサーバに計算処理を任せたいことはよくあるので，その方法を記す。</p>
+<p>具体的な実装は，前述の選択肢1 (vim-ipython-cellを使う場合) と選択肢2 (jupyter-vimを使う場合) で異なる。複雑なのは後者であり，その詳細を説明する。</p>
+<h3>[選択肢1] vim-ipython-cellを使う場合</h3>
+<p>vim-ipython-cellを利用する場合は難しいことはない。単にリモートサーバにssh接続してから，screenとvim，ipythonを起動してローカルマシンと同様に利用すれば良い。</p>
+<h3>[選択肢2] jupyter-vimを使う場合</h3>
+<p>jupyter-vimを使う場合は，以下の2つの方式がある。こちらも，それぞれ利点と欠点があるが，私個人は方式1のほうがシンプルで好きだ。</p>
+<ul>
+<li>方式1. リモートにX転送付きのSSH接続をし，QtConsoleとVimを立ち上げる方式<ul>
+<li>利点: 処理がリモートサーバで閉じるのでファイル共有の問題が生じない</li>
+<li>欠点: X転送ではQtConsoleの画面更新が遅い</li>
+</ul>
+</li>
+<li>方式2. ローカルのQtConsoleとVimを，リモートのipythonカーネルと通信させる方式<ul>
+<li>利点: リモートサーバのQtCOnsole等を環境整備する手間がない</li>
+<li>欠点: ローカルマシンとリモートサーバのファイル共有が必要になることがある</li>
+</ul>
+</li>
+</ul>
+<h4>方式1の実施方法</h4>
+<div class="figure">
+    <img src=/images/remote_qtconsole1.PNG>
+    <p class="caption">図4. 方式1の構成図</p>
+</div>
+
+<p>VimとQtConsoleをリモートで実行する場合はほとんどローカルマシンに閉じて使う場合と同じ操作になる。異なる点は，リモートにX転送付きのSSH接続をしてからVimとQtConsoleを立ち上げる点である。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># リモートサーバにX転送を有効化したSSH接続をする</span>
+ssh -Y remote
+
+<span class="c1"># [オプション] 開発用の仮想環境を準備する</span>
+python3 -m venv .devel
+<span class="nb">source</span> .devel/bin/activate
+
+<span class="c1"># リモートサーバにもQtConsoleに必要なライブラリをインストールする</span>
+pip3 install jupyter
+pip3 install qtconsole
+pip3 install PyQt5 <span class="c1"># もしエラーになるなら PyQt5==5.12.2 にダウングレードする</span>
+
+<span class="c1"># リモートサーバでQtConsoleを実行する</span>
+jupyter qtconsole
+</code></pre></div>
+
+
+<p>後はリモートサーバでVimを起動し，<code>:JupyterConnect</code> コマンドを実行して開発を開始するだけ。</p>
+<h4>方式2の実施方法</h4>
+<div class="figure">
+    <img src=/images/remote_qtconsole2.PNG>
+    <p class="caption">図5. 方式2の構成図</p>
+</div>
+
+<p><a href="https://qiita.com/u1and0/items/203da9adda70f8b4c7cd">vagrant上のipython kernelに接続してjupyter を使う - Qiita</a> の記事にあるように，リモートサーバで ipythonのカーネルだけを起動して，ローカルマシンのQtConsoleから呼び出す方式の実現方法を示す。この方式であれば，リモートサーバにipython以外の追加ライブラリは不要なので環境整備の手間が少ない利点がある。</p>
+<p>まず，リモートサーバでipythonカーネルを以下のように起動して準備する。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># リモートサーバにSSHで接続する</span>
+ssh remote
+
+<span class="c1"># [オプション] 開発用の仮想環境を準備する</span>
+python3 -m venv .devel
+<span class="nb">source</span> .devel/bin/activate
+
+<span class="c1"># リモートサーバに必要なライブラリをインストールする</span>
+pip3 install ipython
+
+<span class="c1"># リモートサーバでipythonを実行する</span>
+ipython kernel -f /tmp/ipython.json
+</code></pre></div>
+
+
+<p>次に，ローカルマシンで以下のコマンドを実行し，QtConsoleをipythonカーネルに接続する。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ipythonカーネルの接続情報を取得する</span>
+scp remote:/tmp/ipython.json /tmp/ipython.json
+
+<span class="c1"># qtcosoleを起動してipythonカーネルに接続する</span>
+jupyter qtconsole --existing /tmp/ipython.json --ssh remote
+</code></pre></div>
+
+
+<p>最後にVimを起動して <code>:JupyterConnect /tmp/ipython-ssh.json</code> のコマンドを実行し，QtConsoleに接続する。</p>
+<h4>まとめ</h4>
+<p>以上の操作をシェルスクリプトにまとめると以下のようになる。ここでは，指定したリモートホストにSSH接続をして，ipythonカーネルを起動し，ローカルのQtConsoleで接続するところまでを自動化する。シェルスクリプトの1つめの引数は .ssh/config に記載のホスト名であり，2つめの引数はipythonカーネルの起動に利用するPythonの仮想環境 (venv) のパスである。もしも，1つめの引数がない場合は方式1のように，ローカルでQtConsoleを起動する</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+
+<span class="k">function</span> connect<span class="o">(){</span>
+    <span class="c1"># 指定したリモートホストにSSH接続をして，ipythonカーネルを起動し，ローカルのQtConsoleで接続する</span>
+    <span class="c1"># 1つめの引数は .ssh/config に記載のホスト名</span>
+    <span class="c1"># 2つめの引数はipythonカーネルの起動に利用するPythonの仮想環境 (venv)</span>
+    <span class="c1"># 1つめの引数がない場合はローカルでipythonカーネルを起動する</span>
+    <span class="nv">REMOTE</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">1</span><span class="k">:-</span><span class="nv">default</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="nv">VENVIDR</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">2</span><span class="k">:-</span><span class="p">~/.devel</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">if</span> <span class="o">[[</span> <span class="si">${</span><span class="nv">REMOTE</span><span class="si">}</span> !<span class="o">=</span> <span class="s2">&quot;default&quot;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nb">echo</span> <span class="s1">&#39;Running a remote kernel&#39;</span>
+        ssh <span class="si">${</span><span class="nv">REMOTE</span><span class="si">}</span> <span class="s2">&quot;source </span><span class="si">${</span><span class="nv">VENVDIR</span><span class="si">}</span><span class="s2">/bin/activate &amp;&amp; ipython kernel -f /tmp/ipython.json &amp;&quot;</span>
+        scp <span class="si">${</span><span class="nv">REMOTE</span><span class="si">}</span>:/tmp/ipython.json /tmp/ipython.json
+        jupyter qtconsole --existing /tmp/ipython.json --ssh <span class="si">${</span><span class="nv">REMOTE</span><span class="si">}</span>
+    <span class="k">else</span>
+        <span class="nb">echo</span> <span class="s1">&#39;Running a local kernel&#39;</span>
+        rm -f /tmp/ipython-ssh.json
+        jupyter qtconsole -f /tmp/ipython-ssh.json
+    <span class="k">fi</span>
+<span class="o">}</span>
+
+<span class="k">if</span> <span class="o">[[</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">BASH_SOURCE</span><span class="p">[0]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">0</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+    connect <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+<span class="k">fi</span>
+</code></pre></div>
+
+
+<h2>参考URL</h2>
+<h3>jupytext.vimの関連情報</h3>
+<ul>
+<li><a href="https://jupytext.readthedocs.io/en/latest/">Jupyter Notebooks as Markdown Documents, Julia, Python or R Scripts — Jupytext documentation</a></li>
+<li><a href="https://github.com/goerz/jupytext.vim">goerz/jupytext.vim: Vim plugin for editing Jupyter ipynb files via jupytext</a></li>
+</ul>
+<h3>vim-ipython-cellの関連情報</h3>
+<ul>
+<li><a href="https://github.com/hanschen/vim-ipython-cell">hanschen/vim-ipython-cell: Seamlessly run Python code from Vim in IPython</a></li>
+<li><a href="https://github.com/jpalardy/vim-slime">jpalardy/vim-slime: A vim plugin to give you some slime. (Emacs)</a></li>
+</ul>
+<h3>jupyter-vimの関連情報</h3>
+<ul>
+<li><a href="https://github.com/jupyter-vim/jupyter-vim">jupyter-vim/jupyter-vim: Make Vim talk to Jupyter kernels</a></li>
+<li><a href="https://qtconsole.readthedocs.io/en/stable/">The Qt Console for Jupyter — Jupyter Qt Console 4.7.5 documentation</a></li>
+<li><a href="https://qiita.com/u1and0/items/203da9adda70f8b4c7cd">vagrant上のipython kernelに接続してjupyter を使う - Qiita</a></li>
+<li>
+<p><a href="https://github.com/ipython/ipython/wiki/Cookbook:-Connecting-to-a-remote-kernel-via-ssh">Cookbook: Connecting to a remote kernel via ssh · ipython/ipython Wiki</a></p>
+</li>
+<li>
+<p><a href="https://github.com/jupyter/qtconsole/issues/386">Auto-scroll not working with plots · Issue #386 · jupyter/qtconsole</a></p>
+</li>
+<li><a href="https://github.com/jupyter/qtconsole/pull/349/commits/49f1d666a03cf67dcf71c5e07ada80b76354fdb1">Scroll down for output from remote command by ajtam · Pull Request #349 · jupyter/qtconsole</a></li>
+</ul>
+    </div><!-- /.entry-content -->
+<div class="gad">
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* レクタングル大 */
+    google_ad_slot = "2582152705";
+    google_ad_width = 336;
+    google_ad_height = 280;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+
+    <script type="text/javascript"><!--
+    google_ad_client = "ca-pub-3584384159710434";
+    /* テキスト:大 */
+    google_ad_slot = "8524391909";
+    google_ad_width = 728;
+    google_ad_height = 15;
+    //-->
+    </script>
+    <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+    </script>
+</div>    <h2 class="related-posts">関連する記事</h2>
+        <ul>
+            <li><a href="./python-sshtunnel.html">pythonでsshtunnelする</a></li>
+            <li><a href="./gensim-install.html">Ubuntuへのgensimのinstall</a></li>
+            <li><a href="./2016-09-21-074006.html">DockerでJupyterを簡単に動作させる</a></li>
+            <li><a href="./update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a></li>
+            <li><a href="./qfixhowm-pelican.html">QFixHowmでPelicanのブログ記事を書く</a></li>
+            <li><a href="./vim_mark.html">vimのmark機能を使いやすくする</a></li>
+            <li><a href="./apscheduler.html">apschedulerでPythonの関数を非同期実行する</a></li>
+            <li><a href="./python-threading.html">pythonでthreading</a></li>
+            <li><a href="./pelican-vim.html">Pelicanの記事をVimで楽々編集する</a></li>
+            <li><a href="./libvirt.html">libvirt+pythonで仮想マシンのリソース消費情報を取得する</a></li>
+        </ul>
+    <div class="comments">
+      <h2>Comments !</h2>
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+        var disqus_config = function () {
+            var disqus_identifier = "vim-jupyter-run.html";
+            var disqus_url = "./vim-jupyter-run.html";
+        };
+        var disqus_shortname = 'calcurio';
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+    </div>
+  </article>
+    <nav id="nav-bottom">
+    <div class="top-prev"><a href="raspi-wifi.html" >&larr; Raspberry Pi3 Bで802.11ACな安物無線LANアダプタを使う</a></div>
+    <div class="top-next"><a href="update-display.html" >WSL2でVimのクリップボードをWindowsと共有する方法 &rarr;</a></div>
+    </nav>
+</section>
+<div id="sidebar">
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* スクエア */
+        google_ad_slot = "7175743105";
+        google_ad_width = 200;
+        google_ad_height = 200;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">検索</h3>      <form action="https://www.google.co.jp/search" target="_blank" class="google-search">
+          <input type="hidden" name="q" value="site:http://blog.calcurio.com">
+        <input type="text" name="q">
+      </form>
+    </div>
+    <div class="sidebar_child">
+        Author: M. Tsuyuki
+<p><a href="/pages/about.html">詳しく</a></p>    </div>
+    <div class="sidebar_child">
+        <h3 class="sidebar_title"></h3>
+<h3 class="sidebar_title">カテゴリ</h3>        <ul>            <li><a href="./category/hardware.html">Hardware</a> (11)</li>
+            <li><a href="./category/lun wen.html">論文</a> (2)</li>
+            <li><a href="./category/software.html">Software</a> (79)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">タグ</h3>        <ul>            <li><a href="./tag/aws.html" class="tag">AWS</a> (3)</li>
+            <li><a href="./tag/bash.html" class="tag">bash</a> (6)</li>
+            <li><a href="./tag/blog.html" class="tag">Blog</a> (4)</li>
+            <li><a href="./tag/bot.html" class="tag">bot</a> (1)</li>
+            <li><a href="./tag/cli.html" class="tag">CLI</a> (4)</li>
+            <li><a href="./tag/cui.html" class="tag">CUI</a> (18)</li>
+            <li><a href="./tag/cygwin.html" class="tag">Cygwin</a> (17)</li>
+            <li><a href="./tag/docker.html" class="tag">Docker</a> (11)</li>
+            <li><a href="./tag/dvc.html" class="tag">dvc</a> (1)</li>
+            <li><a href="./tag/ec2.html" class="tag">EC2</a> (2)</li>
+            <li><a href="./tag/firefox.html" class="tag">Firefox</a> (4)</li>
+            <li><a href="./tag/fluentd.html" class="tag">fluentd</a> (1)</li>
+            <li><a href="./tag/git.html" class="tag">Git</a> (3)</li>
+            <li><a href="./tag/github.html" class="tag">Github</a> (1)</li>
+            <li><a href="./tag/hardware.html" class="tag">Hardware</a> (1)</li>
+            <li><a href="./tag/html.html" class="tag">HTML</a> (1)</li>
+            <li><a href="./tag/ji jie xue xi.html" class="tag">機械学習</a> (6)</li>
+            <li><a href="./tag/jia xiang hua.html" class="tag">仮想化</a> (3)</li>
+            <li><a href="./tag/jupyter.html" class="tag">Jupyter</a> (1)</li>
+            <li><a href="./tag/keyboard.html" class="tag">keyboard</a> (1)</li>
+            <li><a href="./tag/linux.html" class="tag">Linux</a> (21)</li>
+            <li><a href="./tag/makefile.html" class="tag">Makefile</a> (1)</li>
+            <li><a href="./tag/math.html" class="tag">math</a> (2)</li>
+            <li><a href="./tag/networking.html" class="tag">Networking</a> (4)</li>
+            <li><a href="./tag/openstack.html" class="tag">OpenStack</a> (2)</li>
+            <li><a href="./tag/pczi zuo.html" class="tag">PC自作</a> (4)</li>
+            <li><a href="./tag/pelican.html" class="tag">Pelican</a> (9)</li>
+            <li><a href="./tag/percol.html" class="tag">percol</a> (2)</li>
+            <li><a href="./tag/preseed.html" class="tag">Preseed</a> (1)</li>
+            <li><a href="./tag/python.html" class="tag">Python</a> (12)</li>
+            <li><a href="./tag/rally.html" class="tag">Rally</a> (1)</li>
+            <li><a href="./tag/raspi.html" class="tag">RasPi</a> (1)</li>
+            <li><a href="./tag/restructuredtext.html" class="tag">reStructuredText</a> (1)</li>
+            <li><a href="./tag/screen.html" class="tag">screen</a> (2)</li>
+            <li><a href="./tag/tesuto.html" class="tag">テスト</a> (1)</li>
+            <li><a href="./tag/thinkpad.html" class="tag">ThinkPad</a> (4)</li>
+            <li><a href="./tag/thinkpad helix.html" class="tag">ThinkPad Helix</a> (2)</li>
+            <li><a href="./tag/tmux.html" class="tag">Tmux</a> (1)</li>
+            <li><a href="./tag/ubuntu.html" class="tag">Ubuntu</a> (27)</li>
+            <li><a href="./tag/vagrant.html" class="tag">vagrant</a> (2)</li>
+            <li><a href="./tag/vim.html" class="tag">Vim</a> (5)</li>
+            <li><a href="./tag/vimperator.html" class="tag">Vimperator</a> (3)</li>
+            <li><a href="./tag/virtualbox.html" class="tag">Virtualbox</a> (1)</li>
+            <li><a href="./tag/windows.html" class="tag">Windows</a> (6)</li>
+            <li><a href="./tag/yoga_tablet2.html" class="tag">yoga_tablet2</a> (1)</li>
+            <li><a href="./tag/zabbix.html" class="tag">zabbix</a> (1)</li>
+            <li><a href="./tag/ziyobusukeziyura.html" class="tag">ジョブスケジューラ</a> (1)</li>
+            <li><a href="./tag/zsh.html" class="tag">zsh</a> (7)</li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+        <script type="text/javascript"><!--
+        google_ad_client = "ca-pub-3584384159710434";
+        /* リンクユニット */
+        google_ad_slot = "1129209509";
+        google_ad_width = 200;
+        google_ad_height = 90;
+        //-->
+        </script>
+        <script type="text/javascript"
+        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+        </script>
+    </div>
+    <div class="sidebar_child">
+<h3 class="sidebar_title">最近の投稿</h3>        <ul id="recent-article">
+        <li>
+            <a href="update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a>
+            2020/07/25
+        </li>
+        <li>
+            <a href="vim-jupyter-run.html">VimをJupyterノートブックの開発環境に仕上げる</a>
+            2020/07/24
+        </li>
+        <li>
+            <a href="raspi-wifi.html">Raspberry Pi3 Bで802.11ACな安物無線LANアダプタを使う</a>
+            2019/05/01
+        </li>
+        <li>
+            <a href="PALM_Machine_Learning_Explanations_for_Iterative_Debugging.html">PALM_Machine_Learning_Explanations_for_Iterative_Debugging</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="A_Survey_of_Methods_For_Explaining_Bloack_Box_Models.html">A Survey of Methods For Explaining Bloack Box Modelsを読んだ</a>
+            2018/10/07
+        </li>
+        <li>
+            <a href="sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a>
+            2018/04/08
+        </li>
+        <li>
+            <a href="dataversioncontrol.html">機械学習のデータセットをGitライクにバージョン管理するDataVersionControlを試す</a>
+            2018/04/07
+        </li>
+        <li>
+            <a href="transparent-proxy-by-squid.html">Docker buildを高速化するためにsquidで透過型プロキシを立ててみた</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="detect-apt-cacher-in-dockerfile.html">Dockerfile内部でapt-cacher-ngを自動検出する</a>
+            2017/08/19
+        </li>
+        <li>
+            <a href="slurm.html">slurmをインストール...したい</a>
+            2017/08/16
+        </li>
+        <li>
+            <a href="install-nvenc-on-ubunu.html">UbuntuにNVENCをインストールしてエンコードしてみる</a>
+            2017/06/26
+        </li>
+        <li>
+            <a href="install_dropbox_for_linux.html">UbuntuにLinux用Dropboxをインストールする</a>
+            2017/06/25
+        </li>
+        <li>
+            <a href="ssh-tunneling-for-samba.html">SSHトンネル経由でWindowsからリモートのSambaサーバへ接続する方法</a>
+            2017/06/19
+        </li>
+        <li>
+            <a href="h270-unixbench.html">Core i7-7700な自作PCを作ったのでUnixBenchを取ってみた</a>
+            2017/06/18
+        </li>
+        <li>
+            <a href="enable-wake-on-lan.html">Ubuntuでwake-on-lanを有効化する</a>
+            2017/06/16
+        </li>
+        </ul>
+    </div>
+    <div class="sidebar_child">
+    <h3 class="sidebar_title">関連する記事</h3>
+        <ul id="sidebar_related_article">
+            <li><a href="./python-sshtunnel.html">pythonでsshtunnelする</a></li>
+            <li><a href="./gensim-install.html">Ubuntuへのgensimのinstall</a></li>
+            <li><a href="./2016-09-21-074006.html">DockerでJupyterを簡単に動作させる</a></li>
+            <li><a href="./update-display.html">WSL2でVimのクリップボードをWindowsと共有する方法</a></li>
+            <li><a href="./qfixhowm-pelican.html">QFixHowmでPelicanのブログ記事を書く</a></li>
+            <li><a href="./vim_mark.html">vimのmark機能を使いやすくする</a></li>
+            <li><a href="./apscheduler.html">apschedulerでPythonの関数を非同期実行する</a></li>
+            <li><a href="./python-threading.html">pythonでthreading</a></li>
+            <li><a href="./pelican-vim.html">Pelicanの記事をVimで楽々編集する</a></li>
+            <li><a href="./libvirt.html">libvirt+pythonで仮想マシンのリソース消費情報を取得する</a></li>
+        </ul>
+    </div>
+</div>        </div>
+        <section id="extras" class="body">
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="http://blog.calcurio.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <p>Powered by <a href="http://getpelican.com/">Pelican</a>. Theme baseed on <a href="https://github.com/blueicefield/pelican-blueidea/">blueidea</a>.</p>
+        </footer><!-- /#contentinfo -->
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+   ga('create', 'UA-42775386-2', 'auto');
+    ga('send', 'pageview');
+</script>
+</body>
+</html>
