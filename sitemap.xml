@@ -5,28 +5,28 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://blog.calcurio.com/</loc>
-<lastmod>2020-07-26T01:01:40-00:00</lastmod>
+<lastmod>2020-07-26T01:03:25-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://blog.calcurio.com/archives.html</loc>
-<lastmod>2020-07-26T01:01:40-00:00</lastmod>
+<lastmod>2020-07-26T01:03:25-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://blog.calcurio.com/tags.html</loc>
-<lastmod>2020-07-26T01:01:40-00:00</lastmod>
+<lastmod>2020-07-26T01:03:25-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://blog.calcurio.com/categories.html</loc>
-<lastmod>2020-07-26T01:01:40-00:00</lastmod>
+<lastmod>2020-07-26T01:03:25-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
