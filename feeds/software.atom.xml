@@ -1,5 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>電脳手帳 - Software</title><link href="http://blog.calcurio.com/" rel="alternate"></link><link href="http://blog.calcurio.com/feeds/software.atom.xml" rel="self"></link><id>http://blog.calcurio.com/</id><updated>2020-07-26T01:01:28+09:00</updated><subtitle>計算機環境やコーディング，機械学習まわりの話題を書き留めます</subtitle><entry><title>WSL2でVimのクリップボードをWindowsと共有する方法</title><link href="http://blog.calcurio.com/update-display.html" rel="alternate"></link><published>2020-07-25T00:36:41+09:00</published><updated>2020-07-25T01:02:34+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2020-07-25:/update-display.html</id><summary type="html">&lt;p&gt;WSL2でVimのヤンクをWindowsのクリップボードを共有したかった。基本的には &lt;a href="https://gist.github.com/necojackarc/02c3c81e1525bb5dc3561f378e921541"&gt;Set up Vim on Ubuntu on Windows Subsystem for Linux 2 (WSL2) to share clipboard&lt;/a&gt; の記事の手順で事足りたのだが，環境変数 DISPLAY の設定方法だけ工夫する必要があったので記録を残す。&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>電脳手帳 - Software</title><link href="http://blog.calcurio.com/" rel="alternate"></link><link href="http://blog.calcurio.com/feeds/software.atom.xml" rel="self"></link><id>http://blog.calcurio.com/</id><updated>2020-08-01T19:22:05+09:00</updated><subtitle>計算機環境やコーディング，機械学習まわりの話題を書き留めます</subtitle><entry><title>GNU Screenのウィンドウタイトルを自動設定する際に日本語の文字化けを回避する</title><link href="http://blog.calcurio.com/screen-title.html" rel="alternate"></link><published>2020-08-01T18:01:18+09:00</published><updated>2020-08-01T19:22:05+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2020-08-01:/screen-title.html</id><summary type="html">&lt;p&gt;GNU Screenで複数のウィンドウを開くと，どのウィンドウで何の作業をしているか分かりづらい。これを区別する手段がウィンドウタイトルであり，&lt;a href="https://tarao.hatenablog.com/entry/20100223/1266958660"&gt;GNU screenのウィンドウタイトルを自動設定 - 貳佰伍拾陸夜日記&lt;/a&gt; の設定に従うとウィンドウタイトルに実行中のコマンド名か，カレントディレクトリの名称を自動設定できる。&lt;/p&gt;
+&lt;p&gt;一方，(少なくともaptで入る version 4.06.02の) Screenではウィンドウタイトルに日本語を使えない。文字化けするとレイアウトが崩れてしまう。この問題はカレントディレクトリに日本語を含むときに特に問題になる。今回はScreenにパッチを当てるのではなく，日本語をローマ字に変換してからScreenにわたすことで文字化けを回避する。&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;GNU Screenで複数のウィンドウを開くと，どのウィンドウで何の作業をしているか分かりづらい。これを区別する手段がウィンドウタイトルであり，&lt;a href="https://tarao.hatenablog.com/entry/20100223/1266958660"&gt;GNU screenのウィンドウタイトルを自動設定 - 貳佰伍拾陸夜日記&lt;/a&gt; の設定に従うとウィンドウタイトルに実行中のコマンド名か，カレントディレクトリの名称を自動設定できる。&lt;/p&gt;
+&lt;p&gt;一方，(少なくともaptで入る version 4.06.02の) Screenではウィンドウタイトルに日本語を使えない。文字化けするとレイアウトが崩れてしまう。この問題はカレントディレクトリに日本語を含むときに特に問題になる。今回はScreenにパッチを当てるのではなく，日本語をローマ字に変換してからScreenにわたすことで文字化けを回避する。&lt;/p&gt;
+&lt;!-- PELICAN_END_SUMMARY --&gt;
+
+&lt;h1&gt;インストール&lt;/h1&gt;
+&lt;p&gt;この日本語のローマ字変換は &lt;code&gt;kakasi&lt;/code&gt; プログラムで実現できる。そのインストールは通常通りにaptで可能だ。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;sudo apt install -y kakasi
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;kakasiを使えば以下のように日本語をローマ字に変換できる。今回は &lt;code&gt;-S_ -s&lt;/code&gt; オプションの付与で &lt;code&gt;_&lt;/code&gt; で区切ることにした。その他のオプションの詳細は &lt;code&gt;man kakasi&lt;/code&gt; を参照いただきたい。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;とても眠い&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; kakasi -Ja -Ha -Ka -Ea -i utf-8 -o utf-8 -S_ -s
+totemo_nemui
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;screenの設定&lt;/h1&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;setenv SCREENTITLE auto
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;zshの設定&lt;/h1&gt;
+&lt;p&gt;まず &lt;code&gt;~/.zshrc&lt;/code&gt; に以下の内容を追加する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="c1"&gt;# automatically set title&lt;/span&gt;
+&lt;span class="nb"&gt;typeset&lt;/span&gt; -ga precmd_functions
+&lt;span class="nb"&gt;typeset&lt;/span&gt; -ga preexec_functions
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[[&lt;/span&gt; &lt;span class="nv"&gt;$ZSH_VERSION&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&amp;lt;&lt;span class="m"&gt;5&lt;/span&gt;-&amp;gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;.&amp;lt;&lt;span class="m"&gt;4&lt;/span&gt;-&amp;gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;.3.&amp;lt;&lt;span class="m"&gt;10&lt;/span&gt;-&amp;gt;&lt;span class="o"&gt;)&lt;/span&gt;* &lt;span class="o"&gt;]]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt;
+  &lt;span class="nb"&gt;source&lt;/span&gt; ~/.zsh/term.zshrc
+&lt;span class="k"&gt;fi&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;次に &lt;code&gt;~/.zsh/term.zshrc&lt;/code&gt; として以下の内容を保存する。ポイントは &lt;code&gt;which kakasi &amp;gt; /dev/null 2&amp;gt;&amp;amp;1 &amp;amp;&amp;amp; title=$(echo ${1} | kakasi -Ja -Ha -Ka -Ea -i utf-8 -o utf-8 -S_ -s)&lt;/code&gt; の行であり，ここで日本語をローマ字に変換している。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="c1"&gt;# VCS&lt;/span&gt;
+autoload -Uz vcs_info
+zstyle &lt;span class="s1"&gt;&amp;#39;:vcs_info:(git|svn):*&amp;#39;&lt;/span&gt; formats &lt;span class="s1"&gt;&amp;#39;%R&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;%S&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;%b&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;%s&amp;#39;&lt;/span&gt;
+zstyle &lt;span class="s1"&gt;&amp;#39;:vcs_info:(git|svn):*&amp;#39;&lt;/span&gt; actionformats &lt;span class="s1"&gt;&amp;#39;%R&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;%S&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;%b|%a&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;%s&amp;#39;&lt;/span&gt;
+zstyle &lt;span class="s1"&gt;&amp;#39;:vcs_info:*&amp;#39;&lt;/span&gt; formats &lt;span class="s1"&gt;&amp;#39;%R&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;%S&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;%s:%b&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;%s&amp;#39;&lt;/span&gt;
+zstyle &lt;span class="s1"&gt;&amp;#39;:vcs_info:*&amp;#39;&lt;/span&gt; actionformats &lt;span class="s1"&gt;&amp;#39;%R&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;%S&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;%s:%b|%a&amp;#39;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;%s&amp;#39;&lt;/span&gt;
+&lt;span class="k"&gt;function&lt;/span&gt; precmd_vcs_info &lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="nv"&gt;psvar&lt;/span&gt;&lt;span class="o"&gt;=()&lt;/span&gt;
+    &lt;span class="nv"&gt;STY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nv"&gt;LANG&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;en_US.UTF-8 vcs_info
+    &lt;span class="nv"&gt;repos&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;print -nD &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$vcs_info_msg_0_&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[[&lt;/span&gt; -n &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$vcs_info_msg_1_&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt;
+        &lt;span class="nv"&gt;vcs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$vcs_info_msg_3_&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class="k"&gt;else&lt;/span&gt;
+        &lt;span class="nv"&gt;vcs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&amp;#39;&lt;/span&gt;
+    &lt;span class="k"&gt;fi&lt;/span&gt;
+    &lt;span class="o"&gt;[[&lt;/span&gt; -n &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$repos&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; psvar&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="o"&gt;]=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$repos&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class="o"&gt;[[&lt;/span&gt; -n &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$vcs_info_msg_1_&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; psvar&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;&lt;span class="o"&gt;]=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$vcs_info_msg_1_&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+    &lt;span class="o"&gt;[[&lt;/span&gt; -n &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$vcs_info_msg_2_&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; psvar&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;]=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$vcs_info_msg_2_&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="c1"&gt;# set window title of screen&lt;/span&gt;
+&lt;span class="k"&gt;function&lt;/span&gt; set_screen_title &lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="nb"&gt;local&lt;/span&gt; title
+  &lt;span class="c1"&gt;# convert Kanji to Rome-ji to avoid Mojibake&lt;/span&gt;
+  which kakasi &amp;gt; /dev/null &lt;span class="m"&gt;2&lt;/span&gt;&amp;gt;&lt;span class="p"&gt;&amp;amp;&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nv"&gt;title&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;1&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; kakasi -Ja -Ha -Ka -Ea -i utf-8 -o utf-8 -S_ -s&lt;span class="k"&gt;)&lt;/span&gt;
+  &lt;span class="nb"&gt;echo&lt;/span&gt; -ne &lt;span class="s2"&gt;&amp;quot;\ek&lt;/span&gt;&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;title&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;\e\\&amp;quot;&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;function&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="c1"&gt;# use current directory as a title&lt;/span&gt;
+    &lt;span class="k"&gt;function&lt;/span&gt; precmd_screen_window_title &lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[[&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$SCREENTITLE&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;auto&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt;
+            &lt;span class="nb"&gt;local&lt;/span&gt; dir
+            &lt;span class="nv"&gt;dir&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;&lt;span class="nb"&gt;pwd&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;
+            &lt;span class="nv"&gt;dir&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;print -nD &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$dir&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[[&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt; -n &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$vcs&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$repos&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; !&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$dir&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt;
+                &lt;span class="c1"&gt;# name of repository and directory&lt;/span&gt;
+                &lt;span class="nv"&gt;dir&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;repos&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="nv"&gt;t&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;:&lt;/span&gt;&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;dir&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="nv"&gt;t&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+            &lt;span class="k"&gt;else&lt;/span&gt;
+                &lt;span class="c1"&gt;# name of directory&lt;/span&gt;
+                &lt;span class="nv"&gt;dir&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;dir&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="nv"&gt;t&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;
+            &lt;span class="k"&gt;fi&lt;/span&gt;
+            set_screen_title &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$dir&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+        &lt;span class="k"&gt;fi&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="nb"&gt;typeset&lt;/span&gt; -A SCREEN_TITLE_CMD_ARG&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="nv"&gt;SCREEN_TITLE_CMD_ARG&lt;/span&gt;&lt;span class="o"&gt;=(&lt;/span&gt;ssh  -1 su -1 man -1&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="nb"&gt;typeset&lt;/span&gt; -A SCREEN_TITLE_CMD_IGNORE&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="nv"&gt;SCREEN_TITLE_CMD_IGNORE&lt;/span&gt;&lt;span class="o"&gt;=()&lt;/span&gt;
+&lt;span class="k"&gt;function&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt; &lt;span class="c1"&gt;# use command name as a title&lt;/span&gt;
+    &lt;span class="k"&gt;function&lt;/span&gt; set_cmd_screen_title &lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="nb"&gt;local&lt;/span&gt; -a cmd&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="nv"&gt;cmd&lt;/span&gt;&lt;span class="o"&gt;=(&lt;/span&gt;&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="p"&gt;(z)1&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="o"&gt;[[&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$cmd&lt;/span&gt;&lt;span class="s2"&gt;[1]&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;~ &lt;span class="s2"&gt;&amp;quot;[^\\]=&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="nb"&gt;shift&lt;/span&gt; cmd&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;done&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[[&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$cmd&lt;/span&gt;&lt;span class="s2"&gt;[1]&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;env&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt; &lt;span class="nb"&gt;shift&lt;/span&gt; cmd&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;fi&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[[&lt;/span&gt; -n &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$SCREEN_TITLE_CMD_IGNORE&lt;/span&gt;&lt;span class="s2"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;$cmd&lt;/span&gt;&lt;span class="s2"&gt;[1]]&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt;
+            &lt;span class="k"&gt;return&lt;/span&gt;
+        &lt;span class="k"&gt;elif&lt;/span&gt; &lt;span class="o"&gt;[[&lt;/span&gt; -n &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$SCREEN_TITLE_CMD_ARG&lt;/span&gt;&lt;span class="s2"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;$cmd&lt;/span&gt;&lt;span class="s2"&gt;[1]]&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt;
+            &lt;span class="c1"&gt;# argument of command&lt;/span&gt;
+            cmd&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;]=&lt;/span&gt;&lt;span class="nv"&gt;$cmd&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;$SCREEN_TITLE_CMD_ARG&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;$cmd&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;]]]&lt;/span&gt;
+        &lt;span class="k"&gt;fi&lt;/span&gt;
+        set_screen_title &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$cmd&lt;/span&gt;&lt;span class="s2"&gt;[1]:t&amp;quot;&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;function&lt;/span&gt; preexec_screen_window_title &lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="nb"&gt;local&lt;/span&gt; -a cmd&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="nv"&gt;cmd&lt;/span&gt;&lt;span class="o"&gt;=(&lt;/span&gt;&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="p"&gt;(z)2&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;# command in a single line&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[[&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$SCREENTITLE&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;auto&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt;
+            &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nv"&gt;$cmd&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; in
+                &lt;span class="nb"&gt;fg&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+                    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;((&lt;/span&gt; &lt;span class="nv"&gt;$#cmd&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt; &lt;span class="o"&gt;))&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt;
+                        &lt;span class="nv"&gt;cmd&lt;/span&gt;&lt;span class="o"&gt;=(&lt;/span&gt;&lt;span class="nb"&gt;builtin&lt;/span&gt; &lt;span class="nb"&gt;jobs&lt;/span&gt; -l %+&lt;span class="o"&gt;)&lt;/span&gt;
+                    &lt;span class="k"&gt;else&lt;/span&gt;
+                        &lt;span class="nv"&gt;cmd&lt;/span&gt;&lt;span class="o"&gt;=(&lt;/span&gt;&lt;span class="nb"&gt;builtin&lt;/span&gt; &lt;span class="nb"&gt;jobs&lt;/span&gt; -l &lt;span class="nv"&gt;$cmd&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;&lt;span class="o"&gt;])&lt;/span&gt;
+                    &lt;span class="k"&gt;fi&lt;/span&gt;
+                    &lt;span class="p"&gt;;;&lt;/span&gt;
+                %*&lt;span class="o"&gt;)&lt;/span&gt;
+                    &lt;span class="nv"&gt;cmd&lt;/span&gt;&lt;span class="o"&gt;=(&lt;/span&gt;&lt;span class="nb"&gt;builtin&lt;/span&gt; &lt;span class="nb"&gt;jobs&lt;/span&gt; -l &lt;span class="nv"&gt;$cmd&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;&lt;span class="o"&gt;])&lt;/span&gt;
+                    &lt;span class="p"&gt;;;&lt;/span&gt;
+                *&lt;span class="o"&gt;)&lt;/span&gt;
+                    set_cmd_screen_title &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$cmd&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+                    &lt;span class="k"&gt;return&lt;/span&gt;
+                    &lt;span class="p"&gt;;;&lt;/span&gt;
+            &lt;span class="k"&gt;esac&lt;/span&gt;
+            &lt;span class="c1"&gt;# resolve command in jobs&lt;/span&gt;
+            &lt;span class="nb"&gt;local&lt;/span&gt; -A jt&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="nv"&gt;jt&lt;/span&gt;&lt;span class="o"&gt;=(&lt;/span&gt;&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="p"&gt;(kv)jobtexts&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+            &lt;span class="nv"&gt;$cmd&lt;/span&gt; &amp;gt;&amp;gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;read&lt;/span&gt; num rest
+                &lt;span class="nv"&gt;cmd&lt;/span&gt;&lt;span class="o"&gt;=(&lt;/span&gt;&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="p"&gt;(z)&lt;/span&gt;&lt;span class="si"&gt;${&lt;/span&gt;&lt;span class="p"&gt;(e)&lt;/span&gt;&lt;span class="k"&gt;:-&lt;/span&gt;&lt;span class="se"&gt;\$&lt;/span&gt;&lt;span class="nv"&gt;jt$num&lt;/span&gt;&lt;span class="si"&gt;}}&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+                set_cmd_screen_title &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$cmd&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+            &lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="m"&gt;2&lt;/span&gt;&amp;gt;/dev/null
+        &lt;span class="k"&gt;fi&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;function&lt;/span&gt; title&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[[&lt;/span&gt; -n &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$SCREENTITLE&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[[&lt;/span&gt; -n &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$1&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;]]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt;
+            &lt;span class="c1"&gt;# set title explicitly&lt;/span&gt;
+            &lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;SCREENTITLE&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;explicit
+            set_screen_title &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$1&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+        &lt;span class="k"&gt;else&lt;/span&gt;
+            &lt;span class="c1"&gt;# automatically set title&lt;/span&gt;
+            &lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;SCREENTITLE&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;auto
+        &lt;span class="k"&gt;fi&lt;/span&gt;
+    &lt;span class="k"&gt;fi&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="nv"&gt;precmd_functions&lt;/span&gt;&lt;span class="o"&gt;+=&lt;/span&gt;precmd_vcs_info
+&lt;span class="nv"&gt;precmd_functions&lt;/span&gt;&lt;span class="o"&gt;+=&lt;/span&gt;precmd_screen_window_title
+&lt;span class="nv"&gt;preexec_functions&lt;/span&gt;&lt;span class="o"&gt;+=&lt;/span&gt;preexec_screen_window_title
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;するとローマ字に変換された内容がウィンドウタイトルに自動設定されるようになる。&lt;/p&gt;</content><category term="Software"></category><category term="CUI"></category><category term="Screen"></category></entry><entry><title>WSL2でVimのクリップボードをWindowsと共有する方法</title><link href="http://blog.calcurio.com/update-display.html" rel="alternate"></link><published>2020-07-25T00:36:41+09:00</published><updated>2020-07-25T01:02:34+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2020-07-25:/update-display.html</id><summary type="html">&lt;p&gt;WSL2でVimのヤンクをWindowsのクリップボードを共有したかった。基本的には &lt;a href="https://gist.github.com/necojackarc/02c3c81e1525bb5dc3561f378e921541"&gt;Set up Vim on Ubuntu on Windows Subsystem for Linux 2 (WSL2) to share clipboard&lt;/a&gt; の記事の手順で事足りたのだが，環境変数 DISPLAY の設定方法だけ工夫する必要があったので記録を残す。&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;WSL2でVimのヤンクをWindowsのクリップボードを共有したかった。基本的には &lt;a href="https://gist.github.com/necojackarc/02c3c81e1525bb5dc3561f378e921541"&gt;Set up Vim on Ubuntu on Windows Subsystem for Linux 2 (WSL2) to share clipboard&lt;/a&gt; の記事の手順で事足りたのだが，環境変数 DISPLAY の設定方法だけ工夫する必要があったので記録を残す。&lt;/p&gt;
 &lt;!-- PELICAN_END_SUMMARY --&gt;
 

@@ -47,11 +47,36 @@
                 <ol id="posts-list" class="hfeed">
                     <li><article class="hentry">
                         <header>
-                            <h1><a href="../sixel.html" rel="bookmark"
-                                   title="Permalink to ターミナル上で画像を表示するlibsixelを試してみた">ターミナル上で画像を表示するlibsixelを試してみた</a></h1>
+                            <h1><a href="../screen-title.html" rel="bookmark"
+                                   title="Permalink to GNU Screenのウィンドウタイトルを自動設定する際に日本語の文字化けを回避する">GNU Screenのウィンドウタイトルを自動設定する際に日本語の文字化けを回避する</a></h1>
                         </header>
 
                         <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2020/08/01 18:01</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2020/08/01 19:22</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/software.html">Software</a>
+<span>| tags: <a href="../tag/cui.html" class="tag">CUI</a><a href="../tag/screen.html" class="tag">Screen</a></span>
+
+</footer><!-- /.post-info -->                        <p>GNU Screenで複数のウィンドウを開くと，どのウィンドウで何の作業をしているか分かりづらい。これを区別する手段がウィンドウタイトルであり，<a href="https://tarao.hatenablog.com/entry/20100223/1266958660">GNU screenのウィンドウタイトルを自動設定 - 貳佰伍拾陸夜日記</a> の設定に従うとウィンドウタイトルに実行中のコマンド名か，カレントディレクトリの名称を自動設定できる。</p>
+<p>一方，(少なくともaptで入る version 4.06.02の) Screenではウィンドウタイトルに日本語を使えない。文字化けするとレイアウトが崩れてしまう。この問題はカレントディレクトリに日本語を含むときに特に問題になる。今回はScreenにパッチを当てるのではなく，日本語をローマ字に変換してからScreenにわたすことで文字化けを回避する。</p>
+
+                        <a class="readmore" href="../screen-title.html">&raquo; read more</a>
+<p><a href="../screen-title.html#disqus_thread">comments</a></p>                        </div><!-- /.entry-content -->
+                    </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="../sixel.html" rel="bookmark"
+                           title="Permalink to ターミナル上で画像を表示するlibsixelを試してみた">ターミナル上で画像を表示するlibsixelを試してみた</a></h1>
+                </header>
+
+                <div class="entry-content">
 <footer class="post-info">
 <span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2018/04/08 15:51</span>
 <span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2018/04/08 17:06</span>
@@ -61,19 +86,30 @@
         <a class="article_category_name" href="../category/software.html">Software</a>
 <span>| tags: <a href="../tag/ubuntu.html" class="tag">Ubuntu</a><a href="../tag/cli.html" class="tag">CLI</a><a href="../tag/cui.html" class="tag">CUI</a><a href="../tag/cygwin.html" class="tag">Cygwin</a><a href="../tag/linux.html" class="tag">Linux</a></span>
 
-</footer><!-- /.post-info -->                        <p>ssh接続先で数値計算結果を確認するため，matplotlibでグラフ画像を生成することはよくある。今までは画像ファイルをscpでローカルに転送し，表示していたがいちいちコピーするのは面倒だ。ssh先のcatコマンドで画像も表示できたらいいのになーとはよく思っていた。</p>
+</footer><!-- /.post-info -->                <p>ssh接続先で数値計算結果を確認するため，matplotlibでグラフ画像を生成することはよくある。今までは画像ファイルをscpでローカルに転送し，表示していたがいちいちコピーするのは面倒だ。ssh先のcatコマンドで画像も表示できたらいいのになーとはよく思っていた。</p>
 <p>ところでw3mやemacsでは，ターミナルに画像を表示する機能があったはず。
 ということで調べてみると，どうやらsixelという規格を使えばターミナルに画像を表示できるようだ。</p>
 <p><a class="reference external" href="https://github.com/saitoha/libsixel/">libsixel</a> はsixelとして表示するためのプログラム。
 libsixelと <a class="reference external" href="https://github.com/saitoha/libsixel#terminal-requirements">sixelに対応したターミナル</a> を組み合わせれば，画像を表示できるはずだ。</p>
 
-                        <a class="readmore" href="../sixel.html">&raquo; read more</a>
-<p><a href="../sixel.html#disqus_thread">comments</a></p>                        </div><!-- /.entry-content -->
-                    </article></li>
+                <a class="readmore" href="../sixel.html">&raquo; read more</a>
+<p><a href="../sixel.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
 
 
 
-            <li><article class="hentry">
+<div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>            <li><article class="hentry">
                 <header>
                     <h1><a href="../jq-numeric-key.html" rel="bookmark"
                            title="Permalink to jqコマンドで数値のキーをパースする">jqコマンドで数値のキーをパースする</a></h1>
@@ -101,18 +137,7 @@ libsixelと <a class="reference external" href="https://github.com/saitoha/libsi
 
 
 
-<div class="gad">スポンサード リンク<script type="text/javascript"><!--
-google_ad_client = "ca-pub-3584384159710434";
-/* 本文の途中 */
-google_ad_slot = "6048603509";
-google_ad_width = 728;
-google_ad_height = 90;
-//-->
-</script>
-<script type="text/javascript"
-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-</script>
-</div>            <li><article class="hentry">
+            <li><article class="hentry">
                 <header>
                     <h1><a href="../virt-top.html" rel="bookmark"
                            title="Permalink to virt-topコマンドでKVMの仮想マシンの内部CPU使用率をJson形式で出力する">virt-topコマンドでKVMの仮想マシンの内部CPU使用率をJson形式で出力する</a></h1>
@@ -138,7 +163,18 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 
 
 
-            <li><article class="hentry">
+<div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>            <li><article class="hentry">
                 <header>
                     <h1><a href="../cygwin-sshd.html" rel="bookmark"
                            title="Permalink to cygwinでsshdを起動する">cygwinでsshdを起動する</a></h1>
@@ -162,18 +198,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 
 
 
-<div class="gad">スポンサード リンク<script type="text/javascript"><!--
-google_ad_client = "ca-pub-3584384159710434";
-/* 本文の途中 */
-google_ad_slot = "6048603509";
-google_ad_width = 728;
-google_ad_height = 90;
-//-->
-</script>
-<script type="text/javascript"
-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-</script>
-</div>            <li><article class="hentry">
+            <li><article class="hentry">
                 <header>
                     <h1><a href="../install_runC.html" rel="bookmark"
                            title="Permalink to runCをインストールして，Dockerコンテナのスナップショットを取る">runCをインストールして，Dockerコンテナのスナップショットを取る</a></h1>
@@ -310,36 +335,6 @@ note-pc  --ssh--&gt; ssh-gateway  --ssh--&gt; target
                 <a class="readmore" href="../ssh_port_forwarding.html">&raquo; read more</a>
 <p><a href="../ssh_port_forwarding.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
             </article></li>
-
-
-
-            <li><article class="hentry">
-                <header>
-                    <h1><a href="../bash_if_main.html" rel="bookmark"
-                           title="Permalink to bashでpythonの if __name__ == '__main__': っぽいことをする方法">bashでpythonの if __name__ == '__main__': っぽいことをする方法</a></h1>
-                </header>
-
-                <div class="entry-content">
-<footer class="post-info">
-<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/07/24 17:45</span>
-<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/07/24 18:31</span>
-
-
-        <span id="article_category">| category:</span>
-        <a class="article_category_name" href="../category/software.html">Software</a>
-<span>| tags: <a href="../tag/bash.html" class="tag">bash</a><a href="../tag/cui.html" class="tag">CUI</a></span>
-
-</footer><!-- /.post-info -->                <!-- tags: bash, blog, CUI, Cygwin, Docker, Firefox, git, Github, Hardware, job, keyboard, Linux, math, OpenStack, PC自作, pelican, Pelican, percol, Preseed, python, Rally, reStructuredText, screen, ThinkPad, ThinkPadHelix, TODO, Ubuntu, Vim, Vimperator, Virtualbox, Windows, yoga_tablet2, zabbix, zsh, テスト, 原稿 -->
-<!-- category: blog, Hardware/ノートPC, IDEA, software, Software, Software/Blog, Software/CUI, Software/Linux, 原稿, 未分類 -->
-<p>pythonならば，スクリプトを直接実行にのみ実行するコードは</p>
-
-</pre>
-<p>の後に記述すれば良い。ここに書かれたコードはimportされた場合には実行されないようにできる。</p>
-<p>同様にシェルスクリプトで，すなわちbashで <tt class="docutils literal">source</tt> した場合には実行されないようにする方法を調べたのでメモ。</p>
-
-                <a class="readmore" href="../bash_if_main.html">&raquo; read more</a>
-<p><a href="../bash_if_main.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
-            </article></li>
             </ol><!-- /#posts-list -->
             </section><!-- /#content -->
 <div id="sidebar">
@@ -370,7 +365,7 @@ note-pc  --ssh--&gt; ssh-gateway  --ssh--&gt; target
         <h3 class="sidebar_title"></h3>
 <h3 class="sidebar_title">カテゴリ</h3>        <ul>            <li><a href="../category/hardware.html">Hardware</a> (11)</li>
             <li><a href="../category/lun wen.html">論文</a> (2)</li>
-            <li><a href="../category/software.html">Software</a> (79)</li>
+            <li><a href="../category/software.html">Software</a> (80)</li>
         </ul>
     </div>
     <div class="sidebar_child">
@@ -379,7 +374,7 @@ note-pc  --ssh--&gt; ssh-gateway  --ssh--&gt; target
             <li><a href="../tag/blog.html" class="tag">Blog</a> (4)</li>
             <li><a href="../tag/bot.html" class="tag">bot</a> (1)</li>
             <li><a href="../tag/cli.html" class="tag">CLI</a> (4)</li>
-            <li><a href="../tag/cui.html" class="tag">CUI</a> (18)</li>
+            <li><a href="../tag/cui.html" class="tag">CUI</a> (19)</li>
             <li><a href="../tag/cygwin.html" class="tag">Cygwin</a> (17)</li>
             <li><a href="../tag/docker.html" class="tag">Docker</a> (11)</li>
             <li><a href="../tag/dvc.html" class="tag">dvc</a> (1)</li>
@@ -407,7 +402,7 @@ note-pc  --ssh--&gt; ssh-gateway  --ssh--&gt; target
             <li><a href="../tag/rally.html" class="tag">Rally</a> (1)</li>
             <li><a href="../tag/raspi.html" class="tag">RasPi</a> (1)</li>
             <li><a href="../tag/restructuredtext.html" class="tag">reStructuredText</a> (1)</li>
-            <li><a href="../tag/screen.html" class="tag">screen</a> (2)</li>
+            <li><a href="../tag/screen.html" class="tag">Screen</a> (3)</li>
             <li><a href="../tag/tesuto.html" class="tag">テスト</a> (1)</li>
             <li><a href="../tag/thinkpad.html" class="tag">ThinkPad</a> (4)</li>
             <li><a href="../tag/thinkpad helix.html" class="tag">ThinkPad Helix</a> (2)</li>
@@ -439,6 +434,10 @@ note-pc  --ssh--&gt; ssh-gateway  --ssh--&gt; target
     </div>
     <div class="sidebar_child">
 <h3 class="sidebar_title">最近の投稿</h3>        <ul id="recent-article">
+        <li>
+            <a href="screen-title.html">GNU Screenのウィンドウタイトルを自動設定する際に日本語の文字化けを回避する</a>
+            2020/08/01
+        </li>
         <li>
             <a href="sixel.html">ターミナル上で画像を表示するlibsixelを試してみた</a>
             2018/04/08
@@ -494,10 +493,6 @@ note-pc  --ssh--&gt; ssh-gateway  --ssh--&gt; target
         <li>
             <a href="linux-proxy.html">linuxやcygwinでhttpプロキシを指定する方法</a>
             2016/06/09
-        </li>
-        <li>
-            <a href="mintty-ime-color.html">CygwinのターミナルminttyでIMEの状態に応じてカーソル色を変える</a>
-            2016/06/06
         </li>
         </ul>
     </div>

@@ -3,7 +3,7 @@
 <head>
         <link rel="canonical" href="http://blog.calcurio.com/tag/screen.html" />
         <meta charset="utf-8" />
-        <title>screen | 電脳手帳</title>
+        <title>Screen | 電脳手帳</title>
         <link rel="apple-touch-icon" sizes="57x57" href="theme/favicon/apple-touch-icon-57x57.png">
         <link rel="apple-touch-icon" sizes="60x60" href="theme/favicon/apple-touch-icon-60x60.png">
         <link rel="apple-touch-icon" sizes="72x72" href="theme/favicon/apple-touch-icon-72x72.png">
@@ -31,7 +31,7 @@
 <body id="index" class="home">
         <header id="banner" class="body">
         <h1><a href="../">電脳手帳 </a></h1> <div id="subtitle">計算機環境やコーディング，機械学習まわりの話題を書き留めます</div>        </header><!-- /#banner -->
-<h1 id="above_content">タグ: screen の記事一覧</h1>         <div id="basecontent">
+<h1 id="above_content">タグ: Screen の記事一覧</h1>         <div id="basecontent">
 
 <p class="paginator">
     Page 1 / 1
@@ -45,11 +45,36 @@
                 <ol id="posts-list" class="hfeed">
                     <li><article class="hentry">
                         <header>
-                            <h1><a href="../screen-common-paste.html" rel="bookmark"
-                                   title="Permalink to 入れ子になったscreenのプロセス間でペーストバッファを共有する">入れ子になったscreenのプロセス間でペーストバッファを共有する</a></h1>
+                            <h1><a href="../screen-title.html" rel="bookmark"
+                                   title="Permalink to GNU Screenのウィンドウタイトルを自動設定する際に日本語の文字化けを回避する">GNU Screenのウィンドウタイトルを自動設定する際に日本語の文字化けを回避する</a></h1>
                         </header>
 
                         <div class="entry-content">
+<footer class="post-info">
+<span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2020/08/01 18:01</span>
+<span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2020/08/01 19:22</span>
+
+
+        <span id="article_category">| category:</span>
+        <a class="article_category_name" href="../category/software.html">Software</a>
+<span>| tags: <a href="../tag/cui.html" class="tag">CUI</a><a href="../tag/screen.html" class="tag">Screen</a></span>
+
+</footer><!-- /.post-info -->                        <p>GNU Screenで複数のウィンドウを開くと，どのウィンドウで何の作業をしているか分かりづらい。これを区別する手段がウィンドウタイトルであり，<a href="https://tarao.hatenablog.com/entry/20100223/1266958660">GNU screenのウィンドウタイトルを自動設定 - 貳佰伍拾陸夜日記</a> の設定に従うとウィンドウタイトルに実行中のコマンド名か，カレントディレクトリの名称を自動設定できる。</p>
+<p>一方，(少なくともaptで入る version 4.06.02の) Screenではウィンドウタイトルに日本語を使えない。文字化けするとレイアウトが崩れてしまう。この問題はカレントディレクトリに日本語を含むときに特に問題になる。今回はScreenにパッチを当てるのではなく，日本語をローマ字に変換してからScreenにわたすことで文字化けを回避する。</p>
+
+                        <a class="readmore" href="../screen-title.html">&raquo; read more</a>
+<p><a href="../screen-title.html#disqus_thread">comments</a></p>                        </div><!-- /.entry-content -->
+                    </article></li>
+
+
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="../screen-common-paste.html" rel="bookmark"
+                           title="Permalink to 入れ子になったscreenのプロセス間でペーストバッファを共有する">入れ子になったscreenのプロセス間でペーストバッファを共有する</a></h1>
+                </header>
+
+                <div class="entry-content">
 <footer class="post-info">
 <span><img class="date" src=../theme/images/icons/creation.png title="creation date" alt="creation date"> 2016/05/28 08:56</span>
 <span><img class="date" src=../theme/images/icons/modified.png title="last date modified" alt="last date modified"> 2016/05/28 09:46</span>
@@ -61,17 +86,28 @@
         <a class=article_subcategory_name href="../subcategory/software/cui.html">CUI</a>
 <span>| tags: <a href="../tag/screen.html" class="tag">screen</a><a href="../tag/cygwin.html" class="tag">Cygwin</a><a href="../tag/bash.html" class="tag">bash</a><a href="../tag/zsh.html" class="tag">zsh</a></span>
 
-</footer><!-- /.post-info -->                        <!-- tags: bash, bash, screen, cygwin, bash, zsh, blog, cygwin, firefox, Firefox, keyboard, math, PC自作, pelican, Pelican, pelican, git, percol, python, python, reStructuredText, Vimperator, thinkpad, ThinkPad, thinkpadhelix, TODO, Ubuntu, Vim, Vimperator, yoga_tablet2, zsh, 未解決問題, zsh, cygwin, todo -->
+</footer><!-- /.post-info -->                <!-- tags: bash, bash, screen, cygwin, bash, zsh, blog, cygwin, firefox, Firefox, keyboard, math, PC自作, pelican, Pelican, pelican, git, percol, python, python, reStructuredText, Vimperator, thinkpad, ThinkPad, thinkpadhelix, TODO, Ubuntu, Vim, Vimperator, yoga_tablet2, zsh, 未解決問題, zsh, cygwin, todo -->
 <!-- category: blog, PC, software, Software, Software/Blog, Software/CUI, Software/Linux -->
 <p>Screenを入れ子構造で起動すると，デフォルト設定ではペーストバッファはそれぞれ独立したものになる。外観は統合されているのに，これは不自然なので共有する。</p>
 
-                        <a class="readmore" href="../screen-common-paste.html">&raquo; read more</a>
-<p><a href="../screen-common-paste.html#disqus_thread">comments</a></p>                        </div><!-- /.entry-content -->
-                    </article></li>
+                <a class="readmore" href="../screen-common-paste.html">&raquo; read more</a>
+<p><a href="../screen-common-paste.html#disqus_thread">comments</a></p>                </div><!-- /.entry-content -->
+            </article></li>
 
 
 
-            <li><article class="hentry">
+<div class="gad">スポンサード リンク<script type="text/javascript"><!--
+google_ad_client = "ca-pub-3584384159710434";
+/* 本文の途中 */
+google_ad_slot = "6048603509";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>            <li><article class="hentry">
                 <header>
                     <h1><a href="../copy_paste_pwd.html" rel="bookmark"
                            title="Permalink to 楽にカレントディレクトリをコピペするコマンドを作る">楽にカレントディレクトリをコピペするコマンドを作る</a></h1>
@@ -124,7 +160,7 @@
         <h3 class="sidebar_title"></h3>
 <h3 class="sidebar_title">カテゴリ</h3>        <ul>            <li><a href="../category/hardware.html">Hardware</a> (11)</li>
             <li><a href="../category/lun wen.html">論文</a> (2)</li>
-            <li><a href="../category/software.html">Software</a> (79)</li>
+            <li><a href="../category/software.html">Software</a> (80)</li>
         </ul>
     </div>
     <div class="sidebar_child">
@@ -133,7 +169,7 @@
             <li><a href="../tag/blog.html" class="tag">Blog</a> (4)</li>
             <li><a href="../tag/bot.html" class="tag">bot</a> (1)</li>
             <li><a href="../tag/cli.html" class="tag">CLI</a> (4)</li>
-            <li><a href="../tag/cui.html" class="tag">CUI</a> (18)</li>
+            <li><a href="../tag/cui.html" class="tag">CUI</a> (19)</li>
             <li><a href="../tag/cygwin.html" class="tag">Cygwin</a> (17)</li>
             <li><a href="../tag/docker.html" class="tag">Docker</a> (11)</li>
             <li><a href="../tag/dvc.html" class="tag">dvc</a> (1)</li>
@@ -161,7 +197,7 @@
             <li><a href="../tag/rally.html" class="tag">Rally</a> (1)</li>
             <li><a href="../tag/raspi.html" class="tag">RasPi</a> (1)</li>
             <li><a href="../tag/restructuredtext.html" class="tag">reStructuredText</a> (1)</li>
-            <li><a href="../tag/screen.html" class="tag">screen</a> (2)</li>
+            <li><a href="../tag/screen.html" class="tag">Screen</a> (3)</li>
             <li><a href="../tag/tesuto.html" class="tag">テスト</a> (1)</li>
             <li><a href="../tag/thinkpad.html" class="tag">ThinkPad</a> (4)</li>
             <li><a href="../tag/thinkpad helix.html" class="tag">ThinkPad Helix</a> (2)</li>
@@ -193,6 +229,10 @@
     </div>
     <div class="sidebar_child">
 <h3 class="sidebar_title">最近の投稿</h3>        <ul id="recent-article">
+        <li>
+            <a href="screen-title.html">GNU Screenのウィンドウタイトルを自動設定する際に日本語の文字化けを回避する</a>
+            2020/08/01
+        </li>
         <li>
             <a href="screen-common-paste.html">入れ子になったscreenのプロセス間でペーストバッファを共有する</a>
             2016/05/28
