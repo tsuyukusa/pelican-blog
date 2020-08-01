@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>電脳手帳 - Software</title><link href="http://blog.calcurio.com/" rel="alternate"></link><link href="http://blog.calcurio.com/feeds/software.atom.xml" rel="self"></link><id>http://blog.calcurio.com/</id><updated>2020-08-01T19:22:05+09:00</updated><subtitle>計算機環境やコーディング，機械学習まわりの話題を書き留めます</subtitle><entry><title>GNU Screenのウィンドウタイトルを自動設定する際に日本語の文字化けを回避する</title><link href="http://blog.calcurio.com/screen-title.html" rel="alternate"></link><published>2020-08-01T18:01:18+09:00</published><updated>2020-08-01T19:22:05+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2020-08-01:/screen-title.html</id><summary type="html">&lt;p&gt;GNU Screenで複数のウィンドウを開くと，どのウィンドウで何の作業をしているか分かりづらい。これを区別する手段がウィンドウタイトルであり，&lt;a href="https://tarao.hatenablog.com/entry/20100223/1266958660"&gt;GNU screenのウィンドウタイトルを自動設定 - 貳佰伍拾陸夜日記&lt;/a&gt; の設定に従うとウィンドウタイトルに実行中のコマンド名か，カレントディレクトリの名称を自動設定できる。&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>電脳手帳 - Software</title><link href="http://blog.calcurio.com/" rel="alternate"></link><link href="http://blog.calcurio.com/feeds/software.atom.xml" rel="self"></link><id>http://blog.calcurio.com/</id><updated>2020-08-01T19:23:52+09:00</updated><subtitle>計算機環境やコーディング，機械学習まわりの話題を書き留めます</subtitle><entry><title>GNU Screenのウィンドウタイトルを自動設定する際に日本語の文字化けを回避する</title><link href="http://blog.calcurio.com/screen-title.html" rel="alternate"></link><published>2020-08-01T18:01:18+09:00</published><updated>2020-08-01T19:23:52+09:00</updated><author><name>M. Tsuyuki</name></author><id>tag:blog.calcurio.com,2020-08-01:/screen-title.html</id><summary type="html">&lt;p&gt;GNU Screenで複数のウィンドウを開くと，どのウィンドウで何の作業をしているか分かりづらい。これを区別する手段がウィンドウタイトルであり，&lt;a href="https://tarao.hatenablog.com/entry/20100223/1266958660"&gt;GNU screenのウィンドウタイトルを自動設定 - 貳佰伍拾陸夜日記&lt;/a&gt; の設定に従うとウィンドウタイトルに実行中のコマンド名か，カレントディレクトリの名称を自動設定できる。&lt;/p&gt;
 &lt;p&gt;一方，(少なくともaptで入る version 4.06.02の) Screenではウィンドウタイトルに日本語を使えない。文字化けするとレイアウトが崩れてしまう。この問題はカレントディレクトリに日本語を含むときに特に問題になる。今回はScreenにパッチを当てるのではなく，日本語をローマ字に変換してからScreenにわたすことで文字化けを回避する。&lt;/p&gt;
 </summary><content type="html">&lt;p&gt;GNU Screenで複数のウィンドウを開くと，どのウィンドウで何の作業をしているか分かりづらい。これを区別する手段がウィンドウタイトルであり，&lt;a href="https://tarao.hatenablog.com/entry/20100223/1266958660"&gt;GNU screenのウィンドウタイトルを自動設定 - 貳佰伍拾陸夜日記&lt;/a&gt; の設定に従うとウィンドウタイトルに実行中のコマンド名か，カレントディレクトリの名称を自動設定できる。&lt;/p&gt;
 &lt;p&gt;一方，(少なくともaptで入る version 4.06.02の) Screenではウィンドウタイトルに日本語を使えない。文字化けするとレイアウトが崩れてしまう。この問題はカレントディレクトリに日本語を含むときに特に問題になる。今回はScreenにパッチを当てるのではなく，日本語をローマ字に変換してからScreenにわたすことで文字化けを回避する。&lt;/p&gt;
@@ -18,6 +18,7 @@ totemo_nemui
 
 
 &lt;h1&gt;screenの設定&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;~/.screenrc&lt;/code&gt; に以下の1行を追加する。&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;setenv SCREENTITLE auto
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
